@@ -1,0 +1,10 @@
+{
+  "item.structure_crafter.blackboard": "黑板",
+  "item.structure_crafter.structure_wand": "构印杖",
+  "structure_crafter:stamp_weaver_tab": "构印师匠",
+  "itemGroup.structure_crafter": "构印师匠",
+  "information.no_selection": "你挠了挠头，还不知道该画哪里...",
+  "information.alarm_no_enter": "你需要给你的结构取名!",
+  "title.blackboard_name_tag": "你打算把它叫作...",
+  "information.no_center": "你还在思考应该将哪里作为整个结构的中心..."
+}

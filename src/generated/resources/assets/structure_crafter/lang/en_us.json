@@ -1,0 +1,11 @@
+{
+  "item.structure_crafter.blackboard": "Blackboard",
+  "item.structure_crafter.structure_wand": "Structure Wand",
+  "structure_crafter:stamp_weaver_tab": "Stamp Weaver Tab",
+  "itemGroup.structure_crafter": "Structure Crafter",
+  "information.no_selection": "You scratch your head, still not sure where to draw...",
+  "information.alarm_no_enter": "You need to name your structure!",
+  "title.blackboard_name_tag": "You decide to name your structure as...",
+  "information.no_center": "You're still thinking what's the center of this structure...",
+  "information.wand_locked": "You need to unlock your wand"
+}

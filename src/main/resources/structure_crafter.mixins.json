@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.hawah.structure_crafter.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "StructureTemplateAccessor"
+  ],
+  "client": [
+    "ScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
