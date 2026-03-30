@@ -89,7 +89,7 @@ public class BlackboardCheckScreen extends Screen {
                         setFocused(nameField);
                         return;
                     }
-                    StructureCrafterClient.BLACKBOARD_HANDLER.saveStructure(nameField.getValue(), true);
+                    StructureCrafterClient.BLACKBOARD_HANDLER.saveStructure(nameField.getValue(), false);
                     onClose();
                 }
         );

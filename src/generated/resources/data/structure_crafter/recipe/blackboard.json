@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "o": {
+      "item": "minecraft:black_wool"
+    },
+    "x": {
+      "tag": "minecraft:wooden_slabs"
+    }
+  },
+  "pattern": [
+    "xxx",
+    "ooo",
+    "xxx"
+  ],
+  "result": {
+    "count": 1,
+    "id": "structure_crafter:blackboard"
+  }
+}

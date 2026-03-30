@@ -27,11 +27,10 @@ displayName = "${mod_name}" #mandatory
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="stamp_weaver.png" #optional
 # A text field displayed in the mod UI
-#credits="" #optional
+credits="MIT" #optional
 # A text field displayed in the mod UI
 authors = "${mod_authors}" #optional
-
-# The description text for the mod (multi line!) (#mandatory)
+logoFile = "icon.png"
 description = '''${mod_description}'''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
@@ -64,6 +63,13 @@ ordering = "NONE"
 # Side this dependency is applied on - BOTH, CLIENT, or SERVER
 side = "BOTH"
 # Here's another dependency
+[[dependencies."${mod_id}"]]
+modId = "ponder"
+type = "required"
+versionRange = "[${ponder_version},)"
+ordering = "AFTER"
+side = "BOTH"
+
 [[dependencies."${mod_id}"]]
 modId = "minecraft"
 type = "required"

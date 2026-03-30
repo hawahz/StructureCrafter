@@ -1,6 +1,5 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.SchematicPrinter;
 import io.github.hawah.structure_crafter.client.StructureData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.item.structure_wand.StructureWandHandler;

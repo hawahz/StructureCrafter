@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
@@ -62,6 +63,7 @@ public class StructureWandHUD extends Screen {
             // No Schematics created yet
         } catch (IOException ignored) {
         }
+        currentStructure = Mth.clamp(currentStructure, 0, allStructures.size());
     }
     public void render(GuiGraphics guiGraphics, float partialTicks) {
         PoseStack poseStack = guiGraphics.pose();
@@ -82,6 +84,10 @@ public class StructureWandHUD extends Screen {
         int x = Math.max(mainWindow.getGuiScaledWidth()  / 2 - 182 / 2 - 12 - 109, 0);
         int y = mainWindow.getGuiScaledHeight() - 36;
         animateTicker = Mth.lerpInt(partialTicks, oTicker * 20, ticker * 20);
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
         switch ( state) {
             case IDLE -> renderIdle(guiGraphics, poseStack, x, y);
             case SCROLLING_UP -> renderScrollUp(guiGraphics, poseStack, x, y);
@@ -122,15 +128,35 @@ public class StructureWandHUD extends Screen {
     }
 
     private void renderIdle(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y) {
-        renderSingleLabel(
-                guiGraphics,
-                poseStack,
-                x,
-                y,
-                0,
-                1,
-                allStructures.get(currentStructure)
-        );
+        int delta = 1;
+        float alpha = 1;
+        if (animateTicker > 400) {
+            delta = animateTicker - 400;
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+
+            // 设置透明度
+            alpha = 1- delta/200f;
+
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+        }
+
+        if (alpha >= 0) {
+            renderSingleLabel(
+                    guiGraphics,
+                    poseStack,
+                    x,
+                    y,
+                    0,
+                    1,
+                    allStructures.get(currentStructure)
+            );
+        }
+
+        if (animateTicker > 400) {
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            RenderSystem.disableBlend();
+        }
     }
 
     private void renderScrollUp(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y) {
@@ -264,7 +290,7 @@ public class StructureWandHUD extends Screen {
         oTicker = ticker;
         switch ( state) {
             case SCROLLING_UP -> ticker -= 1+speedMultiplier;
-            case SCROLLING_DOWN, SHOWUP -> ticker+=speedMultiplier+1;
+            case SCROLLING_DOWN, SHOWUP, IDLE -> ticker+=speedMultiplier+1;
         }
 
         if (Screen.hasAltDown() && (state.equals(State.IDLE) || state.equals(State.SHOWUP))) {
@@ -274,7 +300,11 @@ public class StructureWandHUD extends Screen {
         } else if (Math.abs(ticker) > MAX_T || this.state.equals(State.REPEATER)) {
             turnState(State.valueOf(this.state.fallback));
         }
-        ticker = Mth.clamp(ticker, -MAX_T, MAX_T);
+        if (state != State.IDLE) {
+            ticker = Mth.clamp(ticker, -MAX_T, MAX_T);
+        } else if (ticker > 2000) {
+            ticker = 2000;
+        }
 
         if (actions.isEmpty()) {
             return;

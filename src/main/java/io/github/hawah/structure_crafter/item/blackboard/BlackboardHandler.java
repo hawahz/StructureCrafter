@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.item.blackboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.structure_crafter.Paths;
+import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -130,10 +132,8 @@ public class BlackboardHandler {
                 centerPos.getZ() - origin.getZ()
         ));
 
-//        SchematicAndQuillItem.replaceStructureVoidWithAir(data);
-
         if (fileName.isEmpty())
-            fileName = "new_structure";//CreateLang.translateDirect("schematicAndQuill.fallbackName").getString();
+            fileName = "new_structure";
         if (!overwrite)
             fileName = FileHelper.getValidFileName(fileName, dir, "nbt");
         if (!fileName.endsWith(".nbt"))
@@ -145,9 +145,14 @@ public class BlackboardHandler {
             try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE)) {
                 NbtIo.writeCompressed(data, out);
             }
-        } catch (IOException ignored) {
-
+        } catch (IOException e) {
+            StructureCrafter.LOGGER.error("Occurred Error when saving structure.", e);
         }
+
+        Minecraft.getInstance().player.displayClientMessage(
+                Component.translatable("information.create_file_success", fileName),
+                false
+        );
 
 
         Outliner.getInstance().thickBox(outlineSlot)

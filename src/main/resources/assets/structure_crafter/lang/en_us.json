@@ -7,5 +7,6 @@
   "information.alarm_no_enter": "You need to name your structure!",
   "title.blackboard_name_tag": "You decide to name your structure as...",
   "information.no_center": "You're still thinking what's the center of this structure...",
-  "information.wand_locked": "You need to unlock your wand"
+  "information.wand_locked": "You need [Left Click] to unlock your wand",
+  "information.create_file_success": "Saved as %1$s"
 }

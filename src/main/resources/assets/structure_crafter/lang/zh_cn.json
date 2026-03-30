@@ -6,5 +6,7 @@
   "information.no_selection": "你挠了挠头，还不知道该画哪里...",
   "information.alarm_no_enter": "你需要给你的结构取名!",
   "title.blackboard_name_tag": "你打算把它叫作...",
-  "information.no_center": "你还在思考应该将哪里作为整个结构的中心..."
+  "information.no_center": "你还在思考应该将哪里作为整个结构的中心...",
+  "information.wand_locked": "你需要[左键]解锁你的构印杖",
+  "information.create_file_success": "另存为 %1$s"
 }
