@@ -6,8 +6,6 @@ import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -26,8 +24,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.HashMap;
@@ -149,7 +145,7 @@ public class StructureRenderer {
             // --- B. 渲染方块实体 (BER / 动态渲染) ---
             if (info.nbt() != null && state.hasBlockEntity()) {
                 // 如果是特殊渲染形状 (例如箱子、床) 或附加了 BER 的普通方块
-                BlockEntity be = getOrCreateBlockEntity(level, worldPos, state, info.nbt());
+                BlockEntity be = getOrCreateBlockEntity(level, info.pos(), worldPos, state, info.nbt());
                 if (be != null) {
                     renderBlockEntity(be, poseStack, buffer, beDispatcher, level);
                 }
@@ -207,21 +203,21 @@ public class StructureRenderer {
         }
     }
 
-    private BlockEntity getOrCreateBlockEntity(Level level, BlockPos worldPos, BlockState state, CompoundTag nbt) {
+    private BlockEntity getOrCreateBlockEntity(Level level, BlockPos localPos, BlockPos worldPos, BlockState state, CompoundTag nbt) {
         // 使用世界绝对坐标作为缓存键 (或者使用 LocalPos，取决于你的结构是否会移动)
-        return cachedBlockEntities.computeIfAbsent(worldPos, pos -> {
+        return cachedBlockEntities.computeIfAbsent(localPos, pos -> {
             // 复制一份 NBT，并强制修改坐标，防止与现存实体的坐标冲突
             CompoundTag modifiedNbt = nbt.copy();
-            modifiedNbt.putInt("x", pos.getX());
-            modifiedNbt.putInt("y", pos.getY());
-            modifiedNbt.putInt("z", pos.getZ());
+            modifiedNbt.putInt("x", worldPos.getX());
+            modifiedNbt.putInt("y", worldPos.getY());
+            modifiedNbt.putInt("z", worldPos.getZ());
 
             // 从 NBT 加载一个游离的 BlockEntity
             BlockEntity blockEntity;
             if (state.getBlock() instanceof EntityBlock block) {
-                blockEntity = block.newBlockEntity(pos, state);
+                blockEntity = block.newBlockEntity(worldPos, state);
             } else {
-                blockEntity = BlockEntity.loadStatic(pos, state, modifiedNbt, level.registryAccess());
+                blockEntity = BlockEntity.loadStatic(worldPos, state, modifiedNbt, level.registryAccess());
             }
             if (blockEntity != null) {
                 blockEntity.setLevel(blockGetter);

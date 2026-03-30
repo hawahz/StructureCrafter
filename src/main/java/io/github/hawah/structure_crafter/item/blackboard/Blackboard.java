@@ -5,6 +5,7 @@ import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.Empty;
+import io.github.hawah.structure_crafter.util.lang.LangData;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -74,8 +75,8 @@ public class Blackboard extends Item {
             } else {
                 player.displayClientMessage(
                         !StructureCrafterClient.BLACKBOARD_HANDLER.hasSelection()?
-                                Component.translatable("information.no_selection"):
-                                Component.translatable("information.no_center"),
+                                LangData.INFO_NO_SELECTION.get():
+                                LangData.INFO_NO_ANCHOR.get(),
                         true
                 );
             }

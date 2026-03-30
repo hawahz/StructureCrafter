@@ -5,6 +5,8 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
+import io.github.hawah.structure_crafter.util.lang.LangData;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -127,7 +129,7 @@ public class BlackboardCheckScreen extends Screen {
         addRenderableWidget(discard);
 
          alarmLabel = new ColoredLabel(
-                Component.translatable("information.alarm_no_enter"),
+                 LangData.INFO_ALARM_NO_NAME.get(),
                 60,
                 20,
                  new Color(255, 0, 0, 255),
@@ -200,7 +202,7 @@ public class BlackboardCheckScreen extends Screen {
 
         graphics.drawCenteredString(
                 font,
-                Component.translatable("title.blackboard_name_tag"),
+                LangData.TITLE_BLACKBOARD_NAMETAG.get(),
                 guiLeft + textureWidth /2,
                 guiTop - font.lineHeight * 5 - 2,
                 0xFFFFFF

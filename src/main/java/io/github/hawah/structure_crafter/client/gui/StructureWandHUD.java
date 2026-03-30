@@ -170,28 +170,31 @@ public class StructureWandHUD extends Screen {
     private void renderShowUp(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, int M_T) {
         float offset;
 
-        renderSingleLabel(
-                guiGraphics,
-                poseStack,
-                x,
-                y,
-                offset = Mth.lerp(animateTicker/(MAX_T * 20F), 0, MAX_OFFSET * (float) Math.sin(-Math.PI*(SPLIT_RATE))),
-                offsetToScale(-offset, false),
-                animateTicker < M_T * 0.6?
-                        Component.empty() :
-                        allStructures.get(currentStructure + 1 < 0? currentStructure + 1 + allStructures.size() : (currentStructure + 1) % allStructures.size())
-        );
-        renderSingleLabel(
-                guiGraphics,
-                poseStack,
-                x,
-                y,
-                -offset,
-                offsetToScale(-offset, false),
-                animateTicker < M_T * 0.6?
-                        Component.empty() :
-                        allStructures.get(currentStructure - 1 < 0? currentStructure - 1 + allStructures.size() : (currentStructure - 1) % allStructures.size())
-        );
+        if (allStructures.size() > 1) {
+
+            renderSingleLabel(
+                    guiGraphics,
+                    poseStack,
+                    x,
+                    y,
+                    offset = Mth.lerp(animateTicker / (MAX_T * 20F), 0, MAX_OFFSET * (float) Math.sin(-Math.PI * (SPLIT_RATE))),
+                    offsetToScale(-offset, false),
+                    animateTicker < M_T * 0.6 ?
+                            Component.empty() :
+                            allStructures.get(currentStructure + 1 < 0 ? currentStructure + 1 + allStructures.size() : (currentStructure + 1) % allStructures.size())
+            );
+            renderSingleLabel(
+                    guiGraphics,
+                    poseStack,
+                    x,
+                    y,
+                    -offset,
+                    offsetToScale(-offset, false),
+                    animateTicker < M_T * 0.6 ?
+                            Component.empty() :
+                            allStructures.get(currentStructure - 1 < 0 ? currentStructure - 1 + allStructures.size() : (currentStructure - 1) % allStructures.size())
+            );
+        }
         renderSingleLabel(
                 guiGraphics,
                 poseStack,
@@ -363,6 +366,9 @@ public class StructureWandHUD extends Screen {
     }
 
     public String scrollUp() {
+        if (this.allStructures.isEmpty()) {
+            return "";
+        }
         if (!turnState(State.SCROLLING_UP)) {
             if (!State.SCROLLING_UP.equals(this.state)) {
                 speedMultiplier = 0;
@@ -382,6 +388,9 @@ public class StructureWandHUD extends Screen {
     }
 
     public String scrollDown() {
+        if (this.allStructures.isEmpty()) {
+            return "";
+        }
         if (!turnState(State.SCROLLING_DOWN)) {
             if (!State.SCROLLING_DOWN.equals(this.state)) {
                 speedMultiplier = 0;
@@ -400,6 +409,10 @@ public class StructureWandHUD extends Screen {
 
     private boolean turnState(State state) {
         if (!this.state.isValidNext(state)) {
+            return false;
+        }
+
+        if (allStructures.size() < 2 && (state.equals(State.SCROLLING_UP) || state.equals(State.SCROLLING_DOWN))) {
             return false;
         }
 

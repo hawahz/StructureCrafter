@@ -25,6 +25,7 @@ public class DataGenerator {
         // other providers here
 //        addClient(event, StampWeaverItemModelProvider::new);
         addServer(event, ModRecipeGenerator::new);
+        addClient(event, ModEnUsLangProvider::new);
 
     }
 

@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.datagen;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
+import io.github.hawah.structure_crafter.util.lang.LangData;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -14,6 +15,15 @@ public class ModEnUsLangProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add(ItemRegistries.BLACKBOARD.get(), "Blackboard");
-        add(StructureCrafter.STAMP_WEAVER_TAB.getRegisteredName(), "Stamp Weaver Tab");
+        add("itemGroup.structure_crafter", "Structure Crafter");
+        add(ItemRegistries.STRUCTURE_WAND.get(), "Structure Wand");
+
+        genLang(this);
+    }
+
+    public static void genLang(LanguageProvider pvd) {
+        for (LangData lang : LangData.values()) {
+            pvd.add(lang.key, lang.def);
+        }
     }
 }

@@ -32,7 +32,7 @@ public abstract class AbstractStructureWand extends Item {
 
     public static StructureData loadSchematic(Level level, ItemStack blueprint) {
         StructureTemplate t = new StructureTemplate();
-        String owner = "Dev";//blueprint.get(DataComponentTypeRegistries.SCHEMATIC_OWNER);
+        String owner = "Dev";
         String schematic = blueprint.get(DataComponentTypeRegistries.STRUCTURE_FILE);
 
         if (owner == null || schematic == null || !schematic.endsWith(".nbt"))

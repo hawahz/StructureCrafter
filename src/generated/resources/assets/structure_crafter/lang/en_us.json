@@ -1,0 +1,20 @@
+{
+  "item.structure_crafter.blackboard": "Blackboard",
+  "item.structure_crafter.structure_wand": "Structure Wand",
+  "itemGroup.structure_crafter": "Structure Crafter",
+  "structure_crafter.client_message.info_alarm_no_name": "You need to name your structure!",
+  "structure_crafter.client_message.info_create_file_success": "Saved as %1$s",
+  "structure_crafter.client_message.info_no_anchor": "You're still thinking what's the center of this structure...",
+  "structure_crafter.client_message.info_no_selection": "No Selection",
+  "structure_crafter.client_message.info_wand_locked": "You need [Left Click] to unlock your wand",
+  "structure_crafter.title.blackboard_name_tag": "You decide to name your structure as...",
+  "structure_crafter.tooltip.structure_crafter:structure_wand0": "[Right Click]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand1": "Place current structure",
+  "structure_crafter.tooltip.structure_crafter:structure_wand2": "[Left Click]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand3": "Freeze/Unfreeze current structure",
+  "structure_crafter.tooltip.structure_crafter:structure_wand4": "[Ctrl + Scroll]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand5": "Rotate structure around anchor",
+  "structure_crafter.tooltip.structure_crafter:structure_wand6": "[Alt + Scroll]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand7": "Select structure in folder",
+  "structure_crafter.tooltip_shift": "Press [Shift]"
+}

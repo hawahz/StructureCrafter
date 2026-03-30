@@ -6,6 +6,7 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
+import io.github.hawah.structure_crafter.util.lang.LangData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -150,7 +151,7 @@ public class BlackboardHandler {
         }
 
         Minecraft.getInstance().player.displayClientMessage(
-                Component.translatable("information.create_file_success", fileName),
+                LangData.INFO_CREATE_FILE_SUCCESS.get(fileName),
                 false
         );
 

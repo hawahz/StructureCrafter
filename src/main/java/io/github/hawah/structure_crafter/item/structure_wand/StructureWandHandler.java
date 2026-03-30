@@ -129,7 +129,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         }
 //        if (lock) {
 //            Minecraft.getInstance().player.displayClientMessage(
-//                    Component.translatable("information.wand_locked"), true
+//                    LangData, true
 //            );
 //            return false;
 //        }
@@ -150,12 +150,18 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             }
             if (delta > 0) {
                 String currentFile = hud.scrollUp();
+                if (currentFile.isEmpty()) {
+                    return true;
+                }
                 activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
                 CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
                 return true;
             } else if (delta < 0) {
                 String currentFile = hud.scrollDown();
+                if (currentFile.isEmpty()) {
+                    return true;
+                }
                 activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
                 CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
