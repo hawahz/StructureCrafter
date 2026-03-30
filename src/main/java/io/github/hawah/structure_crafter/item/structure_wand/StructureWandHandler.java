@@ -145,14 +145,12 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         }
 
         if (Screen.hasAltDown()) {
-            if (lock) {
-                return true;
-            }
             if (delta > 0) {
                 String currentFile = hud.scrollUp();
                 if (currentFile.isEmpty()) {
                     return true;
                 }
+                lock = false;
                 activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
                 CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
@@ -162,6 +160,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 if (currentFile.isEmpty()) {
                     return true;
                 }
+                lock = false;
                 activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
                 CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;

@@ -430,6 +430,10 @@ public class StructureWandHUD extends Screen {
             ticker = MAX_T;
         }
 
+        if (oState.equals(State.IDLE)) {
+            loadStructures();
+        }
+
         this.oTicker = ticker;
         return true;
     }
