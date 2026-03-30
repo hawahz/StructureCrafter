@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client.render;
+package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

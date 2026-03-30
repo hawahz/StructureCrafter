@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.client.StructureData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
-import io.github.hawah.structure_crafter.item.structure_wand.StructureWandHandler;
+import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.minecraft.core.BlockPos;

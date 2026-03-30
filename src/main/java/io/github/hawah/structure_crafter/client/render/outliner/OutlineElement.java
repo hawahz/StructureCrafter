@@ -1,6 +1,7 @@
-package io.github.hawah.structure_crafter.client.render;
+package io.github.hawah.structure_crafter.client.render.outliner;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
+import io.github.hawah.structure_crafter.client.render.ColoredElement;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class OutlineElement extends ColoredElement {

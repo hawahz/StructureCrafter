@@ -6,7 +6,10 @@ import net.minecraft.util.Mth;
 @SuppressWarnings("unchecked")
 public abstract class ColoredElement extends RenderElement{
     protected float r = 1.0F, g = 1.0F, b = 1.0F, a = 1.0F;
-    protected float or, og, ob, oa;
+    protected float or;
+    protected float og;
+    protected float ob;
+    public float oa;
     protected float targetR = 1.0F, targetG = 1.0F, targetB = 1.0F, targetA = 1.0F;
 
 

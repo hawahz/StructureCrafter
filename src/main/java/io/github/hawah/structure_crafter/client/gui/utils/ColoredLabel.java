@@ -1,13 +1,14 @@
-package io.github.hawah.structure_crafter.client.gui;
+package io.github.hawah.structure_crafter.client.gui.utils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
 import java.awt.*;
 
-public class AnimatedLabel extends GuiAnimateElement{
+public class ColoredLabel extends GuiAnimateElement{
 
     private Component text;
     private final int duration;
@@ -18,7 +19,7 @@ public class AnimatedLabel extends GuiAnimateElement{
     private final int y;
 
 
-    public AnimatedLabel(Component text, int delay, int duration, Color targetColor, Color sourceColor, int x, int y) {
+    public ColoredLabel(Component text, int delay, int duration, Color sourceColor, Color targetColor, int x, int y) {
         this.text = text;
         this.duration = duration;
         this.delay = delay;
@@ -37,6 +38,9 @@ public class AnimatedLabel extends GuiAnimateElement{
     @Override
     public void tick() {
         animateTick++;
+//        if (animateTick > delay + duration) {
+//            animateTick = (animateTick - delay - duration) % duration + delay + duration;
+//        }
     }
 
     @Override
@@ -44,12 +48,11 @@ public class AnimatedLabel extends GuiAnimateElement{
         if (!activate) {
             return;
         }
+        if (animateTick > delay + duration) {
+            return;
+        }
 
         int r, g, b, a;
-        animateTick += partialTicks == 0? 1 : 0;
-        if (animateTick > delay + duration) {
-            animateTick = (animateTick - delay - duration) % duration + delay + duration;
-        }
 
         if (animateTick < delay) {
             r = sourceColor.getRed();
@@ -57,11 +60,11 @@ public class AnimatedLabel extends GuiAnimateElement{
             b = sourceColor.getBlue();
             a = sourceColor.getAlpha();
         } else if (animateTick - delay < duration) {
-            double delta = (animateTick - delay + partialTicks) / duration;
-            r = (int) Mth.lerp(delta, sourceColor.getRed(), targetColor.getRed());
-            g = (int) Mth.lerp(delta, sourceColor.getGreen(), targetColor.getGreen());
-            b = (int) Mth.lerp(delta, sourceColor.getBlue(), targetColor.getBlue());
-            a = (int) Mth.lerp(delta, sourceColor.getAlpha(), targetColor.getAlpha());
+            float delta = (animateTick - delay + partialTicks) / duration;
+            r = Mth.lerpInt(delta, sourceColor.getRed(), targetColor.getRed());
+            g = Mth.lerpInt(delta, sourceColor.getGreen(), targetColor.getGreen());
+            b = Mth.lerpInt(delta, sourceColor.getBlue(), targetColor.getBlue());
+            a = Mth.lerpInt(delta, sourceColor.getAlpha(), targetColor.getAlpha());
         } else {
             r = targetColor.getRed();
             g = targetColor.getGreen();
@@ -69,14 +72,16 @@ public class AnimatedLabel extends GuiAnimateElement{
             a = targetColor.getAlpha();
         }
 
-        graphics.drawString(
+        a = Math.max(a, 9);
+        graphics.drawStringWithBackdrop(
                 Minecraft.getInstance().font,
                 text,
-                x,
+                x - Minecraft.getInstance().font.width(text)/2,
                 y,
-                (a << 24) | (r << 16) | (g << 8) | b,
-                false
+                Minecraft.getInstance().font.width(text),
+                FastColor.ARGB32.color(a, r, g, b)
         );
+
 
     }
 

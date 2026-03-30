@@ -1,11 +1,11 @@
-package io.github.hawah.structure_crafter.client.gui;
+package io.github.hawah.structure_crafter.client.gui.utils;
 
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class GuiAnimateElement {
 
     float animateTick = 0;
-    boolean activate;
+    public boolean activate;
 
     void active() {
         activate = true;

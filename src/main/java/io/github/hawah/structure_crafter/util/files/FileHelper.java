@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client.files;
+package io.github.hawah.structure_crafter.util.files;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

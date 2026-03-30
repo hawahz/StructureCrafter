@@ -1,12 +1,13 @@
-package io.github.hawah.structure_crafter.item.blackboard;
+package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.client.files.FileHelper;
-import io.github.hawah.structure_crafter.client.render.Outliner;
+import io.github.hawah.structure_crafter.util.files.FileHelper;
+import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.util.lang.LangData;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.item.blackboard.Blackboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -14,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;

@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter;
 
-import io.github.hawah.structure_crafter.item.blackboard.BlackboardHandler;
-import io.github.hawah.structure_crafter.item.structure_wand.StructureWandHandler;
+import io.github.hawah.structure_crafter.client.handler.BlackboardHandler;
+import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 
 //@Mod(value = StampWeaver.MODID, dist = Dist.CLIENT)
 public class StructureCrafterClient {

@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.datagen;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.util.lang.LangData;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 

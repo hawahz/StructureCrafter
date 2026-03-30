@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client.gui;
+package io.github.hawah.structure_crafter.client.gui.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;

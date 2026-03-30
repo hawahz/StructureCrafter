@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.util.lang;
+package io.github.hawah.structure_crafter.datagen.lang;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
