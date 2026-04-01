@@ -19,19 +19,19 @@ public class Config {
 
     public static final ModConfigSpec.IntValue MAX_SIZE_X = BUILDER
             .comment("Max Size X of Selection Area")
-            .defineInRange("max_size_x", 100, -1, Integer.MAX_VALUE);
+            .defineInRange("max_size_x", 30, -1, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.IntValue MAX_SIZE_Y = BUILDER
             .comment("Max Size Y of Selection Area")
-            .defineInRange("max_size_y", 100, -1, Integer.MAX_VALUE);
+            .defineInRange("max_size_y", 60, -1, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.IntValue MAX_SIZE_Z = BUILDER
             .comment("Max Size Z of Selection Area")
-            .defineInRange("max_size_z", 100, -1, Integer.MAX_VALUE);
+            .defineInRange("max_size_z", 30, -1, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.IntValue MAX_VOLUME = BUILDER
             .comment("Max Size of Structure")
-            .defineInRange("max_volume", 1000000, -1, Integer.MAX_VALUE);
+            .defineInRange("max_volume", 100000, -1, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 

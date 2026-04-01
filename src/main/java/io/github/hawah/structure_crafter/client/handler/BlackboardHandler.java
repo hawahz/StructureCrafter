@@ -236,12 +236,14 @@ public class BlackboardHandler {
 
         if (firstPos != null && (selectedPos != null || secondPos != null)) {
             Vec3i size = (secondPos == null? selectedPos : secondPos).subtract(firstPos);
+
+            int volume = (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1);
             player.displayClientMessage(
                     LangData.HUD_BLACKBOARD_SELECTION.get(
-                            Math.abs(size.getX()) + 1,
-                            Math.abs(size.getY()) + 1,
-                            Math.abs(size.getZ()) + 1,
-                            (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1)
+                            ((Math.abs(size.getX()) + 1)>Config.MAX_SIZE_X.get()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
+                            ((Math.abs(size.getY()) + 1)>Config.MAX_SIZE_Y.get()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
+                            ((Math.abs(size.getZ()) + 1)>Config.MAX_SIZE_Z.get()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
+                            (volume > Config.MAX_VOLUME.get()? "§c" : "") + volume
                     ),
                     true
             );
@@ -251,7 +253,7 @@ public class BlackboardHandler {
         if (firstPos != null) {
             int gb = 1;
             if (cachedBoundingBox != null) {
-                gb = isValidSize()? 0: gb;
+                gb = isValidSize()? gb: 0;
             }
             Outliner.getInstance()
                     .chaseThickBox(
@@ -285,10 +287,10 @@ public class BlackboardHandler {
 
     public boolean isValidSize() {
         double size = cachedBoundingBox.getMaxPosition().subtract(cachedBoundingBox.getMinPosition()).lengthSqr();
-        return size > Config.MAX_VOLUME.get() ||
+        return !(size > Config.MAX_VOLUME.get() ||
                 cachedBoundingBox.getXsize() > Config.MAX_SIZE_X.get() ||
                 cachedBoundingBox.getYsize() > Config.MAX_SIZE_Y.get() ||
-                cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get();
+                cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get());
     }
 
     public void setSelectedPos(BlockPos selectedPos) {
@@ -321,7 +323,7 @@ public class BlackboardHandler {
         }
 
         BlockPos first = firstPos;
-        BlockPos second = secondPos == null? firstPos : secondPos;
+        BlockPos second = secondPos == null? (selectedPos == null? firstPos: selectedPos) : secondPos;
         cachedBoundingBox = new AABB(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),
