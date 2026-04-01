@@ -20,6 +20,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -62,10 +63,27 @@ public class StructureRenderer {
         if (this.template != template) {
             this.template = template;
             blockGetter = new StructureBlockGetter(template, anchorPos, level);
+            clearCache();
         }
 
         Minecraft mc = Minecraft.getInstance();
         BlockEntityRenderDispatcher beDispatcher = mc.getBlockEntityRenderDispatcher();
+        beDispatcher.prepare(level, Minecraft.getInstance().gameRenderer.getMainCamera(), Minecraft.getInstance().hitResult);
+//        poseStack.pushPose();
+//        poseStack.translate(999, -60, 994);
+//        poseStack.translate(- camera.x(), - camera.y(), - camera.z());
+//
+//        BlockEntity b = ((BedBlock) Blocks.RED_BED.defaultBlockState().getBlock()).newBlockEntity(BlockPos.ZERO, Blocks.RED_BED.defaultBlockState());
+//        b.setLevel(level);
+//        beDispatcher.getRenderer(b).render(
+//                b,
+//                AnimationTickHolder.getPartialTicks(),
+//                poseStack,
+//                buffer,
+//                0xF000F0,
+//                0xF000F0
+//        );
+//        poseStack.popPose();
         float partialTicks = AnimationTickHolder.getPartialTicks();
 
         // 1. 准备全局位移：将渲染起点移动到结构的世界原点
@@ -79,40 +97,10 @@ public class StructureRenderer {
         // 获取结构的方块列表（假设使用第一个调色板）
         var blockInfos = ((StructureTemplateAccessor) template).getPalettes().getFirst().blocks();
 
-        int rotateAngle = 0;
-        int oRotateAngle = 0;
-        BlockPos offset = BlockPos.ZERO;
-        switch (playerDirection) {
-            case EAST -> {
-                rotateAngle = 90;
-                offset = new BlockPos(0, 0, -1);
-            }
-            case SOUTH -> {
-                rotateAngle = 180;
-                offset = new BlockPos(-1, 0, -1);
-            }
-            case WEST -> {
-                rotateAngle = 270;
-                offset = new BlockPos(-1, 0, 0);
-            }
-            default -> {}
-        }
-
-        switch (oPlayerDirection) {
-            case EAST -> oRotateAngle = 90;
-            case SOUTH -> oRotateAngle = 180;
-            case WEST -> oRotateAngle = 270;
-            default -> {}
-        }
-
-        float degree = Mth.lerp(
-                partialTicks,
-                oRotateAngle,
-                Math.abs(rotateAngle - oRotateAngle) <= 91?
-                        rotateAngle :
-                        rotateAngle - Math.signum(rotateAngle - oRotateAngle) * 360
-        );
+        float degree = getDegree(playerDirection, oPlayerDirection, partialTicks);
+        poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(Axis.YN.rotationDegrees(degree));
+        poseStack.translate(-0.5, -0.5, -0.5);
 
         // 2. 遍历渲染所有的方块和方块实体
         for (StructureTemplate.StructureBlockInfo info : blockInfos) {
@@ -124,8 +112,6 @@ public class StructureRenderer {
 
             poseStack.pushPose();
 
-            // 平移到当前方块的局部坐标
-            localPos = localPos.offset(offset);
             poseStack.translate(localPos.getX(), localPos.getY(), localPos.getZ());
 
 
@@ -147,7 +133,7 @@ public class StructureRenderer {
                 // 如果是特殊渲染形状 (例如箱子、床) 或附加了 BER 的普通方块
                 BlockEntity be = getOrCreateBlockEntity(level, info.pos(), worldPos, state, info.nbt());
                 if (be != null) {
-                    renderBlockEntity(be, poseStack, buffer, beDispatcher, level);
+                    renderBlockEntity(be, poseStack, buffer, beDispatcher, level, worldPos);
                 }
             }
 
@@ -155,6 +141,31 @@ public class StructureRenderer {
         }
 
         poseStack.popPose();
+    }
+
+    private static float getDegree(Direction playerDirection, Direction oPlayerDirection, float partialTicks) {
+        int rotateAngle = 0;
+        int oRotateAngle = 0;
+        switch (playerDirection) {
+            case EAST -> rotateAngle = 90;
+            case SOUTH -> rotateAngle = 180;
+            case WEST -> rotateAngle = 270;
+            default -> {}
+        }
+
+        switch (oPlayerDirection) {
+            case EAST -> oRotateAngle = 90;
+            case SOUTH -> oRotateAngle = 180;
+            case WEST -> oRotateAngle = 270;
+            default -> {}
+        }
+
+        float degree = Mth.rotLerp(
+                partialTicks,
+                oRotateAngle,
+                rotateAngle
+        );
+        return degree;
     }
 
     private void renderStaticBlock(PoseStack ms, MultiBufferSource buffer, Minecraft mc, BlockAndTintGetter level, BlockState state, BlockPos worldPos, RandomSource randomSource) {
@@ -188,14 +199,19 @@ public class StructureRenderer {
         }
     }
 
-    private void renderBlockEntity(BlockEntity blockEntity, PoseStack ms, MultiBufferSource buffer, BlockEntityRenderDispatcher dispatcher, Level level) {
+    private void renderBlockEntity(BlockEntity blockEntity,
+                                   PoseStack ms,
+                                   MultiBufferSource buffer,
+                                   BlockEntityRenderDispatcher dispatcher,
+                                   Level level,
+                                   BlockPos worldPos) {
         // 确保 BER 存在且应该被渲染
         BlockEntityRenderer<BlockEntity> renderer = dispatcher.getRenderer(blockEntity);
         if (renderer != null) {
             float partialTick = AnimationTickHolder.getPartialTicks();
 
             // 组合光照值
-            int packedLight = LevelRenderer.getLightColor(level, blockEntity.getBlockPos());
+            int packedLight = LevelRenderer.getLightColor(level, worldPos);
             int packedOverlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
 
             // 调用渲染器
@@ -208,16 +224,16 @@ public class StructureRenderer {
         return cachedBlockEntities.computeIfAbsent(localPos, pos -> {
             // 复制一份 NBT，并强制修改坐标，防止与现存实体的坐标冲突
             CompoundTag modifiedNbt = nbt.copy();
-            modifiedNbt.putInt("x", worldPos.getX());
-            modifiedNbt.putInt("y", worldPos.getY());
-            modifiedNbt.putInt("z", worldPos.getZ());
+            modifiedNbt.putInt("x", pos.getX());
+            modifiedNbt.putInt("y", pos.getY());
+            modifiedNbt.putInt("z", pos.getZ());
 
             // 从 NBT 加载一个游离的 BlockEntity
             BlockEntity blockEntity;
             if (state.getBlock() instanceof EntityBlock block) {
-                blockEntity = block.newBlockEntity(worldPos, state);
+                    blockEntity = block.newBlockEntity(pos, state);
             } else {
-                blockEntity = BlockEntity.loadStatic(worldPos, state, modifiedNbt, level.registryAccess());
+                blockEntity = BlockEntity.loadStatic(pos, state, modifiedNbt, level.registryAccess());
             }
             if (blockEntity != null) {
                 blockEntity.setLevel(blockGetter);

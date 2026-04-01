@@ -1,7 +1,9 @@
 package io.github.hawah.structure_crafter.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
+import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
@@ -10,6 +12,7 @@ import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -19,17 +22,22 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -40,12 +48,14 @@ import java.util.List;
 public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent event) {
-        if (!RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS.equals(event.getStage())) {
+        if (!RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
             return;
         }
 
         PoseStack poseStack = event.getPoseStack();
         RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
+
+
 
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
