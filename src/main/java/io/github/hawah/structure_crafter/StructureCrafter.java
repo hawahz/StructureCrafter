@@ -60,7 +60,7 @@ public class StructureCrafter {
 
         DataComponentTypeRegistries.register(modEventBus);
 
-        CREATIVE_MODE_TABS.register(modEventBus);
+        //CREATIVE_MODE_TABS.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 
@@ -71,6 +71,17 @@ public class StructureCrafter {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
+    }
+
+    @EventBusSubscriber(modid = MODID)
+    public static class ModEvents {
+        @SubscribeEvent
+        public static void buildContents(BuildCreativeModeTabContentsEvent event) {
+            if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+                event.accept(ItemRegistries.STRUCTURE_WAND.get());
+                event.accept(ItemRegistries.BLACKBOARD.get());
+            }
+        }
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

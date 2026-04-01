@@ -70,7 +70,7 @@ public class BlackboardCheckScreen extends Screen {
         nameField.setTextColor(-1);
         nameField.setTextColorUneditable(-1);
         nameField.setBordered(false);
-        nameField.setMaxLength(14);
+//        nameField.setMaxLength(14);
         nameField.setFocused(true);
         setFocused(nameField);
         addRenderableWidget(nameField);
@@ -79,7 +79,7 @@ public class BlackboardCheckScreen extends Screen {
                 guiLeft + 113,
                 guiTop - 2,
                 16,
-                13,
+                14,
                 Component.empty(),
                 texture,
                 80, 96,
