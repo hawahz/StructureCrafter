@@ -1,6 +1,5 @@
 package io.github.hawah.structure_crafter.client.handler;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
@@ -9,8 +8,11 @@ import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.blackboard.Blackboard;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -22,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +35,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue"})
 public class BlackboardHandler {
@@ -43,18 +47,45 @@ public class BlackboardHandler {
     private BlockPos secondPos;
     private BlockPos centerPos;
     private BlockPos selectedPos;
+    private Direction selectedFace;
     private int reach = 4;
+    @SuppressWarnings("FieldCanBeLocal")
     private final int MAX_REACH = 100;
 
     public boolean onMouseScroll(double delta) {
-        if (firstPos == null || !canReachAir()) {
+        if (firstPos == null) {
             return false;
         }
         if (!isActive()) {
             return false;
         }
         int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
-        reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
+        if (canReachAir()) {
+            reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
+            return true;
+        }
+        if (selectedFace != null && Screen.hasAltDown()) {
+            Vec3i normal = selectedFace.getNormal();
+            BlockPos first = firstPos;
+            BlockPos second = secondPos == null? firstPos : secondPos;
+            AABB box = new AABB(
+                    new Vec3(
+                            Math.min(first.getX(), second.getX()),
+                            Math.min(first.getY(), second.getY()),
+                            Math.min(first.getZ(), second.getZ())
+                    ),
+                    new Vec3(
+                            Math.max(first.getX(), second.getX()) + 1.0,
+                            Math.max(first.getY(), second.getY()) + 1.0,
+                            Math.max(first.getZ(), second.getZ()) + 1.0
+                    )
+            );
+            AABB aabb = intDelta < 0?
+                    box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
+                    box.contract(normal.getX(), normal.getY(), normal.getZ());
+            firstPos = BlockPos.containing(aabb.getMinPosition());
+            secondPos = BlockPos.containing(aabb.getMaxPosition().add(new Vec3(-1, -1, -1)));
+        }
 
         return true;
     }
@@ -177,7 +208,7 @@ public class BlackboardHandler {
     }
 
     private boolean canReachAir() {
-        return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL);
+        return Screen.hasControlDown();
     }
 
     public void tick() {
@@ -202,12 +233,19 @@ public class BlackboardHandler {
         } else
             selectedPos = null;
 
+        this.selectedFace = player.getDirection();
+        if (firstPos != null && secondPos != null) {
+            selectedFace = intersectRayWithBox(
+                    player.getEyePosition(),
+                    getTraceTarget(player, 300, player.getEyePosition())
+            );
+        }
+
         if (canReachAir()) {
             Vec3 targetVec = player.getEyePosition(0)
                     .add(player.getLookAngle()
                             .scale(reach));
             selectedPos = BlockPos.containing(targetVec);
-            System.out.println(1);
         }
 
         if (firstPos != null && !player.isShiftKeyDown()) {
@@ -323,5 +361,25 @@ public class BlackboardHandler {
                 .finish();
         centerSlot = new Object();
         centerPos = null;
+    }
+
+    private Direction intersectRayWithBox(Vec3 from, Vec3 direction) {
+        BlockPos first = firstPos;
+        BlockPos second = secondPos == null? firstPos : secondPos;
+        AABB box = new AABB(
+                new Vec3(
+                        Math.min(first.getX(), second.getX()),
+                        Math.min(first.getY(), second.getY()),
+                        Math.min(first.getZ(), second.getZ())
+                ),
+                new Vec3(
+                        Math.max(first.getX(), second.getX()) + 1.0,
+                        Math.max(first.getY(), second.getY()) + 1.0,
+                        Math.max(first.getZ(), second.getZ()) + 1.0
+                )
+        );
+        BlockHitResult clip = AABB.clip(List.of(box), from, direction, BlockPos.ZERO);
+        return clip==null? null : clip.getDirection();
+
     }
 }

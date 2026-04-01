@@ -37,12 +37,13 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         ));
     }
 
+    @SuppressWarnings("ConstantValue")
     public static StructureData loadSchematic(Level level, ItemStack blueprint) {
         StructureTemplate t = new StructureTemplate();
         String owner = "Dev";
         String schematic = blueprint.get(DataComponentTypeRegistries.STRUCTURE_FILE);
 
-        if (owner == null || schematic == null || !schematic.endsWith(".nbt"))
+        if (owner == null || schematic == null || !schematic.endsWith(".nbt"))//TODO
             return null;
 
         Path dir;
@@ -60,7 +61,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         if (!path.startsWith(dir))
             return null;
 
-        BlockPos pos = null;
+        BlockPos pos;
 
         try (DataInputStream stream = new DataInputStream(new BufferedInputStream(
                 new GZIPInputStream(Files.newInputStream(path, StandardOpenOption.READ))))) {
@@ -97,7 +98,9 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
-            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_7.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_7.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_8.get()));
+            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
         }
     }
 }

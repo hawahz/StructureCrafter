@@ -28,6 +28,8 @@ public enum LangData {
     TOOLTIP_WAND_5("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "5", "Rotate structure around anchor", 0),
     TOOLTIP_WAND_6("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "6", "[Alt + Scroll]", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
     TOOLTIP_WAND_7("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "7", "Select structure in folder", 0),
+    TOOLTIP_WAND_8("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "8", "[Shift + Left Click]", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
+    TOOLTIP_WAND_9("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "9", "Clear Selection", 0),
 
     TOOLTIP_BLACKBOARD_0("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "0", "[Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
     TOOLTIP_BLACKBOARD_1("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "1", "Select the first/second point", 0),
@@ -39,6 +41,8 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_7("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "7", "Change the range in the air", 0),
     TOOLTIP_BLACKBOARD_8("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "8", "[Right Click] when \nHold on Off Hand, and an Ink Sac on Main Hand", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
     TOOLTIP_BLACKBOARD_9("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "9", "Save structure", 0),
+    TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
+    TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear selection", 0),
     ;
 
     public final String key;

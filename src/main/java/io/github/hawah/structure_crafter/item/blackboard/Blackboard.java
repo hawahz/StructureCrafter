@@ -21,12 +21,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.function.Consumer;
 
+@SuppressWarnings("DataFlowIssue")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Blackboard extends Item implements ITooltipItem {
@@ -60,7 +59,7 @@ public class Blackboard extends Item implements ITooltipItem {
 
     @Override
     public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (!(entityLiving instanceof Player player))
+        if (!(entityLiving instanceof Player))
             return;
         if (stack.has(DataComponentTypeRegistries.BLACKBOARD_WRITING)) {
             stack.remove(DataComponentTypeRegistries.BLACKBOARD_WRITING);
@@ -118,7 +117,9 @@ public class Blackboard extends Item implements ITooltipItem {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_6.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_7.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_8.get()));
-            tooltipElements.add(t, Either.left(LangData.TOOLTIP_BLACKBOARD_9.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_9.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_10.get()));
+            tooltipElements.add(t, Either.left(LangData.TOOLTIP_BLACKBOARD_11.get()));
         }
     }
 }

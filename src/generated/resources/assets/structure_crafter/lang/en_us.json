@@ -10,6 +10,8 @@
   "structure_crafter.title.blackboard_name_tag": "You decide to name your structure as...",
   "structure_crafter.tooltip.structure_crafter:blackboard0": "[Right Click]",
   "structure_crafter.tooltip.structure_crafter:blackboard1": "Select the first/second point",
+  "structure_crafter.tooltip.structure_crafter:blackboard10": "[Shift + Left Click] ",
+  "structure_crafter.tooltip.structure_crafter:blackboard11": "Clear selection",
   "structure_crafter.tooltip.structure_crafter:blackboard2": "[Left Click]",
   "structure_crafter.tooltip.structure_crafter:blackboard3": "Select an Anchor",
   "structure_crafter.tooltip.structure_crafter:blackboard4": "[Ctrl + Click]",
@@ -26,5 +28,7 @@
   "structure_crafter.tooltip.structure_crafter:structure_wand5": "Rotate structure around anchor",
   "structure_crafter.tooltip.structure_crafter:structure_wand6": "[Alt + Scroll]",
   "structure_crafter.tooltip.structure_crafter:structure_wand7": "Select structure in folder",
+  "structure_crafter.tooltip.structure_crafter:structure_wand8": "[Shift + Left Click]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand9": "Clear Selection",
   "structure_crafter.tooltip_shift": "Press [Shift]"
 }
