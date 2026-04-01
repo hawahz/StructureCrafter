@@ -5,3 +5,5 @@
 - [ ] Make Ruler
 - [ ] Make Compatible with **Backpack Mods** 
 - [ ] Key tips.
+- [x] Visualize **Blackboard** Selection Area.
+- [x] Changeable **Blackboard** Selection Area.
