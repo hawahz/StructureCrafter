@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.client.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Matrix4f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,22 +70,6 @@ public class StructureRenderer {
 
         Minecraft mc = Minecraft.getInstance();
         BlockEntityRenderDispatcher beDispatcher = mc.getBlockEntityRenderDispatcher();
-        beDispatcher.prepare(level, Minecraft.getInstance().gameRenderer.getMainCamera(), Minecraft.getInstance().hitResult);
-//        poseStack.pushPose();
-//        poseStack.translate(999, -60, 994);
-//        poseStack.translate(- camera.x(), - camera.y(), - camera.z());
-//
-//        BlockEntity b = ((BedBlock) Blocks.RED_BED.defaultBlockState().getBlock()).newBlockEntity(BlockPos.ZERO, Blocks.RED_BED.defaultBlockState());
-//        b.setLevel(level);
-//        beDispatcher.getRenderer(b).render(
-//                b,
-//                AnimationTickHolder.getPartialTicks(),
-//                poseStack,
-//                buffer,
-//                0xF000F0,
-//                0xF000F0
-//        );
-//        poseStack.popPose();
         float partialTicks = AnimationTickHolder.getPartialTicks();
 
         // 1. 准备全局位移：将渲染起点移动到结构的世界原点
@@ -131,10 +117,12 @@ public class StructureRenderer {
             // --- B. 渲染方块实体 (BER / 动态渲染) ---
             if (info.nbt() != null && state.hasBlockEntity()) {
                 // 如果是特殊渲染形状 (例如箱子、床) 或附加了 BER 的普通方块
+                poseStack.pushPose();
                 BlockEntity be = getOrCreateBlockEntity(level, info.pos(), worldPos, state, info.nbt());
                 if (be != null) {
                     renderBlockEntity(be, poseStack, buffer, beDispatcher, level, worldPos);
                 }
+                poseStack.popPose();
             }
 
             poseStack.popPose();

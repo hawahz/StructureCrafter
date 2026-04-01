@@ -208,6 +208,8 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 oPlayerDirection,
                 Minecraft.getInstance().level
         );
+
+        buffer.endBatch();
     }
 
     public static Rotation transferDirectionToRotation(Direction direction) {
