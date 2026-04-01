@@ -66,7 +66,7 @@ public class StructureCrafter {
 
         NetworkPackets.register();
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
     }
 
     @SubscribeEvent

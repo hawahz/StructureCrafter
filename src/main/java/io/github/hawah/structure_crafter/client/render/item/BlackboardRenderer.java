@@ -4,8 +4,10 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -39,8 +41,6 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
                              int overlay) {
 //        super.renderByItem(stack, itemDisplayContext, poseStack, bufferSource, light, overlay);
         poseStack.pushPose();
-        if (stack.has(DataComponentTypeRegistries.BLACKBOARD_WRITING)) {
-        }
 
 
 
@@ -49,7 +49,7 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
         HumanoidArm mainArm = player.getMainArm();
 
 
-        if (mainArm.equals(HumanoidArm.RIGHT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)) {
+        if (Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE) && mainArm.equals(HumanoidArm.RIGHT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)) {
             renderBlackboardLeftArm(stack, poseStack, bufferSource, light, overlay);
         } else {
             renderGeneralItemByBakedModel(stack, itemDisplayContext, poseStack, bufferSource, light, overlay, mc, getBakedModel());

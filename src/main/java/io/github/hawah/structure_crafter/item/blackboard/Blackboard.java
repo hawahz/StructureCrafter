@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.item.blackboard;
 
 import com.mojang.datafixers.util.Either;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
@@ -8,6 +9,7 @@ import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistr
 import io.github.hawah.structure_crafter.data_component.Empty;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
+import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -99,7 +101,9 @@ public class Blackboard extends Item implements ITooltipItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT)? UseAnim.NONE : UseAnim.EAT;
+        return (Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE) && Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT))?
+                UseAnim.NONE :
+                UseAnim.EAT;
     }
 
     @Override
