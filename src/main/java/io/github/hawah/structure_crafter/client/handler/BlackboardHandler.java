@@ -49,6 +49,7 @@ public class BlackboardHandler {
     private BlockPos selectedPos;
     private Direction selectedFace;
     private int reach = 4;
+    private int scrolling = 0;
     @SuppressWarnings("FieldCanBeLocal")
     private final int MAX_REACH = 100;
 
@@ -64,27 +65,8 @@ public class BlackboardHandler {
             reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
             return true;
         }
-        if (selectedFace != null && Screen.hasAltDown()) {
-            Vec3i normal = selectedFace.getNormal();
-            BlockPos first = firstPos;
-            BlockPos second = secondPos == null? firstPos : secondPos;
-            AABB box = new AABB(
-                    new Vec3(
-                            Math.min(first.getX(), second.getX()),
-                            Math.min(first.getY(), second.getY()),
-                            Math.min(first.getZ(), second.getZ())
-                    ),
-                    new Vec3(
-                            Math.max(first.getX(), second.getX()) + 1.0,
-                            Math.max(first.getY(), second.getY()) + 1.0,
-                            Math.max(first.getZ(), second.getZ()) + 1.0
-                    )
-            );
-            AABB aabb = intDelta < 0?
-                    box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
-                    box.contract(normal.getX(), normal.getY(), normal.getZ());
-            firstPos = BlockPos.containing(aabb.getMinPosition());
-            secondPos = BlockPos.containing(aabb.getMaxPosition().add(new Vec3(-1, -1, -1)));
+        if (canPushOrPullFace()) {
+            pushOrPullFace(intDelta);
         }
 
         return true;
@@ -200,16 +182,8 @@ public class BlackboardHandler {
         discard();
     }
 
-    private static ListTag newIntegerList(int... pValues) {
-        ListTag listtag = new ListTag();
-        for (int i : pValues)
-            listtag.add(IntTag.valueOf(i));
-        return listtag;
-    }
 
-    private boolean canReachAir() {
-        return Screen.hasControlDown();
-    }
+
 
     public void tick() {
         if (!isVisible()) {
@@ -227,20 +201,29 @@ public class BlackboardHandler {
 
         LocalPlayer player = Minecraft.getInstance().player;
         BlockHitResult trace = rayTraceRange(player.level(), player, 75);
-        if (trace != null && trace.getType() == HitResult.Type.BLOCK) {
 
+        // buffered selected pos
+        if (trace != null && trace.getType() == HitResult.Type.BLOCK) {
             selectedPos = trace.getBlockPos();
         } else
             selectedPos = null;
 
-        this.selectedFace = player.getDirection();
-        if (firstPos != null && secondPos != null) {
-            selectedFace = intersectRayWithBox(
+        // select face
+        if (firstPos != null && secondPos != null && Screen.hasAltDown()) {
+            selectedFace = scrolling <= 0? intersectRayWithBox(
                     player.getEyePosition(),
                     getTraceTarget(player, 300, player.getEyePosition())
-            );
+            ) : selectedFace;
+            if (canSelectOpposite()) {
+                selectedFace = selectedFace.getOpposite();
+            }
+            scrolling = Math.max(0, scrolling - 1);
+        } else{
+            selectedFace = null;
+            scrolling = 0;
         }
 
+        // select in the air
         if (canReachAir()) {
             Vec3 targetVec = player.getEyePosition(0)
                     .add(player.getLookAngle()
@@ -248,7 +231,8 @@ public class BlackboardHandler {
             selectedPos = BlockPos.containing(targetVec);
         }
 
-        if (firstPos != null && !player.isShiftKeyDown()) {
+        // call outline renderer above
+        if (firstPos != null) {
             Outliner.getInstance()
                     .chaseThickBox(
                             outlineSlot,
@@ -259,6 +243,8 @@ public class BlackboardHandler {
                                             selectedPos:
                                     secondPos
                     )
+                    .face(selectedFace)
+                    .faces(Screen.hasControlDown() && !Screen.hasAltDown() && secondPos != null? Direction.values(): null)
                     .setRGBA(1, 1, 1, 1)
                     .setPriority(0)
                     .finish();
@@ -275,6 +261,44 @@ public class BlackboardHandler {
                     .setPriority(1)
                     .finish();
         }
+    }
+
+
+    private void pushOrPullFace(int intDelta) {
+        Vec3i normal = selectedFace.getNormal();
+        BlockPos first = firstPos;
+        BlockPos second = secondPos == null? firstPos : secondPos;
+        AABB box = new AABB(
+                new Vec3(
+                        Math.min(first.getX(), second.getX()),
+                        Math.min(first.getY(), second.getY()),
+                        Math.min(first.getZ(), second.getZ())
+                ),
+                new Vec3(
+                        Math.max(first.getX(), second.getX()) + 1.0,
+                        Math.max(first.getY(), second.getY()) + 1.0,
+                        Math.max(first.getZ(), second.getZ()) + 1.0
+                )
+        );
+        AABB aabb = (intDelta < 0) ^ canSelectOpposite()?
+                box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
+                box.contract(normal.getX(), normal.getY(), normal.getZ());
+        firstPos = BlockPos.containing(aabb.getMinPosition());
+        secondPos = BlockPos.containing(aabb.getMaxPosition().add(new Vec3(-1, -1, -1)));
+        scrolling += Math.abs(intDelta * 2);
+        scrolling = Math.min(scrolling, 6);
+    }
+
+    private boolean canPushOrPullFace() {
+        return selectedFace != null && Screen.hasAltDown();
+    }
+
+    private boolean canSelectOpposite() {
+        return Screen.hasControlDown() && selectedFace != null && scrolling <= 0;
+    }
+
+    private boolean canReachAir() {
+        return Screen.hasControlDown() && (firstPos == null || secondPos == null);
     }
 
     /**
@@ -381,5 +405,12 @@ public class BlackboardHandler {
         BlockHitResult clip = AABB.clip(List.of(box), from, direction, BlockPos.ZERO);
         return clip==null? null : clip.getDirection();
 
+    }
+
+    private static ListTag newIntegerList(int... pValues) {
+        ListTag listtag = new ListTag();
+        for (int i : pValues)
+            listtag.add(IntTag.valueOf(i));
+        return listtag;
     }
 }

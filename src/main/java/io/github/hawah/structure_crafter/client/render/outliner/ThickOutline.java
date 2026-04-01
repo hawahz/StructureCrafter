@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -25,10 +26,11 @@ public class ThickOutline extends OutlineElement {
     public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
 
         // 构建 AABB 范围，确保 pos0 和 pos1 的大小关系正确
-        AABB box = new AABB(
+        boundingBox = new AABB(
                 oPos0.lerp(visualPos0, partialTick.getGameTimeDeltaPartialTick(true)),
                 oPos1.lerp(visualPos1, partialTick.getGameTimeDeltaPartialTick(true))
         ).inflate(0.002 * (1 + priority)); // 稍微膨胀一点防止与方块表面闪烁
+        AABB box = boundingBox;
 
         float cr = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), or, r),
                 cg = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), og, g),
@@ -68,6 +70,8 @@ public class ThickOutline extends OutlineElement {
         drawBox(mat, buffer, xMax - visualThickness, yMin, zMin, xMax, yMin + visualThickness, zMax, cr, cg, cb, ca); // 底东边
         drawBox(mat, buffer, xMin, yMax - visualThickness, zMin, xMin + visualThickness, yMax, zMax, cr, cg, cb, ca); // 顶西边
         drawBox(mat, buffer, xMax - visualThickness, yMax - visualThickness, zMin, xMax, yMax, zMax, cr, cg, cb, ca); // 顶东边
+
+        drawFaces(mat, buffer, xMin + 0.01F, yMin + 0.01F, zMin + 0.01F, xMax - 0.01F, yMax - 0.01F, zMax - 0.01F, cr, cg, cb, ca * 0.2F);
     }
 
     /**
@@ -109,6 +113,53 @@ public class ThickOutline extends OutlineElement {
         buffer.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
         buffer.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
         buffer.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+    }
+
+    private void drawFaces(Matrix4f matrix, VertexConsumer buffer, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b, float a) {
+        for (Direction face : this.renderedFaces) {
+            drawFace(matrix, buffer, x1, y1, z1, x2, y2, z2, face, r, g, b, a);
+        }
+    }
+
+    private void drawFace(Matrix4f matrix, VertexConsumer buffer, float x1, float y1, float z1, float x2, float y2, float z2, Direction direction, float r, float g, float b, float a) {
+        switch (direction) {
+            case DOWN -> {
+                buffer.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+            }
+            case UP -> {
+                buffer.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+            }
+            case NORTH -> {
+                buffer.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+            }
+            case SOUTH -> {
+                buffer.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+            }
+            case WEST -> {
+                buffer.addVertex(matrix, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x1, y2, z1).setColor(r, g, b, a);
+            }
+            case EAST -> {
+                buffer.addVertex(matrix, x2, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(matrix, x2, y1, z2).setColor(r, g, b, a);
+            }
+        }
     }
 
     public void tick() {
