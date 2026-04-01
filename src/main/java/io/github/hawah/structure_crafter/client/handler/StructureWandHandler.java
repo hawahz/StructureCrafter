@@ -116,7 +116,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && pressed) {
-            lock = !lock;
+            lock = !lock && selectedPos != null;
             return true;
         }
         if (button != GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
