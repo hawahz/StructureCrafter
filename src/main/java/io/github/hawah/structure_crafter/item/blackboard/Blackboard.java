@@ -81,6 +81,14 @@ public class Blackboard extends Item implements ITooltipItem {
         }
         if (level.isClientSide()) {
             if (StructureCrafterClient.BLACKBOARD_HANDLER.hasSelection() && StructureCrafterClient.BLACKBOARD_HANDLER.hasCenter()) {
+
+                if (!StructureCrafterClient.BLACKBOARD_HANDLER.isVisible()) {
+                    player.displayClientMessage(
+                            LangData.ERROR_AREA_TOO_LARGE.get(),
+                            true
+                    );
+                }
+
                 ScreenOpener.open(new BlackboardCheckScreen());
             } else {
                 player.displayClientMessage(

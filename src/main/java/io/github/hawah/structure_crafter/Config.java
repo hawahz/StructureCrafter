@@ -7,6 +7,8 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
+
 @EventBusSubscriber(modid = StructureCrafter.MODID)
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -15,9 +17,21 @@ public class Config {
             .comment("Render Type of Blackboard")
             .defineEnum("blackboard_render_type", BlackboardRenderType.WRITE);
 
-    public static final ModConfigSpec.DoubleValue FALL_ATTENUATION = BUILDER
-            .comment("How much is the ability of a hay block to mitigate the momentum of falling")
-            .defineInRange("fallAttenuation", 2, 1, Double.MAX_VALUE);
+    public static final ModConfigSpec.IntValue MAX_SIZE_X = BUILDER
+            .comment("Max Size X of Selection Area")
+            .defineInRange("max_size_x", 100, -1, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue MAX_SIZE_Y = BUILDER
+            .comment("Max Size Y of Selection Area")
+            .defineInRange("max_size_y", 100, -1, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue MAX_SIZE_Z = BUILDER
+            .comment("Max Size Z of Selection Area")
+            .defineInRange("max_size_z", 100, -1, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue MAX_VOLUME = BUILDER
+            .comment("Max Size of Structure")
+            .defineInRange("max_volume", 1000000, -1, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 

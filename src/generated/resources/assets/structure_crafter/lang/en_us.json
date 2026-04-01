@@ -7,6 +7,8 @@
   "structure_crafter.client_message.info_no_anchor": "You're still thinking what's the center of this structure...",
   "structure_crafter.client_message.info_no_selection": "No Selection",
   "structure_crafter.client_message.info_wand_locked": "You need [Left Click] to unlock your wand",
+  "structure_crafter.error.area_too_large": "The area is too large!",
+  "structure_crafter.hud.blackboard_selection": "Size (%1$s, %2$s, %3$s) (%4$s)",
   "structure_crafter.title.blackboard_name_tag": "You decide to name your structure as...",
   "structure_crafter.tooltip.structure_crafter:blackboard0": "[Right Click]",
   "structure_crafter.tooltip.structure_crafter:blackboard1": "Select the first/second point",

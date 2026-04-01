@@ -7,6 +7,7 @@
   "structure_crafter.client_message.info_no_anchor": "你还在思考应该将哪里作为整个结构的中心...",
   "structure_crafter.client_message.info_no_selection": "你挠了挠头，还不知道该画哪里...",
   "structure_crafter.client_message.info_wand_locked": "你需要[左键]解锁你的构印杖",
+  "structure_crafter.hud.blackboard_selection": "选区 (%1$s, %2$s, %3$s) (%4$s)",
   "structure_crafter.title.blackboard_name_tag": "你打算把它叫作...",
   "structure_crafter.tooltip.structure_crafter:blackboard0": "[右键]",
   "structure_crafter.tooltip.structure_crafter:blackboard1": "选择第一/第二个选区点",

@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.client.handler;
 
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue"})
 public class BlackboardHandler {
@@ -46,10 +48,13 @@ public class BlackboardHandler {
     private BlockPos firstPos;
     private BlockPos secondPos;
     private BlockPos centerPos;
+
     private BlockPos selectedPos;
+    private AABB cachedBoundingBox;
     private Direction selectedFace;
     private int reach = 4;
     private int scrolling = 0;
+    private boolean dirty = false;
     @SuppressWarnings("FieldCanBeLocal")
     private final int MAX_REACH = 100;
 
@@ -67,9 +72,10 @@ public class BlackboardHandler {
         }
         if (canPushOrPullFace()) {
             pushOrPullFace(intDelta);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -110,11 +116,11 @@ public class BlackboardHandler {
             return true;
         }
         if (secondPos == null) {
-            secondPos = selectedPos;
+            setSecondPos(selectedPos);
             return true;
         }
         firstPos = selectedPos;
-        secondPos = null;
+        setSecondPos(null);
 
         return true;
     }
@@ -165,7 +171,7 @@ public class BlackboardHandler {
 
         Minecraft.getInstance().player.displayClientMessage(
                 LangData.INFO_CREATE_FILE_SUCCESS.get(fileName),
-                false
+                true
         );
 
 
@@ -181,9 +187,6 @@ public class BlackboardHandler {
                 .finish();
         discard();
     }
-
-
-
 
     public void tick() {
         if (!isVisible()) {
@@ -204,9 +207,9 @@ public class BlackboardHandler {
 
         // buffered selected pos
         if (trace != null && trace.getType() == HitResult.Type.BLOCK) {
-            selectedPos = trace.getBlockPos();
+            setSelectedPos(trace.getBlockPos());
         } else
-            selectedPos = null;
+            setSelectedPos(null);
 
         // select face
         if (firstPos != null && secondPos != null && Screen.hasAltDown()) {
@@ -228,11 +231,28 @@ public class BlackboardHandler {
             Vec3 targetVec = player.getEyePosition(0)
                     .add(player.getLookAngle()
                             .scale(reach));
-            selectedPos = BlockPos.containing(targetVec);
+            setSelectedPos(BlockPos.containing(targetVec));
+        }
+
+        if (firstPos != null && (selectedPos != null || secondPos != null)) {
+            Vec3i size = (secondPos == null? selectedPos : secondPos).subtract(firstPos);
+            player.displayClientMessage(
+                    LangData.HUD_BLACKBOARD_SELECTION.get(
+                            Math.abs(size.getX()) + 1,
+                            Math.abs(size.getY()) + 1,
+                            Math.abs(size.getZ()) + 1,
+                            (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1)
+                    ),
+                    true
+            );
         }
 
         // call outline renderer above
         if (firstPos != null) {
+            int gb = 1;
+            if (cachedBoundingBox != null) {
+                gb = isValidSize()? 0: gb;
+            }
             Outliner.getInstance()
                     .chaseThickBox(
                             outlineSlot,
@@ -244,8 +264,8 @@ public class BlackboardHandler {
                                     secondPos
                     )
                     .face(selectedFace)
-                    .faces(Screen.hasControlDown() && !Screen.hasAltDown() && secondPos != null? Direction.values(): null)
-                    .setRGBA(1, 1, 1, 1)
+                    .faces(Minecraft.getInstance().screen == null && Screen.hasControlDown() && !Screen.hasAltDown() && secondPos != null? Direction.values(): null)
+                    .setRGBA(1, gb, gb, 1)
                     .setPriority(0)
                     .finish();
         }
@@ -263,12 +283,46 @@ public class BlackboardHandler {
         }
     }
 
+    public boolean isValidSize() {
+        double size = cachedBoundingBox.getMaxPosition().subtract(cachedBoundingBox.getMinPosition()).lengthSqr();
+        return size > Config.MAX_VOLUME.get() ||
+                cachedBoundingBox.getXsize() > Config.MAX_SIZE_X.get() ||
+                cachedBoundingBox.getYsize() > Config.MAX_SIZE_Y.get() ||
+                cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get();
+    }
 
-    private void pushOrPullFace(int intDelta) {
-        Vec3i normal = selectedFace.getNormal();
+    public void setSelectedPos(BlockPos selectedPos) {
+        if (Objects.equals(this.selectedPos, selectedPos)) {
+            return;
+        }
+        this.selectedPos = selectedPos;
+
+        if (secondPos != null) {
+            return;
+        }
+
+        updateBoundingBox();
+    }
+
+    public void setSecondPos(BlockPos secondPos) {
+        if (Objects.equals(this.secondPos, secondPos)) {
+            return;
+        }
+
+        this.secondPos = secondPos;
+
+        updateBoundingBox();
+    }
+
+    public void updateBoundingBox() {
+
+        if (firstPos == null || (secondPos == null && selectedPos == null)) {
+            return;
+        }
+
         BlockPos first = firstPos;
         BlockPos second = secondPos == null? firstPos : secondPos;
-        AABB box = new AABB(
+        cachedBoundingBox = new AABB(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),
                         Math.min(first.getY(), second.getY()),
@@ -280,11 +334,18 @@ public class BlackboardHandler {
                         Math.max(first.getZ(), second.getZ()) + 1.0
                 )
         );
-        AABB aabb = (intDelta < 0) ^ canSelectOpposite()?
+    }
+
+
+    private void pushOrPullFace(int intDelta) {
+        Vec3i normal = selectedFace.getNormal();
+        AABB box = cachedBoundingBox;
+        AABB aabb = (intDelta < 0) ^ Screen.hasControlDown()?
                 box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
                 box.contract(normal.getX(), normal.getY(), normal.getZ());
         firstPos = BlockPos.containing(aabb.getMinPosition());
-        secondPos = BlockPos.containing(aabb.getMaxPosition().add(new Vec3(-1, -1, -1)));
+        setSecondPos(BlockPos.containing(aabb.getMaxPosition().add(new Vec3(-1, -1, -1))));
+        updateBoundingBox();
         scrolling += Math.abs(intDelta * 2);
         scrolling = Math.min(scrolling, 6);
     }
@@ -388,21 +449,7 @@ public class BlackboardHandler {
     }
 
     private Direction intersectRayWithBox(Vec3 from, Vec3 direction) {
-        BlockPos first = firstPos;
-        BlockPos second = secondPos == null? firstPos : secondPos;
-        AABB box = new AABB(
-                new Vec3(
-                        Math.min(first.getX(), second.getX()),
-                        Math.min(first.getY(), second.getY()),
-                        Math.min(first.getZ(), second.getZ())
-                ),
-                new Vec3(
-                        Math.max(first.getX(), second.getX()) + 1.0,
-                        Math.max(first.getY(), second.getY()) + 1.0,
-                        Math.max(first.getZ(), second.getZ()) + 1.0
-                )
-        );
-        BlockHitResult clip = AABB.clip(List.of(box), from, direction, BlockPos.ZERO);
+        BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), from, direction, BlockPos.ZERO);
         return clip==null? null : clip.getDirection();
 
     }

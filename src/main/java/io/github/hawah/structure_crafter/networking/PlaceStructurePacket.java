@@ -83,10 +83,10 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 return;
             }
             playerInventory.forEach(ItemStack::shrink);
+            player.causeFoodExhaustion(totalConsumes * 0.1F);
         }
 
 //        StructureTemplate.StructureBlockInfo info = activeTemplate.processBlockInfos(level, )
-        player.causeFoodExhaustion(totalConsumes * 0.1F);
         player.swing(InteractionHand.MAIN_HAND, true);
         settings.setIgnoreEntities(true);
         activeTemplate.placeInWorld(

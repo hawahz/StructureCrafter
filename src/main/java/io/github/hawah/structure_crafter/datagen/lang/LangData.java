@@ -43,6 +43,10 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_9("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "9", "Save structure", 0),
     TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
     TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear selection", 0),
+
+    HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
+
+    ERROR_AREA_TOO_LARGE("error.area_too_large","The area is too large!",0, ChatFormatting.RED),
     ;
 
     public final String key;
