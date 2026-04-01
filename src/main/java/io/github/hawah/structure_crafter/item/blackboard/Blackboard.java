@@ -1,25 +1,35 @@
 package io.github.hawah.structure_crafter.item.blackboard;
 
+import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.Empty;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.item.ITooltipItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class Blackboard extends Item {
+public class Blackboard extends Item implements ITooltipItem {
     public Blackboard() {
         super(new Properties().stacksTo(1));
     }
@@ -90,7 +100,25 @@ public class Blackboard extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.EAT;
+        return Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT)? UseAnim.NONE : UseAnim.EAT;
     }
 
+    @Override
+    public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
+        int t = 1;
+        if (!Screen.hasShiftDown()) {
+            tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
+        } else {
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_0.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_1.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_2.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_3.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_4.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_5.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_6.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_7.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_8.get()));
+            tooltipElements.add(t, Either.left(LangData.TOOLTIP_BLACKBOARD_9.get()));
+        }
+    }
 }

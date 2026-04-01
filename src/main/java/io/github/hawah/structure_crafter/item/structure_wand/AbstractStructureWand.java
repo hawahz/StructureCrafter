@@ -1,13 +1,19 @@
 package io.github.hawah.structure_crafter.item.structure_wand;
 
+import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.client.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.item.ITooltipItem;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -20,9 +26,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-public abstract class AbstractStructureWand extends Item {
+public abstract class AbstractStructureWand extends Item implements ITooltipItem {
     public AbstractStructureWand(Properties properties) {
         super(properties.component(
                 DataComponentTypeRegistries.STRUCTURE_FILE,
@@ -77,4 +84,20 @@ public abstract class AbstractStructureWand extends Item {
         return new StructureData(t, pos);
     }
 
+    @Override
+    public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
+        int t = 1;
+        if (!Screen.hasShiftDown()) {
+            tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
+        } else {
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_1.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_2.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_3.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
+            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_7.get()));
+        }
+    }
 }
