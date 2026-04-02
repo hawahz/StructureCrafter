@@ -1,10 +1,14 @@
 package io.github.hawah.structure_crafter.item.structure_wand;
 
 import com.mojang.datafixers.util.Either;
+import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.StructureData;
+import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -12,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -42,7 +47,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         super(properties.component(
                 DataComponentTypeRegistries.STRUCTURE_FILE,
                 "Debug.nbt"
-        ));
+        ).stacksTo(1));
     }
 
     @SuppressWarnings("ConstantValue")
@@ -99,21 +104,58 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         if (!Screen.hasShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_1.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_2.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_3.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_7.get()));
-            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_8.get()));
-            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_1.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_2.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_3.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_7.get()));
+//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_8.get()));
+//            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
+            StructureWandHandler.ItemStackData data = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
+            tooltipElements
+                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_UPDATE_FLAG.get(
+                            data.isUpdateAll?
+                                    Component.literal("Update All") :
+                                    Component.literal("No Update")
+                    ).withStyle(
+                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
+                                    ChatFormatting.WHITE :
+                                    ChatFormatting.DARK_GRAY)));
+            tooltipElements
+                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_REPLACE_AIR.get(
+                            data.isReplaceAir?
+                                    Component.literal("True") :
+                                    Component.literal("False")
+                    ).withStyle(
+                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
+                                    ChatFormatting.WHITE :
+                                    ChatFormatting.DARK_GRAY)));
+            tooltipElements
+                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUND.get(
+                            data.isRenderBoundingBox?
+                                    Component.literal("True") :
+                                    Component.literal("False")
+                    ).withStyle(
+                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
+                                    ChatFormatting.WHITE :
+                                    ChatFormatting.DARK_GRAY)));
         }
     }
 
     public static boolean isReplaceAir(ItemStack stack) {
         return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & REPLACE_AIR) != 0;
+    }
+
+    public static void setReplaceAir(ItemStack stack, boolean replaceAir) {
+        int settings = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0);
+        if (replaceAir)
+            settings |= REPLACE_AIR;
+        else
+            settings &= ~REPLACE_AIR;
+        stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
     public static int getUpdateFlags(ItemStack stack) {
@@ -122,9 +164,27 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                 Block.UPDATE_ALL;
     }
 
+    public static void setUpdateFlags(ItemStack stack, int updateFlags) {
+        int settings = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0);
+        if (updateFlags == Block.UPDATE_ALL)
+            settings |= UPDATE_ALL;
+        else
+            settings &= ~UPDATE_ALL;
+        stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static boolean isBoundsVisible(ItemStack stack) {
         return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & FORCE_BOUNDS_VISIBLE) != 0;
+    }
+
+    public static void setBoundsVisible(ItemStack stack, boolean visible) {
+        int settings = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0);
+        if (visible)
+            settings |= FORCE_BOUNDS_VISIBLE;
+        else
+            settings &= ~FORCE_BOUNDS_VISIBLE;
+        stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
 }

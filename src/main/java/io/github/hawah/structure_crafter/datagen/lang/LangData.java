@@ -50,6 +50,10 @@ public enum LangData {
 
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2s(s)",2),
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Insufficient number of items",0),
+
+    CONFIG_STRUCTURE_WAND_UPDATE_FLAG("config.structure_wand_update_flag","-Update Flag- :%s",1),
+    CONFIG_STRUCTURE_WAND_REPLACE_AIR("config.structure_wand_replace_air","-Replace Air- :%s",1),
+    CONFIG_STRUCTURE_WAND_RENDER_BOUND("config.structure_wand_render_bound","-Render Bound- :%s",1),
     ;
 
     public final String key;

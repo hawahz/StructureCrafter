@@ -91,11 +91,9 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                     player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG.get(), false);
                     return;
                 }
-                consumes.forEach((item, count) -> {
-                    player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
-                            count, Component.translatable(item.getDescriptionId())
-                    ), false);
-                });
+                consumes.forEach((item, count) -> player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
+                        count, Component.translatable(item.getDescriptionId())
+                ), false));
                 return;
             }
             playerInventory.forEach(ItemStack::shrink);

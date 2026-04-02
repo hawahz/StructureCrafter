@@ -8,6 +8,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class RenderElement {
 
@@ -15,6 +17,7 @@ public abstract class RenderElement {
 
     protected boolean dirty = true;
     public boolean discarded = false;
+    protected Optional<Float> deltaTicks = Optional.empty();
     public void lazySet(int delayTicks, Runnable setter) {
         lazySets.add(LazySet.create(delayTicks, setter));
     }
@@ -33,6 +36,11 @@ public abstract class RenderElement {
 
     public <T extends RenderElement> T setPriority(int priority) {
         this.priority = priority;
+        return (T) this;
+    }
+
+    public <T extends RenderElement> T smooth(float smooth) {
+        this.deltaTicks = Optional.of(smooth);
         return (T) this;
     }
 

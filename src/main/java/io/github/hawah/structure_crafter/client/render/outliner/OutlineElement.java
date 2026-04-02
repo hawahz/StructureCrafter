@@ -27,8 +27,8 @@ public abstract class OutlineElement extends ColoredElement {
         super.tick();
         oPos0 = visualPos0;
         oPos1 = visualPos1;
-        visualPos0 = visualPos0.lerp(actualPos0, StructureCrafterClient.ANI_DELTAF);
-        visualPos1 = visualPos1.lerp(actualPos1, StructureCrafterClient.ANI_DELTAF);
+        visualPos0 = visualPos0.lerp(actualPos0, deltaTicks.orElse(StructureCrafterClient.ANI_DELTAF));
+        visualPos1 = visualPos1.lerp(actualPos1, deltaTicks.orElse(StructureCrafterClient.ANI_DELTAF));
     }
 
     public <T extends OutlineElement> T face(Direction direction) {

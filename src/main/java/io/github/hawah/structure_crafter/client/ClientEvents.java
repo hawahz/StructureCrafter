@@ -1,43 +1,34 @@
 package io.github.hawah.structure_crafter.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
-import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
+import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.datagen.lang.LangData;
-import net.createmod.catnip.animation.AnimationTickHolder;
+import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -82,7 +73,13 @@ public class ClientEvents {
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
     }
-
+    @SubscribeEvent
+    public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
+        int button = event.getButton();
+        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseInput(button, true)) {
+            event.setCanceled(true);
+        }
+    }
     @SubscribeEvent
     public static void onMouseInput(InputEvent.MouseButton.Pre event) {
         if (Minecraft.getInstance().screen != null) {
@@ -98,6 +95,25 @@ public class ClientEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
+        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
+        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
+        if (slotUnderMouse == null)
+            return;
+        StructureWandHandler.ItemStackData configData = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
+        if (slotUnderMouse.getItem().getItem() instanceof AbstractStructureWand) {
+            configData.init(slotUnderMouse.getItem(), slotUnderMouse.index);
+        } else {
+            configData.clear();
+        }
+    }
+    @SubscribeEvent
+    public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
+        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseScroll(event.getScrollDeltaY())) {
+            event.setCanceled(true);
+        }
+    }
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (Minecraft.getInstance().screen != null) {

@@ -13,7 +13,9 @@ import java.util.Locale;
 public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     //C2S
     PLACE_STRUCTURE(PlaceStructurePacket.class, PlaceStructurePacket.STREAM_CODEC),
-    HANDHOLD_ITEM_CHANGED(HandholdItemChangePacket.class, HandholdItemChangePacket.STREAM_CODEC),;
+    HANDHOLD_ITEM_CHANGED(HandholdItemChangePacket.class, HandholdItemChangePacket.STREAM_CODEC),
+    CLIENTBOUND_CONTAINER_SLOT_CHANGED(ClientboundContainerSlotChangedPacket.class, ClientboundContainerSlotChangedPacket.STREAM_CODEC),
+    ;
     private final CatnipPacketRegistry.PacketType<?> type;
 
     <T extends BasePacketPayload> NetworkPackets(Class<T> clazz, StreamCodec<? super RegistryFriendlyByteBuf, T> codec) {

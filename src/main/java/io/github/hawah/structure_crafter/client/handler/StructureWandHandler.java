@@ -4,8 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.client.StructureData;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.render.StructureRenderer;
+import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
+import io.github.hawah.structure_crafter.networking.ClientboundContainerSlotChangedPacket;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
@@ -24,16 +26,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 public class StructureWandHandler implements LayeredDraw.Layer {
+
+    private final Object slot = new Object();
 
     private ItemStack activeSchematicItem;
     private BlockPos selectedPos;
@@ -45,8 +53,10 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private boolean active;
     private boolean dirty = true;
     private boolean lock = false;
+    private boolean renderBoundingBox = false;
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
+    public ItemStackData data = new ItemStackData();
 
     public void tick() {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -57,6 +67,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (!((stack = player.getMainHandItem()).getItem() instanceof AbstractStructureWand)) {
             active = false;
             activeSchematicItem = null;
+            Outliner.getInstance().thickBox(slot)
+                    .fade()
+                    .finish();
             return;
         }
 
@@ -64,9 +77,21 @@ public class StructureWandHandler implements LayeredDraw.Layer {
 
         active = true;
         if (activeSchematicItem != stack || dirty) {
-            activeSchematicItem = stack;
             hud.loadStructures();
             structureRenderer.clearCache();
+            if (activeSchematicItem != stack) {
+                activeSchematicItem = stack;
+                this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
+                hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
+            }
+            setupRenderer();
+            String currentFile = hud.getCurrentStructure();
+            if (!currentFile.isEmpty()) {
+                lock = false;
+                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
+                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+            }
+            dirty = false;
         }
 
         BlockHitResult trace = RaycastHelper.rayTraceRange(
@@ -107,6 +132,27 @@ public class StructureWandHandler implements LayeredDraw.Layer {
 
         if (lock && player.blockPosition().distManhattan(selectedPos) > 100) {
             lock = false;
+        }
+
+        if (this.renderBoundingBox && selectedPos != null && structureData != null && structureData.structureTemplate() != null && structureData.center() != null) {
+            StructurePlaceSettings settings = new StructurePlaceSettings();
+            Rotation rotation = StructureWandHandler.transferDirectionToRotation(this.playerDirection);
+            settings.setRotation(rotation);
+            BoundingBox boundingBox = structureData.structureTemplate()
+                    .getBoundingBox(settings, selectedPos.subtract(structureData.center().rotate(rotation)));
+            Outliner.getInstance()
+                    .chaseThickBox(slot,
+                            new BlockPos(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ()),
+                            new BlockPos(boundingBox.maxX() + 1, boundingBox.maxY() + 1, boundingBox.maxZ() + 1)
+                    ).setRGBA(1, 1, 1, 1)
+                    .setPriority(2)
+                    .smooth(1)
+                    .finish();
+        } else {
+            Outliner.getInstance()
+                    .thickBox(slot)
+                    .fade()
+                    .finish();
         }
 
     }
@@ -151,9 +197,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 if (currentFile.isEmpty()) {
                     return true;
                 }
-                lock = false;
-                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+//                lock = false;
+//                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
+//                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
                 return true;
             } else if (delta < 0) {
@@ -161,9 +207,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 if (currentFile.isEmpty()) {
                     return true;
                 }
-                lock = false;
-                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+//                lock = false;
+//                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
+//                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
                 return true;
             }
@@ -186,7 +232,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private void setupRenderer() {
         Level clientWorld = Minecraft.getInstance().level;
         structureData = AbstractStructureWand.loadSchematic(clientWorld, activeSchematicItem);
-        hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
+//        hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
     }
 
     public void render(PoseStack ms, MultiBufferSource.BufferSource buffer, Vec3 camera) {
@@ -227,5 +273,84 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (mc.options.hideGui || !active)
             return;
         hud.render(guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
+    }
+
+    public static class ItemStackData {
+
+        public int slotId;
+        public ItemStack itemStack;
+        public Configuration currentConfiguration = Configuration.UPDATE_ALL;
+        public boolean isUpdateAll = false;
+        public boolean isRenderBoundingBox = false;
+        public boolean isReplaceAir = false;
+
+        public void init(ItemStack itemStack, int slotId) {
+            if (this.itemStack == itemStack)
+                return;
+            this.itemStack = itemStack;
+            this.slotId = slotId;
+            this.isUpdateAll = AbstractStructureWand.getUpdateFlags(itemStack) == Block.UPDATE_ALL;
+            this.isRenderBoundingBox = AbstractStructureWand.isBoundsVisible(itemStack);
+            this.isReplaceAir = AbstractStructureWand.isReplaceAir(itemStack);
+            this.currentConfiguration = Configuration.UPDATE_ALL;
+        }
+
+        public void config() {
+            if (Minecraft.getInstance().screen == null)
+                return;
+            this.currentConfiguration.apply(this);
+            CatnipServices.NETWORK.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
+
+        }
+        public boolean onMouseScroll(double delta) {
+            if (Screen.hasShiftDown()) {
+                delta *= -1;
+                int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
+                currentConfiguration = Configuration.values()[Math.floorMod(currentConfiguration.ordinal() + intDelta, Configuration.values().length)];
+                return true;
+            }
+            currentConfiguration = Configuration.UPDATE_ALL;
+            return false;
+        }
+
+        public boolean onMouseInput(int button, boolean pressed) {
+            if (!pressed) {
+                return false;
+            }
+
+            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && Screen.hasShiftDown()) {
+                config();
+                return true;
+            }
+            return false;
+        }
+        public void clear() {
+            this.itemStack = null;
+            this.currentConfiguration = Configuration.UPDATE_ALL;
+        }
+        public enum Configuration {
+            UPDATE_ALL(itemStackData -> {
+                itemStackData.isUpdateAll = !itemStackData.isUpdateAll;
+                AbstractStructureWand.setUpdateFlags(itemStackData.itemStack, itemStackData.isUpdateAll ? Block.UPDATE_ALL : 0);
+            }),
+            REPLACE_AIR(itemStackData -> {
+                itemStackData.isReplaceAir = !itemStackData.isReplaceAir;
+                AbstractStructureWand.setReplaceAir(itemStackData.itemStack, itemStackData.isReplaceAir);
+            }),
+            RENDER_BOUNDING_BOX(itemStackData -> {
+                itemStackData.isRenderBoundingBox = !itemStackData.isRenderBoundingBox;
+                AbstractStructureWand.setBoundsVisible(itemStackData.itemStack, itemStackData.isRenderBoundingBox);
+            }),
+            ;
+            private final Consumer<ItemStackData> config;
+
+            Configuration(Consumer<ItemStackData> config) {
+                this.config = config;
+            }
+
+            public void apply(ItemStackData itemStackData) {
+                this.config.accept(itemStackData);
+            }
+        }
     }
 }

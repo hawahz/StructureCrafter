@@ -361,8 +361,9 @@ public class StructureWandHUD extends Screen {
 
     public void setCurrentStructure(String currentStructure) {
         if (!allStructures.contains(Component.literal(currentStructure))) {
+            return;
         }
-//        this.currentStructure = allStructures.indexOf(Component.literal(currentStructure));
+        this.currentStructure = allStructures.indexOf(Component.literal(currentStructure));
     }
 
     public String scrollUp() {
@@ -384,6 +385,14 @@ public class StructureWandHUD extends Screen {
         }
 
 
+        return allStructures.get(currentStructure).getString();
+    }
+
+    public String getCurrentStructure() {
+        if (this.allStructures.isEmpty()) {
+            return "";
+        }
+        currentStructure = Math.clamp(currentStructure, 0, allStructures.size() - 1);
         return allStructures.get(currentStructure).getString();
     }
 
