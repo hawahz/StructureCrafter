@@ -1,15 +1,13 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.client.StructureData;
-import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -24,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -52,6 +51,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
         StructureData activeTemplateData =
                 AbstractStructureWand.loadSchematic(level, stack);
+        assert activeTemplateData != null;
         StructureTemplate activeTemplate = activeTemplateData.structureTemplate();
         StructurePlaceSettings settings = new StructurePlaceSettings();
         Rotation rotation = StructureWandHandler.transferDirectionToRotation(direction());
@@ -87,7 +87,15 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
             }
 
             if (!consumes.isEmpty()) {
-                consumes.forEach((item, count) -> player.sendSystemMessage(Component.literal("Need item " + item.getDescriptionId() + ":" + count)));
+                if (consumes.size() > 4) {
+                    player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG.get(), false);
+                    return;
+                }
+                consumes.forEach((item, count) -> {
+                    player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
+                            count, Component.translatable(item.getDescriptionId())
+                    ), false);
+                });
                 return;
             }
             playerInventory.forEach(ItemStack::shrink);
@@ -97,9 +105,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 //        StructureTemplate.StructureBlockInfo info = activeTemplate.processBlockInfos(level, )
         player.swing(InteractionHand.MAIN_HAND, true);
 
-        if (replaceAir){
-            replaceAreaWithAir(activeTemplate, settings, activeTemplateData, rotation, level, updateFlags);
-        }
+        HashMap<BlockPos, BlockState> invalidBlocks = detectOrReplaceAir(activeTemplate, settings, activeTemplateData, rotation, level, updateFlags, replaceAir);
 
         activeTemplate.placeInWorld(
                 (ServerLevelAccessor) level,
@@ -109,6 +115,9 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 level.getRandom(),
                 updateFlags
         );
+
+        invalidBlocks.forEach((pos, block) -> level.setBlock(pos, block, updateFlags));
+
         SoundType sound = level.getBlockState(pos).getSoundType(level, pos, null);
         level.playSound(
                 null,
@@ -120,16 +129,24 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         );
     }
 
-    private void replaceAreaWithAir(StructureTemplate activeTemplate, StructurePlaceSettings settings, StructureData activeTemplateData, Rotation rotation, Level level, int updateFlags) {
+    private HashMap<BlockPos, BlockState> detectOrReplaceAir(StructureTemplate activeTemplate, StructurePlaceSettings settings, StructureData activeTemplateData, Rotation rotation, Level level, int updateFlags, boolean replace) {
         BoundingBox boundingBox = activeTemplate.getBoundingBox(settings, pos.subtract(activeTemplateData.center().rotate(rotation)));
-
+        HashMap<BlockPos, BlockState> invalidBlocks = new HashMap<>();
         for (int i = boundingBox.minX(); i < boundingBox.maxX() + 1; i++) {
             for (int j = boundingBox.minY(); j < boundingBox.maxY() + 1; j++) {
                 for (int k = boundingBox.minZ(); k < boundingBox.maxZ() + 1; k++) {
-                    level.setBlock(new BlockPos(i, j, k), Blocks.AIR.defaultBlockState(), updateFlags);
+                    BlockPos currentPos = new BlockPos(i, j, k);
+                    if (level.getBlockState(currentPos).getBlock().defaultDestroyTime() < 0) {
+                        invalidBlocks.put(currentPos, level.getBlockState(currentPos));
+                        continue;
+                    }
+                    if (replace) {
+                        level.setBlock(currentPos, Blocks.AIR.defaultBlockState(), updateFlags);
+                    }
                 }
             }
         }
+        return invalidBlocks;
     }
 
     private static int getMin(ItemStack item, int count) {
@@ -139,9 +156,6 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
     private static @NotNull HashMap<Item, Integer> getNeededItems(List<StructureTemplate.StructureBlockInfo> blockInfos) {
         HashMap<Item, Integer> consumes = new HashMap<>();
         for (StructureTemplate.StructureBlockInfo info : blockInfos) {
-//            player.sendSystemMessage(
-//                    Component.literal( info.state().getBlock() + " "+ info.pos().getX() + " " + info.pos().getY() + " " + info.pos().getZ())
-//            );
             Block block = info.state().getBlock();
             ItemStack itemStack = new ItemStack(block);
             if (itemStack.isEmpty()) {
