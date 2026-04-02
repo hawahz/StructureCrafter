@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.handler;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.util.RaycastHelper;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -39,7 +40,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
 
-@SuppressWarnings({"ConstantValue", "DataFlowIssue"})
+@SuppressWarnings({"ConstantValue", "DataFlowIssue", "SameParameterValue"})
 public class BlackboardHandler {
 
     private Object outlineSlot = new Object();
@@ -54,7 +55,6 @@ public class BlackboardHandler {
     private Direction selectedFace;
     private int reach = 4;
     private int scrolling = 0;
-    private boolean dirty = false;
     @SuppressWarnings("FieldCanBeLocal")
     private final int MAX_REACH = 100;
 
@@ -240,9 +240,9 @@ public class BlackboardHandler {
             int volume = (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1);
             player.displayClientMessage(
                     LangData.HUD_BLACKBOARD_SELECTION.get(
-                            ((Math.abs(size.getX()) + 1)>Config.MAX_SIZE_X.get()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
-                            ((Math.abs(size.getY()) + 1)>Config.MAX_SIZE_Y.get()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
-                            ((Math.abs(size.getZ()) + 1)>Config.MAX_SIZE_Z.get()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
+                            (isOversizeX()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
+                            (isOversizeY()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
+                            (isOversizeZ()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
                             (volume > Config.MAX_VOLUME.get()? "§c" : "") + volume
                     ),
                     true
@@ -288,9 +288,21 @@ public class BlackboardHandler {
     public boolean isValidSize() {
         double size = cachedBoundingBox.getMaxPosition().subtract(cachedBoundingBox.getMinPosition()).lengthSqr();
         return !(size > Config.MAX_VOLUME.get() ||
-                cachedBoundingBox.getXsize() > Config.MAX_SIZE_X.get() ||
-                cachedBoundingBox.getYsize() > Config.MAX_SIZE_Y.get() ||
-                cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get());
+                isOversizeX() ||
+                isOversizeY() ||
+                isOversizeZ());
+    }
+
+    private boolean isOversizeZ() {
+        return cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get() && Config.MAX_SIZE_Z.get() != -1;
+    }
+
+    private boolean isOversizeY() {
+        return cachedBoundingBox.getYsize() > Config.MAX_SIZE_Y.get() && Config.MAX_SIZE_Y.get() != -1;
+    }
+
+    private boolean isOversizeX() {
+        return cachedBoundingBox.getXsize() > Config.MAX_SIZE_X.get() && Config.MAX_SIZE_X.get() != -1;
     }
 
     public void setSelectedPos(BlockPos selectedPos) {
@@ -378,15 +390,7 @@ public class BlackboardHandler {
 
 
     static Vec3 getTraceTarget(Player player, double range, Vec3 origin) {
-        float f = player.getXRot();
-        float f1 = player.getYRot();
-        float f2 = Mth.cos(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
-        float f3 = Mth.sin(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
-        float f4 = -Mth.cos(-f * ((float) Math.PI / 180F));
-        float f5 = Mth.sin(-f * ((float) Math.PI / 180F));
-        float f6 = f3 * f4;
-        float f7 = f2 * f4;
-        return origin.add((double) f6 * range, (double) f5 * range, (double) f7 * range);
+        return RaycastHelper.getTraceTarget(player, range, origin);
     }
 
     /**
