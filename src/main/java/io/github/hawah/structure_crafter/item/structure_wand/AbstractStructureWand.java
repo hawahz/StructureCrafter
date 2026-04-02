@@ -17,7 +17,10 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -30,6 +33,11 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public abstract class AbstractStructureWand extends Item implements ITooltipItem {
+
+    public static final int REPLACE_AIR = 1;
+    public static final int UPDATE_ALL = 2;
+    public static final int FORCE_BOUNDS_VISIBLE = 4;
+
     public AbstractStructureWand(Properties properties) {
         super(properties.component(
                 DataComponentTypeRegistries.STRUCTURE_FILE,
@@ -103,4 +111,20 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
         }
     }
+
+    public static boolean isReplaceAir(ItemStack stack) {
+        return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & REPLACE_AIR) != 0;
+    }
+
+    public static int getUpdateFlags(ItemStack stack) {
+        return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & UPDATE_ALL) == 0 ?
+                Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE :
+                Block.UPDATE_ALL;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isBoundsVisible(ItemStack stack) {
+        return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & FORCE_BOUNDS_VISIBLE) != 0;
+    }
+
 }

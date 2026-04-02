@@ -15,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.UnaryOperator;
 
 public class DataComponentTypeRegistries {
+
     public static DeferredRegister.DataComponents DATA_COMPONENT = DeferredRegister.createDataComponents(
             Registries.DATA_COMPONENT_TYPE,
             StructureCrafter.MODID
@@ -40,6 +41,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Vec3i> STRUCTURE_BOUNDS = register(
             "schematic_bounds",
             builder -> builder.persistent(Vec3i.CODEC).networkSynchronized(CatnipStreamCodecs.VEC3I)
+    );
+
+    public static final DataComponentType<Integer> STRUCTURE_WAND_SETTINGS = register(
+            "structure_wand_settings",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
     public static void register(IEventBus eventBus) {

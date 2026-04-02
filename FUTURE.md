@@ -7,3 +7,6 @@
 - [ ] Key tips.
 - [x] Visualize **Blackboard** Selection Area.
 - [x] Changeable **Blackboard** Selection Area.
+
+### Structure Wand Configurations
+- Replace Air
