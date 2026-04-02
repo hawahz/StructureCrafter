@@ -116,32 +116,31 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
 //            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
             StructureWandHandler.ItemStackData data = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
             tooltipElements
-                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_UPDATE_FLAG.get(
-                            data.isUpdateAll?
-                                    Component.literal("Update All") :
-                                    Component.literal("No Update")
-                    ).withStyle(
-                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
-                                    ChatFormatting.WHITE :
-                                    ChatFormatting.DARK_GRAY)));
+                    .add(t++, Either.left((data.isUpdateAll?
+                            LangData.CONFIG_STRUCTURE_WAND_UPDATE_ALL :
+                            LangData.CONFIG_STRUCTURE_WAND_NO_UPDATE)
+                            .get()
+                            .withStyle(
+                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
+                                            ChatFormatting.WHITE :
+                                            ChatFormatting.DARK_GRAY)));
             tooltipElements
-                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_REPLACE_AIR.get(
-                            data.isReplaceAir?
-                                    Component.literal("True") :
-                                    Component.literal("False")
-                    ).withStyle(
-                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
-                                    ChatFormatting.WHITE :
-                                    ChatFormatting.DARK_GRAY)));
+                    .add(t++, Either.left((data.isReplaceAir?
+                            LangData.CONFIG_STRUCTURE_WAND_CLEAR_AREA :
+                            LangData.CONFIG_STRUCTURE_WAND_KEEP_AREA)
+                            .get().withStyle(
+                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
+                                            ChatFormatting.WHITE :
+                                            ChatFormatting.DARK_GRAY)));
             tooltipElements
-                    .add(t++, Either.left(LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUND.get(
-                            data.isRenderBoundingBox?
-                                    Component.literal("True") :
-                                    Component.literal("False")
-                    ).withStyle(
-                            data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
-                                    ChatFormatting.WHITE :
-                                    ChatFormatting.DARK_GRAY)));
+                    .add(t++, Either.left((data.isRenderBoundingBox?
+                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUND :
+                            LangData.CONFIG_STRUCTURE_WAND_RENDER_NONE)
+                            .get()
+                            .withStyle(
+                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
+                                            ChatFormatting.WHITE :
+                                            ChatFormatting.DARK_GRAY)));
         }
     }
 

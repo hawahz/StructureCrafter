@@ -26,6 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -52,6 +54,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         StructureData activeTemplateData =
                 AbstractStructureWand.loadSchematic(level, stack);
         assert activeTemplateData != null;
+
         StructureTemplate activeTemplate = activeTemplateData.structureTemplate();
         StructurePlaceSettings settings = new StructurePlaceSettings();
         Rotation rotation = StructureWandHandler.transferDirectionToRotation(direction());
@@ -64,40 +67,13 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 settings.getRandomPalette(((StructureTemplateAccessor) activeTemplate).getPalettes(), BlockPos.ZERO).blocks(),
                 activeTemplate
         );
+
         HashMap<Item, Integer> consumes = getNeededItems(blockInfos);
         int totalConsumes = consumes.values().stream().mapToInt(Integer::intValue).sum();
         HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
 
         if (!player.isCreative()) {
-            for (ItemStack item : player.getInventory().items) {
-                if (item.isEmpty()) {
-                    continue;
-                }
-                if (!consumes.containsKey(item.getItem())) {
-                    continue;
-                }
-                int count = consumes.get(item.getItem());
-                int consumeCounts = getMin(item, count);
-                playerInventory.put(item, consumeCounts);
-                if (count - consumeCounts <= 0) {
-                    consumes.remove(item.getItem());
-                } else {
-                    consumes.put(item.getItem(), count - consumeCounts);
-                }
-            }
-
-            if (!consumes.isEmpty()) {
-                if (consumes.size() > 4) {
-                    player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG.get(), false);
-                    return;
-                }
-                consumes.forEach((item, count) -> player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
-                        count, Component.translatable(item.getDescriptionId())
-                ), false));
-                return;
-            }
-            playerInventory.forEach(ItemStack::shrink);
-            player.causeFoodExhaustion(totalConsumes * 0.1F);
+            if (canPlaceStructure(player, consumes, playerInventory, totalConsumes)) return;
         }
 
 //        StructureTemplate.StructureBlockInfo info = activeTemplate.processBlockInfos(level, )
@@ -125,6 +101,54 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 (sound.getVolume() + 1.0F) / 2.0F,
                 sound.getPitch() * 0.8F
         );
+    }
+
+    private static boolean canPlaceStructure(ServerPlayer player, HashMap<Item, Integer> consumes, HashMap<ItemStack, Integer> playerInventory, int totalConsumes) {
+
+
+        for (ItemStack item : player.getInventory().items) {
+            if (item.isEmpty()) {
+                continue;
+            }
+            IItemHandler handler;
+            if ((handler = item.getCapability(Capabilities.ItemHandler.ITEM)) != null) {
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    ItemStack slotItem = handler.getStackInSlot(i);
+                    shrinkIfMatch(playerInventory, consumes, slotItem);
+                }
+            }
+            shrinkIfMatch(playerInventory, consumes, item);
+        }
+
+        if (!consumes.isEmpty()) {
+            if (consumes.size() > 4) {
+                player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG.get(), false);
+                return true;
+            }
+            consumes.forEach((item, count) -> player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
+                    count, Component.translatable(item.getDescriptionId())
+            ), false));
+            return true;
+        }
+        playerInventory.forEach(ItemStack::shrink);
+        player.causeFoodExhaustion(totalConsumes * 0.1F);
+        return false;
+    }
+
+    private static void shrinkIfMatch(HashMap<ItemStack, Integer> playerInventory,
+                                      HashMap<Item, Integer> consumes,
+                                      ItemStack slotItem) {
+        if (!consumes.containsKey(slotItem.getItem())) {
+            return;
+        }
+        int count = consumes.get(slotItem.getItem());
+        int consumeCounts = getMin(slotItem, count);
+        playerInventory.put(slotItem, consumeCounts);
+        if (count - consumeCounts <= 0) {
+            consumes.remove(slotItem.getItem());
+        } else {
+            consumes.put(slotItem.getItem(), count - consumeCounts);
+        }
     }
 
     private HashMap<BlockPos, BlockState> detectOrReplaceAir(StructureTemplate activeTemplate, StructurePlaceSettings settings, StructureData activeTemplateData, Rotation rotation, Level level, int updateFlags, boolean replace) {

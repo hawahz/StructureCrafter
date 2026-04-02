@@ -7,8 +7,14 @@
   "structure_crafter.client_message.info_no_anchor": "You're still thinking what's the center of this structure...",
   "structure_crafter.client_message.info_no_selection": "No Selection",
   "structure_crafter.client_message.info_wand_locked": "You need [Left Click] to unlock your wand",
+  "structure_crafter.config.structure_wand_clear_area": "-Clear Area-",
+  "structure_crafter.config.structure_wand_keep_area": "-Keep Area-",
+  "structure_crafter.config.structure_wand_no_update": "-No Update-",
   "structure_crafter.config.structure_wand_render_bound": "-Render Bound- :%s",
+  "structure_crafter.config.structure_wand_render_bounds": "-Solid Bounds-",
+  "structure_crafter.config.structure_wand_render_none": "-Boundless-",
   "structure_crafter.config.structure_wand_replace_air": "-Replace Air- :%s",
+  "structure_crafter.config.structure_wand_update_all": "-Update All-",
   "structure_crafter.config.structure_wand_update_flag": "-Update Flag- :%s",
   "structure_crafter.error.area_too_large": "The area is too large!",
   "structure_crafter.error.structure_wand_not_enough_item": "Missing %1$s %2s(s)",
@@ -37,5 +43,6 @@
   "structure_crafter.tooltip.structure_crafter:structure_wand7": "Select structure in folder",
   "structure_crafter.tooltip.structure_crafter:structure_wand8": "[Shift + Left Click]",
   "structure_crafter.tooltip.structure_crafter:structure_wand9": "Clear Selection",
-  "structure_crafter.tooltip_shift": "Press [Shift]"
+  "structure_crafter.tooltip.structure_crafter:structure_wandconfig": "-[Scroll] / [Right Click]-",
+  "structure_crafter.tooltip_shift": "-[Shift]-"
 }
