@@ -1,12 +1,15 @@
 package io.github.hawah.structure_crafter.client.gui.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class TextureButton extends AbstractWidget {
 
@@ -72,6 +75,16 @@ public class TextureButton extends AbstractWidget {
                 this.getWidth(),
                 this.getHeight()
         );
+
+        if (this.getMessage().getString().isEmpty() || !this.isHoveredOrFocused())
+            return;
+        guiGraphics.renderComponentTooltip(
+                Minecraft.getInstance().font,
+                List.of(this.getMessage()),
+                mouseX,
+                mouseY
+        );
+
     }
 
     @Override

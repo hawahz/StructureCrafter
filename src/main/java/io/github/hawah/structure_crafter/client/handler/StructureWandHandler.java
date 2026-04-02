@@ -2,7 +2,9 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.client.StructureData;
+import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
+import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
 import io.github.hawah.structure_crafter.client.render.StructureRenderer;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -57,6 +59,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
     public ItemStackData data = new ItemStackData();
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+    public void setCurrentStructure(String structure) {
+        hud.setCurrentStructure(structure);
+    }
 
     public void tick() {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -171,9 +181,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (!pressed) {
             return false;
         }
+        if (Screen.hasShiftDown()) {
+            ScreenOpener.open(new StructureWandScreen());
+            return true;
+        }
         if (selectedPos == null) {
             return false;
         }
+
 //        if (lock) {
 //            Minecraft.getInstance().player.displayClientMessage(
 //                    LangData, true
@@ -296,13 +311,15 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         }
 
         public void config() {
-            if (Minecraft.getInstance().screen == null)
+            if (Minecraft.getInstance().screen == null || !isValid())
                 return;
             this.currentConfiguration.apply(this);
             CatnipServices.NETWORK.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
 
         }
         public boolean onMouseScroll(double delta) {
+            if (!this.isValid())
+                return false;
             if (Screen.hasShiftDown()) {
                 delta *= -1;
                 int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
@@ -313,8 +330,12 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
 
+        public boolean isValid() {
+            return this.itemStack != null;
+        }
+
         public boolean onMouseInput(int button, boolean pressed) {
-            if (!pressed) {
+            if (!pressed || !isValid()) {
                 return false;
             }
 

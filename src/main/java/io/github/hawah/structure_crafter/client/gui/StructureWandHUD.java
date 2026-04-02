@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,19 +51,7 @@ public class StructureWandHUD extends Screen {
         initialized = true;
     }
     public void loadStructures() {
-        allStructures.clear();
-        try (Stream<Path> paths = Files.list(Paths.STRUCTURE_DIR)) {
-            paths.filter(f -> !Files.isDirectory(f) && f.getFileName().toString().endsWith(".nbt"))
-                    .forEach(path -> {
-                        if (Files.isDirectory(path))
-                            return;
-
-                        allStructures.add(Component.literal(path.getFileName().toString()));
-                    });
-        } catch (NoSuchFileException ignored) {
-            // No Schematics created yet
-        } catch (IOException ignored) {
-        }
+        StructureHandler.loadStructures(allStructures);
         currentStructure = Mth.clamp(currentStructure, 0, allStructures.size());
     }
     public void render(GuiGraphics guiGraphics, float partialTicks) {
