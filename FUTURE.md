@@ -10,6 +10,7 @@
 - [ ] Make Ruler
 - [ ] Make Compatible with **Backpack Mods**
 - [ ] Key tips.
+- [ ] Flip in **Structure Wand**.
 
 ### Structure Wand Configurations
 - Replace Air

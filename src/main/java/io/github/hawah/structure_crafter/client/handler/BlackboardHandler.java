@@ -234,7 +234,7 @@ public class BlackboardHandler {
             setSelectedPos(BlockPos.containing(targetVec));
         }
 
-        if (firstPos != null && (selectedPos != null || secondPos != null)) {
+        if (firstPos != null && (selectedPos != null || secondPos != null) && cachedBoundingBox != null) {
             Vec3i size = (secondPos == null? selectedPos : secondPos).subtract(firstPos);
 
             int volume = (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1);

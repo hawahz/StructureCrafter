@@ -69,9 +69,9 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
-        Outliner.tick();
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
+        Outliner.tick();
     }
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {

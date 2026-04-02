@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +26,9 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
@@ -39,6 +43,7 @@ public class StructureRenderer {
     private final Map<BlockState, ModelData> cachedModelData = new HashMap<>();
     private StructureTemplate template;
     private StructureBlockGetter blockGetter;
+    private AABB boundingBox = null;
 
     /**
      * 主渲染方法
@@ -68,6 +73,16 @@ public class StructureRenderer {
             clearCache();
         }
 
+        boundingBox = AABB.of(template.getBoundingBox(
+                new StructurePlaceSettings()
+                        .setRotation(StructureWandHandler.transferDirectionToRotation(playerDirection)),
+                anchorPos
+        ));
+        Frustum frustum = Minecraft.getInstance().levelRenderer.getFrustum();
+        if (!frustum.isVisible(boundingBox)) {
+            return;
+        }
+
         Minecraft mc = Minecraft.getInstance();
         BlockEntityRenderDispatcher beDispatcher = mc.getBlockEntityRenderDispatcher();
         float partialTicks = AnimationTickHolder.getPartialTicks();
@@ -93,8 +108,13 @@ public class StructureRenderer {
             BlockState state = info.state();
             if (state.isAir()) continue;
 
+
             BlockPos localPos = info.pos();
             BlockPos worldPos = anchorPos.offset(localPos); // 方块在世界中的真实坐标
+
+            if (!frustum.isVisible(new AABB(anchorPos.offset(localPos.rotate(Rotation.values()[Math.floorMod((int) (degree / 90), 4)]))))) {
+                continue;
+            }
 
             poseStack.pushPose();
 

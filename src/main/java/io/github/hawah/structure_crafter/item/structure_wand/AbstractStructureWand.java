@@ -128,13 +128,14 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                     .add(t++, Either.left((data.isReplaceAir?
                             LangData.CONFIG_STRUCTURE_WAND_CLEAR_AREA :
                             LangData.CONFIG_STRUCTURE_WAND_KEEP_AREA)
-                            .get().withStyle(
+                            .get()
+                            .withStyle(
                                     data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
                                             ChatFormatting.WHITE :
                                             ChatFormatting.DARK_GRAY)));
             tooltipElements
                     .add(t++, Either.left((data.isRenderBoundingBox?
-                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUND :
+                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUNDS :
                             LangData.CONFIG_STRUCTURE_WAND_RENDER_NONE)
                             .get()
                             .withStyle(
