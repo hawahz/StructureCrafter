@@ -72,8 +72,8 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         int totalConsumes = consumes.values().stream().mapToInt(Integer::intValue).sum();
         HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
 
-        if (!player.isCreative()) {
-            if (canPlaceStructure(player, consumes, playerInventory, totalConsumes)) return;
+        if (!player.isCreative() && !canPlaceStructure(player, consumes, playerInventory, totalConsumes)) {
+            return;
         }
 
 //        StructureTemplate.StructureBlockInfo info = activeTemplate.processBlockInfos(level, )
@@ -104,8 +104,6 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
     }
 
     private static boolean canPlaceStructure(ServerPlayer player, HashMap<Item, Integer> consumes, HashMap<ItemStack, Integer> playerInventory, int totalConsumes) {
-
-
         for (ItemStack item : player.getInventory().items) {
             if (item.isEmpty()) {
                 continue;
@@ -123,16 +121,16 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         if (!consumes.isEmpty()) {
             if (consumes.size() > 4) {
                 player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG.get(), false);
-                return true;
+                return false;
             }
             consumes.forEach((item, count) -> player.displayClientMessage(LangData.WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM.get(
                     count, Component.translatable(item.getDescriptionId())
             ), false));
-            return true;
+            return false;
         }
         playerInventory.forEach(ItemStack::shrink);
         player.causeFoodExhaustion(totalConsumes * 0.1F);
-        return false;
+        return true;
     }
 
     private static void shrinkIfMatch(HashMap<ItemStack, Integer> playerInventory,
