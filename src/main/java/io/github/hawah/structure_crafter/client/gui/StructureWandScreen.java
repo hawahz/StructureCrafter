@@ -122,10 +122,12 @@ public class StructureWandScreen extends Screen {
             filteredStructures = searchResult.stream().map(Component::literal).toList();
             updatePage();
         });
-//        setFocused(nameField);
+        setFocused(nameField);
+        nameField.setFocused(false);
         addRenderableWidget(nameField);
 
         refresh();
+        selectedStructure = Minecraft.getInstance().player.getMainHandItem().get(DataComponentTypeRegistries.STRUCTURE_FILE);
 
         labelButtons.clear();
         for (int i = 0; i < Math.min(MAX_SLOTS, structuresInFolder.size()); i++) {
@@ -140,6 +142,12 @@ public class StructureWandScreen extends Screen {
             }).bounds(x + 21, y + 21 + i * 11, 67, 10));
             labelButtons.add(button);
             addRenderableWidget(button);
+
+            String stringMessage = button.getMessage().getString();
+            if (stringMessage.equals(selectedStructure)) {
+                button.active = false;
+            }
+
         }
 
         this.loadFile = new TextureButton(
@@ -342,6 +350,10 @@ public class StructureWandScreen extends Screen {
     private void updatePage() {
         pages = (int) Math.ceil(filteredStructures.size() / 10f);
         currentPage = 0;
+        if (forward != null && backward != null) {
+            forward.active = currentPage < pages - 1;
+            backward.active = currentPage > 0;
+        }
     }
 
     private void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
