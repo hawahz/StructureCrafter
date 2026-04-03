@@ -65,6 +65,8 @@ public class StructureWandScreen extends Screen {
     private TextureToggleButton updateToggle;
     private TextureToggleButton boundingBoxToggle;
     private TextureToggleButton replaceAirToggle;
+    private TextureToggleButton lockToggle;
+    private TextureToggleButton rotateLockToggle;
     private String filteredName = "";
     private String selectedStructure = "";
     private int currentPage = 0, pages = 0;
@@ -215,7 +217,7 @@ public class StructureWandScreen extends Screen {
         addRenderableWidget(discard);
 
         int toggleX = x + 205;
-        int toggleStartY = y + 20;
+        int toggleStartY = y + 22;
 
         updateToggle = new TextureToggleButton(
                 toggleX + 1,
@@ -294,6 +296,53 @@ public class StructureWandScreen extends Screen {
 
         addRenderableWidget(boundingBoxToggle);
         boundingBoxToggle.setToggled(!AbstractStructureWand.isBoundsVisible(Minecraft.getInstance().player.getMainHandItem()));
+
+        lockToggle = new TextureToggleButton(
+                toggleX,
+                toggleStartY + 65,
+                16,
+                16,
+                LangData.TOOLTIP_BUTTON_LOCK.get(),
+                LangData.TOOLTIP_BUTTON_UNLOCK.get(),
+                texture,
+                240,
+                0,
+                240,
+                16,
+                240,
+                48,
+                240,
+                32,
+
+                () -> {
+                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setLock(lockToggle.isToggled());
+                }
+         );
+        addRenderableWidget(lockToggle);
+        lockToggle.setToggled(!StructureCrafterClient.STRUCTURE_WAND_HANDLER.isLock());
+
+        rotateLockToggle = new TextureToggleButton(
+                toggleX,
+                toggleStartY + 90,
+                16,
+                16,
+                LangData.TOOLTIP_BUTTON_ROTATE_UNLOCK.get(),
+                LangData.TOOLTIP_BUTTON_ROTATE_LOCK.get(),
+                texture,
+                224,
+                0,
+                224,
+                16,
+                208,
+                16,
+                224,
+                32,
+                () -> {
+                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setRotateLock(!rotateLockToggle.isToggled());
+                }
+        );
+        addRenderableWidget(rotateLockToggle);
+        rotateLockToggle.setToggled(StructureCrafterClient.STRUCTURE_WAND_HANDLER.isRotateLock());
 
         forward = new TextureButton(
                 x + 73,

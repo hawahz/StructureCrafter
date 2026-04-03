@@ -18,3 +18,4 @@
 - Replace Air
 - Render Outline
 - Update Neighbors
+- Freeze Direction

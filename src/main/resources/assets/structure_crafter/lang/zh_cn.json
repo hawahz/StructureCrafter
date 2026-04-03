@@ -24,11 +24,15 @@
   "structure_crafter.tooltip.button.bounds_hidden": "隐藏边界",
   "structure_crafter.tooltip.button.bounds_visible": "显示边界",
   "structure_crafter.tooltip.button.delete": "丢弃（临时）",
+  "structure_crafter.tooltip.button.lock": "锁定",
   "structure_crafter.tooltip.button.no_update": "禁用方块更新",
   "structure_crafter.tooltip.button.open_folder": "打开文件夹",
   "structure_crafter.tooltip.button.padding": "清空区域",
   "structure_crafter.tooltip.button.refresh": "刷新",
   "structure_crafter.tooltip.button.replace": "保留区域",
+  "structure_crafter.tooltip.button.rotate_lock": "旋转锁定",
+  "structure_crafter.tooltip.button.rotate_unlock": "旋转解锁",
+  "structure_crafter.tooltip.button.unlock": "解锁",
   "structure_crafter.tooltip.button.update": "启用方块更新",
   "structure_crafter.tooltip.structure_crafter:blackboard0": "[右键]",
   "structure_crafter.tooltip.structure_crafter:blackboard1": "设置第一/第二个选区点",
@@ -44,6 +48,8 @@
   "structure_crafter.tooltip.structure_crafter:blackboard9": "保存结构",
   "structure_crafter.tooltip.structure_crafter:structure_wand0": "[右键]",
   "structure_crafter.tooltip.structure_crafter:structure_wand1": "放置结构",
+  "structure_crafter.tooltip.structure_crafter:structure_wand10": "[Shift + 右键]",
+  "structure_crafter.tooltip.structure_crafter:structure_wand11": "打开配置界面",
   "structure_crafter.tooltip.structure_crafter:structure_wand2": "[左键]",
   "structure_crafter.tooltip.structure_crafter:structure_wand3": "切换冻结状态",
   "structure_crafter.tooltip.structure_crafter:structure_wand4": "[Ctrl + 滚轮]",
@@ -53,7 +59,5 @@
   "structure_crafter.tooltip.structure_crafter:structure_wand8": "[Shift + 左键]",
   "structure_crafter.tooltip.structure_crafter:structure_wand9": "清空选区",
   "structure_crafter.tooltip.structure_crafter:structure_wandconfig": "-[滚轮] / [右键]-",
-  "structure_crafter.tooltip_shift": "-[Shift]-",
-  "structure_crafter.tooltip.structure_crafter:structure_wand10": "[Shift + 右键]",
-  "structure_crafter.tooltip.structure_crafter:structure_wand11": "打开配置界面"
+  "structure_crafter.tooltip_shift": "-[Shift]-"
 }

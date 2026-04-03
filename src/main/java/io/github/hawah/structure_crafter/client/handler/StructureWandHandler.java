@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -52,9 +53,20 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private StructureData structureData = null;
     private Direction playerDirection;
     private Direction oPlayerDirection;
+    private Direction rawDirection;
     private boolean active;
     private boolean dirty = true;
+
+    public boolean isLock() {
+        return lock;
+    }
+
+    public void setLock(boolean lock) {
+        this.lock = lock;
+    }
+
     private boolean lock = false;
+    private boolean rotateLock = false;
     private boolean renderBoundingBox = false;
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
@@ -107,8 +119,11 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
-                player.isCreative()? 75 : 4.5
+                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
         );
+        if (!rotateLock) {
+            rawDirection = player.getDirection();
+        }
         if (trace.getType() == HitResult.Type.BLOCK && !lock) {
 
             BlockPos hit = trace.getBlockPos();
@@ -118,8 +133,10 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 hit = hit.relative(trace.getDirection());
             oSelectedPos = selectedPos==null? hit : selectedPos;
             selectedPos = hit;
-            oPlayerDirection = playerDirection==null? player.getDirection() : playerDirection;
-            playerDirection = player.getDirection();
+            oPlayerDirection = playerDirection==null?
+                    player.getDirection() :
+                    playerDirection;
+            playerDirection = rawDirection;
             setupRenderer();
         } else if (!lock) {
             selectedPos = null;
@@ -288,6 +305,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (mc.options.hideGui || !active)
             return;
         hud.render(guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
+    }
+
+    public boolean isRotateLock() {
+        return rotateLock;
+    }
+
+    public void setRotateLock(boolean rotateLock) {
+        this.rotateLock = rotateLock;
     }
 
     public static class ItemStackData {

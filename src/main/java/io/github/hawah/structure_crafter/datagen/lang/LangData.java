@@ -56,6 +56,10 @@ public enum LangData {
     TOOLTIP_BUTTON_PADDING("tooltip.button.padding", "Padding", 0),
     TOOLTIP_BUTTON_BOUNDS_VISIBLE("tooltip.button.bounds_visible", "Show Bounds", 0),
     TOOLTIP_BUTTON_BOUNDS_HIDDEN("tooltip.button.bounds_hidden", "Hide Bounds", 0),
+    TOOLTIP_BUTTON_LOCK("tooltip.button.lock", "Lock", 0),
+    TOOLTIP_BUTTON_UNLOCK("tooltip.button.unlock", "Unlock", 0),
+    TOOLTIP_BUTTON_ROTATE_LOCK("tooltip.button.rotate_lock", "Lock Rotation", 0),
+    TOOLTIP_BUTTON_ROTATE_UNLOCK("tooltip.button.rotate_unlock", "Unlock Rotation", 0),
 
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
