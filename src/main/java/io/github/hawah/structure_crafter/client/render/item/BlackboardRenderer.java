@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import net.createmod.catnip.animation.AnimationTickHolder;
@@ -60,6 +61,7 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
         poseStack.popPose();
     }
 
+    int equipTick = 0;
     private void renderBlackboardLeftArm(ItemStack stack, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay) {
         poseStack.pushPose();
 
@@ -125,6 +127,60 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
             poseStack.mulPose(Axis.ZP.rotationDegrees(35));
             playerrenderer.renderRightHand(poseStack, bufferSource, light, player);
             poseStack.popPose();
+        }
+        else if (Minecraft.getInstance().player.getMainHandItem().is(Items.INK_SAC)) {
+            if (equipTick == -1) {
+                equipTick = AnimationTickHolder.getTicks();
+            }
+            float equipProgress = Mth.clamp((AnimationTickHolder.getTicks() + partialTicks - equipTick)/5F - 0.5F,0, 1);
+            poseStack.pushPose();
+            poseStack.translate(0.8, -0.2, -0.8);
+
+            poseStack.translate(0.5, 0.6 * EaseHelper.easeInPow(equipProgress, 3) - 0.1, 0.5);
+            poseStack.mulPose(Axis.YN.rotationDegrees(60));
+            float scale = 0.8F;
+
+            poseStack.scale(
+                    scale,
+                    scale,
+                    scale
+            );
+            poseStack.translate(-0.5, -0.5, -0.5);
+            float showRate = 4;
+            float showProgress = Mth.clamp(progress * showRate, 0, 1);
+            poseStack.translate(
+                    1.5 - 0.896 * showProgress * showProgress,
+                    1.5 - 1.4*Math.pow(showProgress - 0.5, 2),
+                    0.3
+            );
+
+
+            float writeProgress = Mth.clamp(progress * showRate - 1, 0, 3)/3F;
+            poseStack.translate(
+                    writeProgress/3,
+                    0.1*Math.sin(writeProgress*20),
+                    -writeProgress/3
+            );
+
+            ItemStack pen = Items.FEATHER.getDefaultInstance();
+            itemRenderer.renderStatic(
+                    pen,
+                    ItemDisplayContext.NONE,
+                    light,
+                    overlay,
+                    poseStack,
+                    bufferSource,
+                    Minecraft.getInstance().level,
+                    0
+            );
+
+            poseStack.translate(0.5, -0.75, 0.2);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(25));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-30));
+            playerrenderer.renderRightHand(poseStack, bufferSource, light, player);
+            poseStack.popPose();
+        } else {
+            equipTick = -1;
         }
         //poseStack.mulPose(Axis.YN.rotationDegrees(tickProgress < 10? progress * 15 : 10F * 15 / useDuration));
 
