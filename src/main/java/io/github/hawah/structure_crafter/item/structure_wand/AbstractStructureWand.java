@@ -89,7 +89,8 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                         center.getInt(2)
                 );
             } else {
-                return null;
+                pos = BlockPos.ZERO;
+                StructureCrafter.LOGGER.warn("Structure file {} does not have a center", file);
             }
         } catch (IOException e) {
             return null;
