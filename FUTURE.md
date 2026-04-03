@@ -4,9 +4,9 @@
 - [x] Visualize **Blackboard** Selection Area.
 - [x] Changeable **Blackboard** Selection Area.
 - [x] Set configurable limits to **Structure Wand**.
+- [x] Make **Structure Wand** Configuration Menu.
 
 ## Stage 1
-- [ ] Make **Structure Wand** Configuration Menu.
 - [ ] Make Ruler
 - [ ] Make Compatible with **Backpack Mods**
 - [ ] Key tips.

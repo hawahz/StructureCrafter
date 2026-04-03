@@ -70,9 +70,9 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
         HashMap<Item, Integer> consumes = getNeededItems(blockInfos);
         int totalConsumes = consumes.values().stream().mapToInt(Integer::intValue).sum();
-        HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
 
-        if (!player.isCreative() && !canPlaceStructure(player, consumes, playerInventory, totalConsumes)) {
+
+        if (!player.isCreative() && !canPlaceStructure(player, consumes, totalConsumes)) {
             return;
         }
 
@@ -103,16 +103,19 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         );
     }
 
-    private static boolean canPlaceStructure(ServerPlayer player, HashMap<Item, Integer> consumes, HashMap<ItemStack, Integer> playerInventory, int totalConsumes) {
+    private static boolean canPlaceStructure(ServerPlayer player, HashMap<Item, Integer> consumes, int totalConsumes) {
+        HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
+        HashMap<IItemHandler, HashMap<Integer, Integer>> itemHandlerMap = new HashMap<>();
+
         for (ItemStack item : player.getInventory().items) {
             if (item.isEmpty()) {
                 continue;
             }
             IItemHandler handler;
             if ((handler = item.getCapability(Capabilities.ItemHandler.ITEM)) != null) {
+                itemHandlerMap.put(handler, new HashMap<>());
                 for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack slotItem = handler.getStackInSlot(i);
-                    shrinkIfMatch(playerInventory, consumes, slotItem);
+                    shrinkIfMatch(itemHandlerMap.getOrDefault(handler, new HashMap<>()), consumes, handler, i);
                 }
             }
             shrinkIfMatch(playerInventory, consumes, item);
@@ -129,10 +132,19 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
             return false;
         }
         playerInventory.forEach(ItemStack::shrink);
+        itemHandlerMap.forEach((handler, map) -> map.forEach((slot, count) -> handler.extractItem(slot, count, false)));
         player.causeFoodExhaustion(totalConsumes * 0.1F);
         return true;
     }
 
+    /**
+     * 检查并减少匹配的物品消耗数量
+     * 如果槽位物品在消耗列表中，则从玩家库存和消耗列表中扣除相应数量
+     *
+     * @param playerInventory 玩家库存映射，键为物品堆，方式为剩余数量
+     * @param consumes 需要消耗的物品映射，键为物品类型，值为所需数量
+     * @param slotItem 要检查的槽位物品堆
+     */
     private static void shrinkIfMatch(HashMap<ItemStack, Integer> playerInventory,
                                       HashMap<Item, Integer> consumes,
                                       ItemStack slotItem) {
@@ -142,6 +154,24 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         int count = consumes.get(slotItem.getItem());
         int consumeCounts = getMin(slotItem, count);
         playerInventory.put(slotItem, consumeCounts);
+        if (count - consumeCounts <= 0) {
+            consumes.remove(slotItem.getItem());
+        } else {
+            consumes.put(slotItem.getItem(), count - consumeCounts);
+        }
+    }
+
+    private static void shrinkIfMatch(HashMap<Integer, Integer> slotToCount,
+                                      HashMap<Item, Integer> consumes,
+                                      IItemHandler handler,
+                                      int slot) {
+        ItemStack slotItem = handler.getStackInSlot(slot);
+        if (!consumes.containsKey(slotItem.getItem())) {
+            return;
+        }
+        int count = consumes.get(slotItem.getItem());
+        int consumeCounts = getMin(slotItem, count);
+        slotToCount.put(slot, consumeCounts);
         if (count - consumeCounts <= 0) {
             consumes.remove(slotItem.getItem());
         } else {
