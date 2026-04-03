@@ -98,6 +98,8 @@ public class Blackboard extends Item implements ITooltipItem {
                         true
                 );
             }
+        } else if (!player.isCreative()) {
+            player.getMainHandItem().shrink(1);
         }
         return stack;
     }
