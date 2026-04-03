@@ -59,6 +59,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         StructurePlaceSettings settings = new StructurePlaceSettings();
         Rotation rotation = StructureWandHandler.transferDirectionToRotation(direction());
         settings.setRotation(rotation);
+        settings.setIgnoreEntities(true);
         List<StructureTemplate.StructureBlockInfo> blockInfos = StructureTemplate.processBlockInfos(
                 (ServerLevelAccessor) level,
                 pos,
