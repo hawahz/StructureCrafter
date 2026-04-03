@@ -11,46 +11,67 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class TextureButton extends AbstractWidget {
+public class TextureToggleButton extends AbstractWidget {
 
     private final Runnable onPress;
     private final ResourceLocation texture;
-    private final int normalStartX;
+    private final int toggleStartX;
+    private final int originStartX;
     private final int hoverStartX;
-    private final int inactiveStartX;
-    private final int normalStartY;
+    private final int toggleHoverStartX;
+    private final int toggleStartY;
+    private final int originStartY;
     private final int hoverStartY;
-    private final int inactiveStartY;
+    private final int toggleHoverStartY;
 
-    public TextureButton(
+    private final Component messageToggled;
+
+    public boolean isToggled() {
+        return toggled;
+    }
+
+    public void setToggled(boolean toggled) {
+        this.toggled = toggled;
+    }
+
+    private boolean toggled = false;
+
+    public TextureToggleButton(
             int x,
             int y,
             int width,
             int height,
             Component message,
+            Component messageToggled,
             ResourceLocation texture,
-            int normalStartX,
-            int normalStartY,
+            int originStartX,
+            int originStartY,
             int hoverStartX,
             int hoverStartY,
-            int inactiveStartX,
-            int inactiveStartY,
+            int toggleHoverStartX,
+            int toggleHoverStartY,
+            int toggleStartX,
+            int toggleStartY,
             Runnable onPress
     ) {
         super(x, y, width, height, message);
         this.onPress = onPress;
         this.texture = texture;
-        this.normalStartX = normalStartX;
+        this.originStartX = originStartX;
         this.hoverStartX = hoverStartX;
-        this.inactiveStartX = inactiveStartX;
-        this.normalStartY = normalStartY;
+        this.toggleHoverStartX = toggleHoverStartX;
+        this.originStartY = originStartY;
         this.hoverStartY = hoverStartY;
-        this.inactiveStartY = inactiveStartY;
+        this.toggleHoverStartY = toggleHoverStartY;
+        this.toggleStartX = toggleStartX;
+        this.toggleStartY = toggleStartY;
+        this.messageToggled = messageToggled;
     }
 
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
         this.onPress.run();
+        toggled = !toggled;
     }
 
     @Override
@@ -62,16 +83,20 @@ public class TextureButton extends AbstractWidget {
                 texture,
                 this.getX(),
                 this.getY(),
-                this.isActive()?
+                this.toggled?
                         this.isHovered()?
-                                hoverStartX :
-                                normalStartX :
-                        inactiveStartX,
-                this.isActive()?
+                                toggleHoverStartX :
+                                toggleStartX :
                         this.isHovered()?
-                                hoverStartY :
-                                normalStartY:
-                        inactiveStartY,
+                                hoverStartX:
+                                originStartX,
+                this.toggled?
+                        this.isHovered()?
+                                toggleHoverStartY :
+                                toggleStartY :
+                        this.isHovered()?
+                                hoverStartY:
+                                originStartY,
                 this.getWidth(),
                 this.getHeight()
         );
@@ -80,7 +105,7 @@ public class TextureButton extends AbstractWidget {
             return;
         guiGraphics.renderComponentTooltip(
                 Minecraft.getInstance().font,
-                List.of(this.getMessage()),
+                List.of(isToggled()?this.messageToggled: this.getMessage()),
                 mouseX,
                 mouseY
         );

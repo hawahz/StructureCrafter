@@ -91,9 +91,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             structureRenderer.clearCache();
             if (activeSchematicItem != stack) {
                 activeSchematicItem = stack;
-                this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
                 hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
             }
+            this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
             setupRenderer();
             String currentFile = hud.getCurrentStructure();
             if (!currentFile.isEmpty()) {
@@ -153,7 +153,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             Outliner.getInstance()
                     .chaseThickBox(slot,
                             new BlockPos(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ()),
-                            new BlockPos(boundingBox.maxX() + 1, boundingBox.maxY() + 1, boundingBox.maxZ() + 1)
+                            new BlockPos(boundingBox.maxX(), boundingBox.maxY(), boundingBox.maxZ())
                     ).setRGBA(1, 1, 1, 1)
                     .setPriority(2)
                     .smooth(1)

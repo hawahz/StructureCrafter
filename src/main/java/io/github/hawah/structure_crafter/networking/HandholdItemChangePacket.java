@@ -21,7 +21,7 @@ public record HandholdItemChangePacket(ItemStack stack) implements ServerboundPa
     );
     @Override
     public void handle(ServerPlayer player) {
-        if (!player.getItemInHand(InteractionHand.MAIN_HAND).equals(stack))
+        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(stack.getItem()))
             return;
         player.getItemInHand(InteractionHand.MAIN_HAND).applyComponents(stack.getComponents());
 

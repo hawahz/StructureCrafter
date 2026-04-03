@@ -45,6 +45,16 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear selection", 0),
 
+    TOOLTIP_BUTTON_OPEN_FOLDER("tooltip.button.open_folder", "Open Folder", 0),
+    TOOLTIP_BUTTON_REFRESH("tooltip.button.refresh", "Refresh", 0),
+    TOOLTIP_BUTTON_DELETE("tooltip.button.delete", "Discard Temporary", 0),
+    TOOLTIP_BUTTON_UPDATE("tooltip.button.update", "Update", 0),
+    TOOLTIP_BUTTON_NO_UPDATE("tooltip.button.no_update", "No Update", 0),
+    TOOLTIP_BUTTON_REPLACE("tooltip.button.replace", "Replace", 0),
+    TOOLTIP_BUTTON_PADDING("tooltip.button.padding", "Padding", 0),
+    TOOLTIP_BUTTON_BOUNDS_VISIBLE("tooltip.button.bounds_visible", "Bounds Visible", 0),
+    TOOLTIP_BUTTON_BOUNDS_HIDDEN("tooltip.button.bounds_hidden", "Boundless", 0),
+
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
     ERROR_AREA_TOO_LARGE("error.area_too_large","The area is too large!",0, ChatFormatting.RED),

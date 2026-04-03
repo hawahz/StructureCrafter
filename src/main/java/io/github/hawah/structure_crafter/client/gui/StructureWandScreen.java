@@ -7,9 +7,12 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.LabelButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
+import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import net.createmod.catnip.platform.CatnipServices;
@@ -26,18 +29,16 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class StructureWandScreen extends Screen {
 
     private final ResourceLocation texture =
@@ -59,6 +60,11 @@ public class StructureWandScreen extends Screen {
     private TextureButton loadFile;
     private TextureButton refresh;
     private TextureButton discard;
+    private TextureButton forward;
+    private TextureButton backward;
+    private TextureToggleButton updateToggle;
+    private TextureToggleButton boundingBoxToggle;
+    private TextureToggleButton replaceAirToggle;
     private String filteredName = "";
     private String selectedStructure = "";
     private int currentPage = 0, pages = 0;
@@ -131,7 +137,7 @@ public class StructureWandScreen extends Screen {
                 b.active = false;
                 StructureCrafterClient.STRUCTURE_WAND_HANDLER.setCurrentStructure(selectedStructure);
                 CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(mainHandItem));
-            }).bounds(x + 21, y + 22 + i * 11, 67, 10));
+            }).bounds(x + 21, y + 21 + i * 11, 67, 10));
             labelButtons.add(button);
             addRenderableWidget(button);
         }
@@ -141,7 +147,7 @@ public class StructureWandScreen extends Screen {
                 y + 142,
                 16,
                 16,
-                Component.literal("Open Folder"),
+                LangData.TOOLTIP_BUTTON_OPEN_FOLDER.get(),
                 texture,
                 0,
                 0,
@@ -160,7 +166,7 @@ public class StructureWandScreen extends Screen {
                 y + 142,
                 16,
                 16,
-                Component.literal("Refresh"),
+                LangData.TOOLTIP_BUTTON_REFRESH.get(),
                 texture,
                 32,
                 0,
@@ -178,7 +184,7 @@ public class StructureWandScreen extends Screen {
                 y + 142,
                 16,
                 16,
-                Component.literal("discard"),
+                LangData.TOOLTIP_BUTTON_DELETE.get(),
                 texture,
                 16,
                 0,
@@ -200,6 +206,129 @@ public class StructureWandScreen extends Screen {
 
         addRenderableWidget(discard);
 
+        int toggleX = x + 205;
+        int toggleStartY = y + 20;
+
+        updateToggle = new TextureToggleButton(
+                toggleX + 1,
+                toggleStartY,
+                16,
+                16,
+                LangData.TOOLTIP_BUTTON_UPDATE.get(),
+                LangData.TOOLTIP_BUTTON_NO_UPDATE.get(),
+                texture,
+                160,
+                0,
+                160,
+                32,
+                208,
+                0,
+                160,
+                16,
+                () -> {
+                    AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isToggled()? Block.UPDATE_ALL: 0);
+                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
+                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                }
+        );
+
+        addRenderableWidget(updateToggle);
+        updateToggle.setToggled(AbstractStructureWand.getUpdateFlags(Minecraft.getInstance().player.getMainHandItem()) != Block.UPDATE_ALL);
+
+        replaceAirToggle = new TextureToggleButton(
+                toggleX,
+                toggleStartY + 21,
+                16,
+                16,
+                LangData.TOOLTIP_BUTTON_REPLACE.get(),
+                LangData.TOOLTIP_BUTTON_PADDING.get(),
+                texture,
+                128,
+                0,
+                128,
+                32,
+                176,
+                0,
+                128,
+                16,
+                () -> {
+                    AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), !replaceAirToggle.isToggled());
+                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
+                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                }
+        );
+
+        addRenderableWidget(replaceAirToggle);
+        replaceAirToggle.setToggled(AbstractStructureWand.isReplaceAir(Minecraft.getInstance().player.getMainHandItem()));
+
+        boundingBoxToggle = new TextureToggleButton(
+                toggleX,
+                toggleStartY + 44,
+                16,
+                16,
+                LangData.TOOLTIP_BUTTON_BOUNDS_VISIBLE.get(),
+                LangData.TOOLTIP_BUTTON_BOUNDS_HIDDEN.get(),
+                texture,
+                144,
+                0,
+                144,
+                32,
+                192,
+                0,
+                144,
+                16,
+                () -> {
+                    AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), boundingBoxToggle.isToggled());
+                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
+                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                }
+        );
+
+        addRenderableWidget(boundingBoxToggle);
+        boundingBoxToggle.setToggled(!AbstractStructureWand.isBoundsVisible(Minecraft.getInstance().player.getMainHandItem()));
+
+        forward = new TextureButton(
+                x + 73,
+                y + 117,
+                16,
+                16,
+                Component.empty(),
+                texture,
+                48,
+                0,
+                48,
+                16,
+                48,
+                32,
+                () -> turnPage(1)
+        );
+        addRenderableWidget(forward);
+        forward.active = pages > 1;
+
+        backward = new TextureButton(
+                x + 18,
+                y + 119,
+                16,
+                14,
+                Component.empty(),
+                texture,
+                64,
+                2,
+                64,
+                18,
+                64,
+                34,
+                () -> turnPage(-1)
+        );
+        addRenderableWidget(backward);
+        backward.active = false;
+
+    }
+
+    private void turnPage(int direction) {
+        currentPage = Mth.clamp(currentPage + direction, 0, pages - 1);
+        forward.active = currentPage < pages - 1;
+        backward.active = currentPage > 0;
     }
 
     private void refresh() {
@@ -233,12 +362,11 @@ public class StructureWandScreen extends Screen {
         // 122, 33
         float y = (ease * 200) - 200;
         float shadeOffsetY = - 33 - y * 2;
-        System.out.println(delta);
         float clip = Mth.clamp(138 - shadeOffsetY, 0, 100000);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(0.455f, 0.267f, 0.267f, 0.5f);
-        int handX = guiLeft + 130;
+        int handX = guiLeft + 121;
         if (shadeOffsetY < 138) {
             graphics.blit(
                     textureDecoration,
@@ -266,14 +394,21 @@ public class StructureWandScreen extends Screen {
                 195
         );
         pose.popPose();
+
+        graphics.drawCenteredString(
+                font,
+                Component.literal("- " + (currentPage + 1) + "/" + pages + " -"),
+                guiLeft+54,
+                guiTop + 121,
+                0xFFFFFF
+        );
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 
         int intDelta = (int) (scrollY > 0 ? Math.ceil(scrollY) : Math.floor(scrollY));
-        currentPage -= intDelta;
-        currentPage = Mth.clamp(currentPage, 0, pages-1);
+        turnPage(-intDelta);
 
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }

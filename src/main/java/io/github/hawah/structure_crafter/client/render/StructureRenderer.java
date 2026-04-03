@@ -112,7 +112,8 @@ public class StructureRenderer {
             BlockPos localPos = info.pos();
             BlockPos worldPos = anchorPos.offset(localPos); // 方块在世界中的真实坐标
 
-            if (!frustum.isVisible(new AABB(anchorPos.offset(localPos.rotate(Rotation.values()[Math.floorMod((int) (degree / 90), 4)]))))) {
+            BlockPos posLight = anchorPos.offset(localPos.rotate(Rotation.values()[Math.floorMod((int) (degree / 90), 4)]));
+            if (!frustum.isVisible(new AABB(posLight))) {
                 continue;
             }
 
