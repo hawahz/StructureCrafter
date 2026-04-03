@@ -9,7 +9,7 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
-import net.createmod.catnip.animation.AnimationTickHolder;
+import io.github.hawah.structure_crafter.client.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;

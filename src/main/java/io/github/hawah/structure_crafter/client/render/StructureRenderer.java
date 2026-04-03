@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import net.createmod.catnip.animation.AnimationTickHolder;
+import io.github.hawah.structure_crafter.client.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -101,6 +101,7 @@ public class StructureRenderer {
         float degree = getDegree(playerDirection, oPlayerDirection, partialTicks);
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(Axis.YN.rotationDegrees(degree));
+        poseStack.scale(-1, 1, 1);
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // 2. 遍历渲染所有的方块和方块实体

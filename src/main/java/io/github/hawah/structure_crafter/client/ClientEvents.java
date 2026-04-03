@@ -73,6 +73,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
+        AnimationTickHolder.tick();
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
