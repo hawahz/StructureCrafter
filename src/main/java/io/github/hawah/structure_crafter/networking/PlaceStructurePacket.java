@@ -8,6 +8,7 @@ import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -108,7 +109,12 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
         HashMap<IItemHandler, HashMap<Integer, Integer>> itemHandlerMap = new HashMap<>();
 
-        for (ItemStack item : player.getInventory().items) {
+        NonNullList<ItemStack> items = NonNullList.create();
+        items.addAll(player.getInventory().items);
+        items.addAll(player.getInventory().armor);
+        items.addAll(player.getInventory().offhand);
+
+        for (ItemStack item : items) {
             if (item.isEmpty()) {
                 continue;
             }
