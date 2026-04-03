@@ -1,5 +1,5 @@
 ## Before Release
-- [ ] Create series of configurable **Structure Wand** place settings.
+- [x] Create series of configurable **Structure Wand** place settings.
 - [x] Make **Blackboard** selecting easier and easy to interact.
 - [x] Visualize **Blackboard** Selection Area.
 - [x] Changeable **Blackboard** Selection Area.
@@ -9,8 +9,10 @@
 ## Stage 1
 - [ ] Make Ruler
 - [ ] Make Compatible with **Backpack Mods**
+- [ ] Compat with Curios
 - [ ] Key tips.
-- [ ] Flip in **Structure Wand**.
+- [ ] Flip method in **Structure Wand**.
+- [ ] Material quantity reminder
 
 ### Structure Wand Configurations
 - Replace Air

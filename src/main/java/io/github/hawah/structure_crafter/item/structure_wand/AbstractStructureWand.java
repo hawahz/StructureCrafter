@@ -104,44 +104,46 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         if (!Screen.hasShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_1.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_2.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_3.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_7.get()));
-//            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_8.get()));
-//            tooltipElements.add(t, Either.left(LangData.TOOLTIP_WAND_9.get()));
-            StructureWandHandler.ItemStackData data = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
-            tooltipElements
-                    .add(t++, Either.left((data.isUpdateAll?
-                            LangData.CONFIG_STRUCTURE_WAND_UPDATE_ALL :
-                            LangData.CONFIG_STRUCTURE_WAND_NO_UPDATE)
-                            .get()
-                            .withStyle(
-                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
-                                            ChatFormatting.WHITE :
-                                            ChatFormatting.DARK_GRAY)));
-            tooltipElements
-                    .add(t++, Either.left((data.isReplaceAir?
-                            LangData.CONFIG_STRUCTURE_WAND_CLEAR_AREA :
-                            LangData.CONFIG_STRUCTURE_WAND_KEEP_AREA)
-                            .get()
-                            .withStyle(
-                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
-                                            ChatFormatting.WHITE :
-                                            ChatFormatting.DARK_GRAY)));
-            tooltipElements
-                    .add(t++, Either.left((data.isRenderBoundingBox?
-                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUNDS :
-                            LangData.CONFIG_STRUCTURE_WAND_RENDER_NONE)
-                            .get()
-                            .withStyle(
-                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
-                                            ChatFormatting.WHITE :
-                                            ChatFormatting.DARK_GRAY)));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_1.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_2.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_3.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_4.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_5.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_6.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_7.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_8.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_9.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_10.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_11.get()));
+//            StructureWandHandler.ItemStackData data = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
+//            tooltipElements
+//                    .add(t++, Either.left((data.isUpdateAll?
+//                            LangData.CONFIG_STRUCTURE_WAND_UPDATE_ALL :
+//                            LangData.CONFIG_STRUCTURE_WAND_NO_UPDATE)
+//                            .get()
+//                            .withStyle(
+//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
+//                                            ChatFormatting.WHITE :
+//                                            ChatFormatting.DARK_GRAY)));
+//            tooltipElements
+//                    .add(t++, Either.left((data.isReplaceAir?
+//                            LangData.CONFIG_STRUCTURE_WAND_CLEAR_AREA :
+//                            LangData.CONFIG_STRUCTURE_WAND_KEEP_AREA)
+//                            .get()
+//                            .withStyle(
+//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
+//                                            ChatFormatting.WHITE :
+//                                            ChatFormatting.DARK_GRAY)));
+//            tooltipElements
+//                    .add(t++, Either.left((data.isRenderBoundingBox?
+//                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUNDS :
+//                            LangData.CONFIG_STRUCTURE_WAND_RENDER_NONE)
+//                            .get()
+//                            .withStyle(
+//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
+//                                            ChatFormatting.WHITE :
+//                                            ChatFormatting.DARK_GRAY)));
         }
     }
 

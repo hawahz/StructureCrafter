@@ -21,15 +21,17 @@ public enum LangData {
     SHIFT("tooltip_shift", "-[Shift]-", 0, ChatFormatting.DARK_GRAY , ChatFormatting.ITALIC),
 
     TOOLTIP_WAND_0("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "0", "[Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
-    TOOLTIP_WAND_1("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "1", "Place current structure", 0),
+    TOOLTIP_WAND_1("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "1", "Place", 0),
     TOOLTIP_WAND_2("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "2", "[Left Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
-    TOOLTIP_WAND_3("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "3", "Freeze/Unfreeze current structure", 0),
+    TOOLTIP_WAND_3("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "3", "Freeze/Unfreeze", 0),
     TOOLTIP_WAND_4("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "4", "[Ctrl + Scroll]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
-    TOOLTIP_WAND_5("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "5", "Rotate structure around anchor", 0),
+    TOOLTIP_WAND_5("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "5", "Rotate", 0),
     TOOLTIP_WAND_6("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "6", "[Alt + Scroll]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
-    TOOLTIP_WAND_7("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "7", "Select structure in folder", 0),
+    TOOLTIP_WAND_7("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "7", "Select Structure", 0),
     TOOLTIP_WAND_8("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "8", "[Shift + Left Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_WAND_9("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "9", "Clear Selection", 0),
+    TOOLTIP_WAND_10("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "10", "[Shift + Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_WAND_11("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "11", "Open Config Menu", 0),
     TOOLTIP_WAND_CONFIG("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "config", "-[Scroll] / [Right Click]-", 0, ChatFormatting.YELLOW, ChatFormatting.BOLD),
 
     TOOLTIP_BLACKBOARD_0("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "0", "[Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
@@ -59,7 +61,7 @@ public enum LangData {
 
     ERROR_AREA_TOO_LARGE("error.area_too_large","The area is too large!",0, ChatFormatting.RED),
 
-    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2s(s)",2),
+    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2$s(s)",2),
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Insufficient number of items",0),
 
     CONFIG_STRUCTURE_WAND_UPDATE_FLAG("config.structure_wand_update_flag","-Update Flag- :%s",1),

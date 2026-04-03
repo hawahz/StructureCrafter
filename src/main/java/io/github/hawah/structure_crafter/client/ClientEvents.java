@@ -75,10 +75,10 @@ public class ClientEvents {
     }
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
-        int button = event.getButton();
-        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseInput(button, true)) {
-            event.setCanceled(true);
-        }
+//        int button = event.getButton();
+//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseInput(button, true)) {
+//            event.setCanceled(true);
+//        }
     }
     @SubscribeEvent
     public static void onMouseInput(InputEvent.MouseButton.Pre event) {
@@ -110,9 +110,9 @@ public class ClientEvents {
     }
     @SubscribeEvent
     public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
-        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseScroll(event.getScrollDeltaY())) {
-            event.setCanceled(true);
-        }
+//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseScroll(event.getScrollDeltaY())) {
+//            event.setCanceled(true);
+//        }
     }
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
