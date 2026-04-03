@@ -101,7 +101,7 @@ public class StructureRenderer {
         float degree = getDegree(playerDirection, oPlayerDirection, partialTicks);
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(Axis.YN.rotationDegrees(degree));
-        poseStack.scale(-1, 1, 1);
+//        poseStack.scale(-1, 1, 1);
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // 2. 遍历渲染所有的方块和方块实体
