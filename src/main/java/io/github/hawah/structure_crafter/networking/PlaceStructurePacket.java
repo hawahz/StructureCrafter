@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.client.StructureData;
+import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;

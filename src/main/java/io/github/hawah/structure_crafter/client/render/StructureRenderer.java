@@ -1,12 +1,11 @@
 package io.github.hawah.structure_crafter.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import io.github.hawah.structure_crafter.client.AnimationTickHolder;
+import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +22,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -31,7 +29,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.joml.Matrix4f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,7 +107,7 @@ public class StructureRenderer {
             if (state.isAir()) continue;
 
 
-            BlockPos localPos = info.pos();
+            final BlockPos localPos = info.pos();
             BlockPos worldPos = anchorPos.offset(localPos); // 方块在世界中的真实坐标
 
             BlockPos posLight = anchorPos.offset(localPos.rotate(Rotation.values()[Math.floorMod((int) (degree / 90), 4)]));
@@ -119,8 +116,10 @@ public class StructureRenderer {
             }
 
             poseStack.pushPose();
-
+            // 翻转动画在这一行执行
+//            poseStack.scale(0.2F, 1, 1);
             poseStack.translate(localPos.getX(), localPos.getY(), localPos.getZ());
+
 
 
             // --- A. 渲染静态方块模型 ---
@@ -140,7 +139,7 @@ public class StructureRenderer {
             if (info.nbt() != null && state.hasBlockEntity()) {
                 // 如果是特殊渲染形状 (例如箱子、床) 或附加了 BER 的普通方块
                 poseStack.pushPose();
-                BlockEntity be = getOrCreateBlockEntity(level, info.pos(), worldPos, state, info.nbt());
+                BlockEntity be = getOrCreateBlockEntity(level, localPos, worldPos, state, info.nbt());
                 if (be != null) {
                     renderBlockEntity(be, poseStack, buffer, beDispatcher, level, worldPos);
                 }

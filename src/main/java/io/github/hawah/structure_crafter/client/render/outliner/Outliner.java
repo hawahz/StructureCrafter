@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;

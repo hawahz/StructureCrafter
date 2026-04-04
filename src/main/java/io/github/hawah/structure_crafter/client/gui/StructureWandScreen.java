@@ -10,20 +10,17 @@ import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
+import io.github.hawah.structure_crafter.client.utils.SearchHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
-import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -31,16 +28,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class StructureWandScreen extends Screen {
+public class StructureWandScreen extends BaseScreen {
 
     private final ResourceLocation texture =
             ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "wand_settings" + ".png");
@@ -49,9 +43,6 @@ public class StructureWandScreen extends Screen {
     public StructureWandScreen() {
         super(Component.literal("structure_wand"));
     }
-    protected int textureWidth, textureHeight;
-    protected int windowXOffset, windowYOffset;
-    protected int guiLeft, guiTop;
     private int handTick = 0;
     private final List<String> structuresInFolder = new ArrayList<>();
     private List<MutableComponent> filteredStructures = new ArrayList<>();
@@ -71,34 +62,20 @@ public class StructureWandScreen extends Screen {
     private String filteredName = "";
     private String selectedStructure = "";
     private int currentPage = 0, pages = 0;
+    float prevPage = 0;
     private final int MAX_SLOTS = 9;
-
-    /**
-     * This method must be called before {@code super.init()}!
-     */
-    protected void setTextureSize(int width, int height) {
-        textureWidth = width;
-        textureHeight = height;
-    }
-
-    /**
-     * This method must be called before {@code super.init()}!
-     */
-    protected void setWindowOffset(int xOffset, int yOffset) {
-        windowXOffset = xOffset;
-        windowYOffset = yOffset;
-    }
 
     @Override
     public void tick() {
         super.tick();
         handTick ++;
-        handTick = Math.min(handTick, 10);
+        handTick = Math.min(handTick, 100);
         for (int i = 0; i < this.labelButtons.size(); i++) {
             labelButtons.get(i)
                     .setMessage(i + currentPage*MAX_SLOTS >= filteredStructures.size()? Component.literal(""): filteredStructures.get(i + currentPage*MAX_SLOTS));
             labelButtons.get(i).active = !labelButtons.get(i).getMessage().getString().equals(selectedStructure);
         }
+//        prevPage = currentPage;
     }
 
     @Override
@@ -106,14 +83,16 @@ public class StructureWandScreen extends Screen {
 
         setTextureSize(230, 140);
 
-        guiLeft = (width - textureWidth) / 2;
-        guiTop = (height - textureHeight) / 2;
-        guiLeft += windowXOffset;
-        guiTop += windowYOffset;
+        super.init();
 
         int x = guiLeft;
         int y = guiTop;
 
+        placeComponents(x, y);
+
+    }
+
+    private void placeComponents(int x, int y) {
         nameField = new EditBox(font, x + 30, y + 3, 54, 10, CommonComponents.EMPTY);
         nameField.setTextColor(-1);
         nameField.setTextColorUneditable(-1);
@@ -121,7 +100,7 @@ public class StructureWandScreen extends Screen {
         nameField.setFocused(true);
         nameField.setResponder(text -> {
             filteredName = text;
-            List<String> searchResult = search(filteredName, structuresInFolder);
+            List<String> searchResult = SearchHelper.search(filteredName, structuresInFolder);
             filteredStructures = searchResult.stream().map(Component::literal).toList();
             updatePage();
         });
@@ -380,10 +359,10 @@ public class StructureWandScreen extends Screen {
         );
         addRenderableWidget(backward);
         backward.active = false;
-
     }
 
     private void turnPage(int direction) {
+//        prevPage = currentPage;
         currentPage = Mth.clamp(currentPage + direction, 0, pages - 1);
         forward.active = currentPage < pages - 1;
         backward.active = currentPage > 0;
@@ -392,21 +371,29 @@ public class StructureWandScreen extends Screen {
     private void refresh() {
         StructureHandler.loadStructuresString(structuresInFolder);
         structuresInFolder.removeIf(discardedStructures::contains);
-        List<String> result = search(filteredName, structuresInFolder);
+        List<String> result = SearchHelper.search(filteredName, structuresInFolder);
         filteredStructures = result.stream().map(Component::literal).toList();
         updatePage();
     }
 
     private void updatePage() {
-        pages = (int) Math.ceil(filteredStructures.size() / 10f);
+        pages = (int) Math.ceil((double) filteredStructures.size() / MAX_SLOTS);
         currentPage = 0;
+        prevPage = 0;
         if (forward != null && backward != null) {
             forward.active = currentPage < pages - 1;
             backward.active = currentPage > 0;
         }
     }
 
-    private void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    @Override
+    public boolean isPauseScreen() {
+        return true;
+    }
+
+    @Override
+    protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        // Background
         graphics.blit(
                 texture,
                 guiLeft,
@@ -417,13 +404,14 @@ public class StructureWandScreen extends Screen {
                 textureHeight
         );
         PoseStack pose = graphics.pose();
-        float delta = handTick == 10f? 1 : (handTick + partialTicks) / 10f;
-        float ease = 1-EaseHelper.easeInPow(Mth.clamp(1-delta, 0, 1), 10);
+        float delta = handTick >= 10f? 1 : (handTick + partialTicks) / 10f;
+        float ease = 1-EaseHelper.easeInPow(Mth.clamp(1-delta, 0, 1), 3);
 
+        // Wand Shade
         pose.pushPose();
         // 122, 33
         float y = (ease * 200) - 200;
-        float shadeOffsetY = - 33 - y * 2;
+        float shadeOffsetY = - 33 - y * 1.25F;
         float clip = Mth.clamp(138 - shadeOffsetY, 0, 100000);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -433,7 +421,7 @@ public class StructureWandScreen extends Screen {
             graphics.blit(
                     textureDecoration,
                     handX - 4,
-                    (int)(guiTop + shadeOffsetY) + (int) (15 - shadeOffsetY),
+                    (int)(guiTop + Mth.clamp(shadeOffsetY, 15, 138)),
                     80,
                     shadeOffsetY > 15? 0 : (int) (15 - shadeOffsetY),
                     80,
@@ -444,8 +432,9 @@ public class StructureWandScreen extends Screen {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.disableBlend();
         pose.popPose();
+
+        // Wand
         pose.pushPose();
-        pose.translate(0, (guiTop - 33 - y) - (int) (guiTop - 33 - y), 0);
         graphics.blit(
                 textureDecoration,
                 handX,
@@ -457,6 +446,7 @@ public class StructureWandScreen extends Screen {
         );
         pose.popPose();
 
+        // Page Indicator
         graphics.drawCenteredString(
                 font,
                 Component.literal("- " + (currentPage + 1) + "/" + pages + " -"),
@@ -475,24 +465,10 @@ public class StructureWandScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
-    private Iterable<? extends Renderable> getRenderables() {
-        return ((ScreenAccessor) this).getRenderables();
-    }
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        PoseStack poseStack = guiGraphics.pose();
-
-        poseStack.pushPose();
-
-        renderMenuBackground(guiGraphics);
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        renderWindow(guiGraphics, mouseX, mouseY, partialTick);
-
-        for (Renderable renderable : getRenderables())
-            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        // + 15, + 120
-        float tagY = Mth.lerp(Mth.clamp(currentPage / Math.max(1, pages - 1f), 0, 1), 15, 120);
+    protected void renderWindowPost(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        prevPage = Mth.lerp(StructureCrafterClient.ANI_DELTAF/3, prevPage, currentPage);
+        float tagY = Mth.lerp(Mth.clamp(prevPage / Math.max(1, pages - 1f), 0, 1), 15, 120);
         guiGraphics.blit(
                 texture,
                 guiLeft + 102,
@@ -502,74 +478,5 @@ public class StructureWandScreen extends Screen {
                 16,
                 16
         );
-
-        poseStack.popPose();
-    }
-
-    public static List<String> search(String query, List<String> data) {
-        String q = normalize(query);
-
-        List<String> candidates = new ArrayList<>();
-
-        // 阶段1：过滤
-        for (String s : data) {
-            String t = normalize(s);
-
-            if (t.contains(q) || fuzzyMatch(q, t)) {
-                candidates.add(s); // 注意：返回原字符串
-            }
-        }
-
-        // 阶段2：排序
-        candidates.sort(Comparator.comparingDouble(s -> {
-            String t = normalize(s);
-            return score(q, t);
-        }));
-
-        return candidates;
-    }
-
-    public static String normalize(String s) {
-        return s.toLowerCase(Locale.ROOT)
-                .replace("_", "")
-                .replace(" ", "");
-    }
-
-    public static float score(String q, String t) {
-        int lev = levenshtein(q, t);
-
-        float prefix = t.startsWith(q) ? 1.0f : 0.0f;
-        float subseq = fuzzyMatch(q, t) ? 1.0f : 0.0f;
-
-        float lenPenalty = Math.abs(t.length() - q.length()) * 0.1f;
-
-        return lev - prefix * 2 - subseq * 1 + lenPenalty;
-    }
-
-    public static int levenshtein(String a, String b) {
-        int n = a.length(), m = b.length();
-        int[][] dp = new int[n + 1][m + 1];
-
-        for (int i = 0; i <= n; i++) dp[i][0] = i;
-        for (int j = 0; j <= m; j++) dp[0][j] = j;
-
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= m; j++) {
-                int cost = (a.charAt(i - 1) == b.charAt(j - 1)) ? 0 : 1;
-                dp[i][j] = Math.min(
-                        Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1),
-                        dp[i - 1][j - 1] + cost
-                );
-            }
-        }
-        return dp[n][m];
-    }
-
-    public static boolean fuzzyMatch(String pattern, String text) {
-        int i = 0;
-        for (char c : text.toCharArray()) {
-            if (i < pattern.length() && c == pattern.charAt(i)) i++;
-        }
-        return i == pattern.length();
     }
 }

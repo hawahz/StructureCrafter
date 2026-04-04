@@ -1,7 +1,8 @@
 package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.hawah.structure_crafter.client.StructureData;
+import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
@@ -70,6 +71,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private boolean renderBoundingBox = false;
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
+    @Deprecated
     public ItemStackData data = new ItemStackData();
 
     public void setDirty(boolean dirty) {
@@ -119,7 +121,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
-                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE)
+                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
         if (!rotateLock) {
             rawDirection = player.getDirection();
@@ -315,6 +317,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         this.rotateLock = rotateLock;
     }
 
+    @Deprecated
     public static class ItemStackData {
 
         public int slotId;

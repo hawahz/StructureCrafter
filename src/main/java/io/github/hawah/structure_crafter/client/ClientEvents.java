@@ -2,42 +2,43 @@ package io.github.hawah.structure_crafter.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
-import com.mojang.math.Axis;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
-import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
+import io.github.hawah.structure_crafter.util.BlackboardRenderType;
+import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
@@ -54,7 +55,7 @@ public class ClientEvents {
 
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
-        DeltaTracker partialTick = event.getPartialTick();
+        DeltaTracker partialTick = StructureCrafterClient.TIMER.warp(event.getPartialTick());
 
         if (Outliner.hasInstance()) {
             Outliner.getInstance().render(
@@ -102,16 +103,16 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
-        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
-        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
-        if (slotUnderMouse == null)
-            return;
-        StructureWandHandler.ItemStackData configData = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
-        if (slotUnderMouse.getItem().getItem() instanceof AbstractStructureWand) {
-            configData.init(slotUnderMouse.getItem(), slotUnderMouse.index);
-        } else {
-            configData.clear();
-        }
+//        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
+//        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
+//        if (slotUnderMouse == null)
+//            return;
+//        StructureWandHandler.ItemStackData configData = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
+//        if (slotUnderMouse.getItem().getItem() instanceof AbstractStructureWand) {
+//            configData.init(slotUnderMouse.getItem(), slotUnderMouse.index);
+//        } else {
+//            configData.clear();
+//        }
     }
     @SubscribeEvent
     public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
@@ -166,8 +167,19 @@ public class ClientEvents {
     @SubscribeEvent
     public static void renderHand(RenderHandEvent event) {
         LocalPlayer player;
-        if (event.getItemStack().is(Items.INK_SAC) && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD)) {
+        if (event.getItemStack().is(Items.INK_SAC) && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD) && Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE)) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void loadCompleted(FMLLoadCompleteEvent event) {
+        ModContainer modContainer = ModList.get()
+                .getModContainerById(StructureCrafter.MODID)
+                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
+
+        Supplier<IConfigScreenFactory> configScreen = () ->
+                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
     }
 }

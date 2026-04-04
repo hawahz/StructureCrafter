@@ -1,6 +1,5 @@
 package io.github.hawah.structure_crafter.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.ColoredLabel;
@@ -11,15 +10,15 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 
-public class BlackboardCheckScreen extends Screen {
+public class BlackboardCheckScreen extends BaseScreen {
 
     private ColoredLabel alarmLabel;
 
@@ -27,41 +26,20 @@ public class BlackboardCheckScreen extends Screen {
             ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "nametag" + ".png");
 
     public BlackboardCheckScreen() {
-        super(Component.literal("blkb"));
+        super(Component.literal("blackboard"));
     }
 
-    protected int textureWidth, textureHeight;
-    protected int windowXOffset, windowYOffset;
-    protected int guiLeft, guiTop;
+
     private EditBox nameField;
     private TextureButton confirm;
     private TextureButton delete;
     private TextureButton discard;
 
-    /**
-     * This method must be called before {@code super.init()}!
-     */
-    protected void setWindowSize(int width, int height) {
-        textureWidth = width;
-        textureHeight = height;
-    }
-
-    /**
-     * This method must be called before {@code super.init()}!
-     */
-    protected void setWindowOffset(int xOffset, int yOffset) {
-        windowXOffset = xOffset;
-        windowYOffset = yOffset;
-    }
-
     @Override
     protected void init() {
-        setWindowSize(109, 32);
+        setTextureSize(109, 32);
 
-        guiLeft = (width - textureWidth) / 2 + 20;
-        guiTop = (height - textureHeight) / 2;
-        guiLeft += windowXOffset;
-        guiTop += windowYOffset;
+        super.init();
 
         int x = guiLeft;
         int y = guiTop + 2;
@@ -164,29 +142,12 @@ public class BlackboardCheckScreen extends Screen {
         return super.keyPressed(key, p_96553_, p_96554_);
     }
 
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        PoseStack poseStack = graphics.pose();
-
-        poseStack.pushPose();
-
-        renderMenuBackground(graphics);
-        renderBackground(graphics, mouseX, mouseY, partialTicks);
-        renderWindow(graphics, mouseX, mouseY, partialTicks);
-
-        for (Renderable renderable : getRenderables())
-            renderable.render(graphics, mouseX, mouseY, partialTicks);
-
-        alarmLabel.render(graphics, mouseX, mouseY, partialTicks);
-
-        poseStack.popPose();
-    }
-
     private Iterable<? extends Renderable> getRenderables() {
         return ((ScreenAccessor) this).getRenderables();
     }
 
-    private void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    @Override
+    protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.blit(
                 texture,
                 guiLeft,
@@ -208,6 +169,11 @@ public class BlackboardCheckScreen extends Screen {
                 guiTop - font.lineHeight * 5 - 2,
                 0xFFFFFF
         );
+    }
+
+    @Override
+    protected void renderWindowPost(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        alarmLabel.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override

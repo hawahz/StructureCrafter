@@ -2,14 +2,13 @@ package io.github.hawah.structure_crafter.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.hawah.structure_crafter.client.LazySet;
+import io.github.hawah.structure_crafter.client.utils.LazySet;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class RenderElement {
 

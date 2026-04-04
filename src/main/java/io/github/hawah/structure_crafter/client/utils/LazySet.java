@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client;
+package io.github.hawah.structure_crafter.client.utils;
 
 public class LazySet {
     public int ticksLeft;

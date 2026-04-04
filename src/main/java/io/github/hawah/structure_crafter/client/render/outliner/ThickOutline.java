@@ -26,16 +26,17 @@ public class ThickOutline extends OutlineElement {
     public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
 
         // 构建 AABB 范围，确保 pos0 和 pos1 的大小关系正确
+        float delta = partialTick.getGameTimeDeltaPartialTick(true);
         boundingBox = new AABB(
-                oPos0.lerp(visualPos0, partialTick.getGameTimeDeltaPartialTick(true)),
-                oPos1.lerp(visualPos1, partialTick.getGameTimeDeltaPartialTick(true))
+                oPos0.lerp(visualPos0, delta),
+                oPos1.lerp(visualPos1, delta)
         ).inflate(0.002 * (1 + priority)); // 稍微膨胀一点防止与方块表面闪烁
         AABB box = boundingBox;
 
-        float cr = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), or, r),
-                cg = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), og, g),
-                cb = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), ob, b),
-                ca = Mth.lerp(partialTick.getGameTimeDeltaPartialTick(true), oa, a);
+        float cr = Mth.lerp(delta, or, r),
+                cg = Mth.lerp(delta, og, g),
+                cb = Mth.lerp(delta, ob, b),
+                ca = Mth.lerp(delta, oa, a);
 
         // 计算相对于摄像机的 AABB 边界
         float xMin = (float) (box.minX - cameraPos.x);

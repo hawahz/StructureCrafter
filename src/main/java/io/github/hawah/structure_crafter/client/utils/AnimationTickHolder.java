@@ -1,5 +1,6 @@
-package io.github.hawah.structure_crafter.client;
+package io.github.hawah.structure_crafter.client.utils;
 
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.LevelAccessor;
 
@@ -57,7 +58,12 @@ public class AnimationTickHolder {
      * @return the fraction between the current tick to the next tick, frozen during game pause [0-1]
      */
     public static float getPartialTicks() {
+        return getPartialTicks(true);
+    }
+
+    public static float getPartialTicks(boolean ignorePaused) {
         Minecraft mc = Minecraft.getInstance();
-        return mc.getTimer().getGameTimeDeltaPartialTick(false);
+        float delta = mc.getTimer().getGameTimeDeltaPartialTick(false);
+        return ignorePaused? StructureCrafterClient.TIMER.getGameTimeDeltaPartialTick(true): delta;
     }
 }

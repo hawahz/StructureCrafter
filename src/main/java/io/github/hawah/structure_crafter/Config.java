@@ -17,6 +17,10 @@ public class Config {
             .comment("Render Type of Blackboard")
             .defineEnum("blackboard_render_type", BlackboardRenderType.WRITE);
 
+    public static final ModConfigSpec.IntValue STRUCTURE_PLACE_DISTANCE = BUILDER
+            .comment("Define how far can a survival player place a structure by using structure wand. Is always considered as the multiple number on default player reach distance")
+            .defineInRange("structure_place_distance", 1, 1, 10);
+
     public static final ModConfigSpec.IntValue MAX_SIZE_X = BUILDER
             .comment("Max Size X of Selection Area")
             .defineInRange("max_size_x", 30, -1, Integer.MAX_VALUE);
