@@ -15,8 +15,16 @@ public class PacketRegistry{
     private final Set<PacketHolder<?>> packets = new HashSet<>();
     public final Set<PacketHolder<?>> packetView = Collections.unmodifiableSet(packets);
 
+    private final Set<PacketHolder<?>> networkPacket = new HashSet<>();
+    public final Set<PacketHolder<?>> networkPacketView = Collections.unmodifiableSet(networkPacket);
+
     public <T extends CustomPacketPayload> void register(PacketHolder<T> packet) {
-        packets.add(packet);
+        if (ClientToServerPacket.class.isAssignableFrom(packet.clazz) || ServerToClientPacket.class.isAssignableFrom(packet.clazz)) {
+            packets.add(packet);
+        } else {
+            networkPacket.add(packet);
+        }
+
     }
 
     public record PacketHolder<T extends CustomPacketPayload>(

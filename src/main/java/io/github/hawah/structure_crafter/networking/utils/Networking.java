@@ -10,6 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class Networking {
@@ -55,17 +56,9 @@ public class Networking {
                             }
                     );
                 }
-
-
             }
-//        registrar.playBidirectional(
-//                MyData.TYPE,
-//                MyData.STREAM_CODEC,
-//                new DirectionalPayloadHandler<>(
-//                        ClientPayloadHandler::handle,
-//                        ServerPayloadHandler::handle
-//                )
-//        );
+
+            registrar.executesOn(HandlerThread.NETWORK);
         }
     }
 }

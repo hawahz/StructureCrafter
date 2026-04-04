@@ -66,7 +66,7 @@ public enum LangData {
     ERROR_AREA_TOO_LARGE("error.area_too_large","Selection is too large!",0, ChatFormatting.RED),
 
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2$s(s)",2),
-    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Not enough items",0),
+    WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Not enough itemIds",0),
 
     CONFIG_STRUCTURE_WAND_UPDATE_FLAG("config.structure_wand_update_flag","-Update Mode- :%s",1),
     CONFIG_STRUCTURE_WAND_REPLACE_AIR("config.structure_wand_replace_air","-Replace Air- :%s",1),

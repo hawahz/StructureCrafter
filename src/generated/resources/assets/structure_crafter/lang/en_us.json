@@ -1,5 +1,6 @@
 {
   "item.structure_crafter.blackboard": "Blackboard",
+  "item.structure_crafter.material_list": "Material List",
   "item.structure_crafter.structure_wand": "Structure Wand",
   "itemGroup.structure_crafter": "Structure Crafter",
   "structure_crafter.client_message.info_alarm_no_name": "You must name your structure!",

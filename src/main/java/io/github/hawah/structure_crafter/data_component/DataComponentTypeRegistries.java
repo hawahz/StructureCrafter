@@ -37,6 +37,12 @@ public class DataComponentTypeRegistries {
             "structure_file",
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8)
     );
+    public static final DataComponentType<MaterialListComponent> MATERIAL_LIST = register(
+            "material_list",
+            builder -> builder
+                    .persistent(MaterialListComponent.CODEC)
+                    .networkSynchronized(MaterialListComponent.STREAM_CODEC)
+    );
 
     public static final DataComponentType<Vec3i> STRUCTURE_BOUNDS = register(
             "schematic_bounds",

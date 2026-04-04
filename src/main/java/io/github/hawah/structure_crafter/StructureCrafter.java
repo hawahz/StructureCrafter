@@ -50,6 +50,7 @@ public class StructureCrafter {
                             .displayItems((parameters, output) -> {
                                 output.accept(ItemRegistries.STRUCTURE_WAND.get());
                                 output.accept(ItemRegistries.BLACKBOARD.get());
+                                output.accept(ItemRegistries.MATERIAL_LIST.get());
                             })
                             .build()
     );
@@ -80,6 +81,7 @@ public class StructureCrafter {
             if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
                 event.accept(ItemRegistries.STRUCTURE_WAND.get());
                 event.accept(ItemRegistries.BLACKBOARD.get());
+                event.accept(ItemRegistries.MATERIAL_LIST.get());
             }
         }
     }

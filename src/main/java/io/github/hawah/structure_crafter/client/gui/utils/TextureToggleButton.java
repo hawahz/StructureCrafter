@@ -13,7 +13,8 @@ import java.util.List;
 
 public class TextureToggleButton extends AbstractWidget {
 
-    private final Runnable onPress;
+    private final boolean enableToggleUp;
+    public Runnable onPress;
     private final ResourceLocation texture;
     private final int toggleStartX;
     private final int originStartX;
@@ -54,7 +55,48 @@ public class TextureToggleButton extends AbstractWidget {
             int toggleStartY,
             Runnable onPress
     ) {
+        this(
+                x,
+                y,
+                width,
+                height,
+                message,
+                messageToggled,
+                texture,
+                originStartX,
+                originStartY,
+                hoverStartX,
+                hoverStartY,
+                toggleHoverStartX,
+                toggleHoverStartY,
+                toggleStartX,
+                toggleStartY,
+                true,
+                onPress
+        );
+    }
+
+    public TextureToggleButton(
+            int x,
+            int y,
+            int width,
+            int height,
+            Component message,
+            Component messageToggled,
+            ResourceLocation texture,
+            int originStartX,
+            int originStartY,
+            int hoverStartX,
+            int hoverStartY,
+            int toggleHoverStartX,
+            int toggleHoverStartY,
+            int toggleStartX,
+            int toggleStartY,
+            boolean enableToggleUp,
+            Runnable onPress
+    ) {
         super(x, y, width, height, message);
+        this.enableToggleUp = enableToggleUp;
         this.onPress = onPress;
         this.texture = texture;
         this.originStartX = originStartX;
@@ -70,6 +112,10 @@ public class TextureToggleButton extends AbstractWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
+        if (toggled && !enableToggleUp) {
+            setFocused(false);
+            return;
+        }
         this.onPress.run();
         toggled = !toggled;
     }

@@ -38,6 +38,7 @@ public class BlackboardCheckScreen extends BaseScreen {
     @Override
     protected void init() {
         setTextureSize(109, 32);
+        guiLeft += 20;
 
         super.init();
 

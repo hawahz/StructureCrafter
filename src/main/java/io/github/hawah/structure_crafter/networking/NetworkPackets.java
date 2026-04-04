@@ -16,6 +16,9 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     PLACE_STRUCTURE(PlaceStructurePacket.class, PlaceStructurePacket.STREAM_CODEC),
     HANDHOLD_ITEM_CHANGED(HandholdItemChangePacket.class, HandholdItemChangePacket.STREAM_CODEC),
     CLIENTBOUND_CONTAINER_SLOT_CHANGED(ClientboundContainerSlotChangedPacket.class, ClientboundContainerSlotChangedPacket.STREAM_CODEC),
+    DROP_ITEM(DropItemPacket.class, DropItemPacket.STREAM_CODEC),
+    MATERIAL_LIST_SCATTERED(MaterialListScatteredPacket.class, MaterialListScatteredPacket.STREAM_CODEC),
+    MATERIAL_LIST_UPLOAD(MaterialListUploadPacket.class, MaterialListUploadPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

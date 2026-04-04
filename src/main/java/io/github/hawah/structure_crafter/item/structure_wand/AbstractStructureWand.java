@@ -7,7 +7,11 @@ import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
+import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
+import io.github.hawah.structure_crafter.networking.MaterialListUploadPacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.BookViewScreen;
@@ -33,6 +37,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -207,11 +212,13 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             return;
         }
         ItemStack itemStack = player.getOffhandItem();
-        if (!itemStack.is(Items.WRITABLE_BOOK) && !itemStack.is(Items.WRITTEN_BOOK))
+        if (!isRecordMaterialValid(itemStack))
             return;
+
         StructureData structureData = loadSchematic(player.level(), stack);
         List<StructureTemplate.StructureBlockInfo> blockInfos = new StructurePlaceSettings().getRandomPalette(((StructureTemplateAccessor) structureData.structureTemplate()).getPalettes(), BlockPos.ZERO).blocks();
-        Stream<Map.Entry<Item, Integer>> consumedItems = StructureHandler.getNeededItems(blockInfos).entrySet().stream().sorted(
+        HashMap<Item, Integer> neededItems = getNeededItems(blockInfos);
+        Stream<Map.Entry<Item, Integer>> consumedItems = neededItems.entrySet().stream().sorted(
                 Comparator.comparingInt(e -> -e.getValue())
         );
         List<String> lines = consumedItems
@@ -231,8 +238,9 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             page.append(line).append("\n");
         }
 
+        // TODO Configurable
         if (!page.isEmpty()) pages.add(page.toString());
-        if (itemStack.is(Items.WRITABLE_BOOK)) {
+        if (itemStack.has(DataComponents.WRITABLE_BOOK_CONTENT)) {
             Minecraft.getInstance()
                     .getConnection()
                     .send(new ServerboundEditBookPacket(
@@ -241,7 +249,22 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                             Optional.empty())
                     );
         } else if (itemStack.is(Items.WRITTEN_BOOK)) {
+        } else if (itemStack.has(DataComponentTypeRegistries.MATERIAL_LIST)) {
+            List<ItemEntry> listedItemStack = neededItems.entrySet().stream().sorted(
+                    Comparator.comparingInt(e -> -e.getValue())
+            ).map(ItemEntry::fromEntry).toList();
+            Networking.sendToServer(new MaterialListUploadPacket(listedItemStack));
         }
+    }
+
+    private static @NotNull HashMap<Item, Integer> getNeededItems(List<StructureTemplate.StructureBlockInfo> blockInfos) {
+        return StructureHandler.getNeededItems(blockInfos);
+    }
+
+    public static boolean isRecordMaterialValid(ItemStack stack) {
+        return stack.has(DataComponents.WRITABLE_BOOK_CONTENT) ||
+                stack.has(DataComponents.WRITTEN_BOOK_CONTENT) ||
+                stack.has(DataComponentTypeRegistries.MATERIAL_LIST);
     }
 
 }

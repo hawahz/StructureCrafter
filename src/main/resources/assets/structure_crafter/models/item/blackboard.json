@@ -1,7 +1,6 @@
 {
   "parent": "minecraft:builtin/entity",
   "textures": {
-    "layer0": "structure_crafter:item/blackboard",
     "particle": "structure_crafter:item/blackboard"
   }
 }
