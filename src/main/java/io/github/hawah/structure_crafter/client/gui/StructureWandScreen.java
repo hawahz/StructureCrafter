@@ -15,6 +15,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -140,7 +141,7 @@ public class StructureWandScreen extends Screen {
                 labelButtons.forEach(other -> other.active = true);
                 b.active = false;
                 StructureCrafterClient.STRUCTURE_WAND_HANDLER.setCurrentStructure(selectedStructure);
-                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(mainHandItem));
+                Networking.sendToServer(new HandholdItemChangePacket(mainHandItem));
             }).bounds(x + 21, y + 21 + i * 11, 67, 10));
             labelButtons.add(button);
             addRenderableWidget(button);
@@ -238,7 +239,7 @@ public class StructureWandScreen extends Screen {
                 () -> {
                     AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isToggled()? Block.UPDATE_ALL: 0);
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
-                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                    Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
         );
 
@@ -264,7 +265,7 @@ public class StructureWandScreen extends Screen {
                 () -> {
                     AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), !replaceAirToggle.isToggled());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
-                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                    Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
         );
 
@@ -290,7 +291,7 @@ public class StructureWandScreen extends Screen {
                 () -> {
                     AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), boundingBoxToggle.isToggled());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
-                    CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                    Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
         );
 

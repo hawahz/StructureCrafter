@@ -5,7 +5,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
+import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction direction) implements ServerboundPacketPayload {
+public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction direction) implements ClientToServerPacket {
     public static final StreamCodec<RegistryFriendlyByteBuf, PlaceStructurePacket> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC, PlaceStructurePacket::stack,
             BlockPos.STREAM_CODEC, PlaceStructurePacket::pos,

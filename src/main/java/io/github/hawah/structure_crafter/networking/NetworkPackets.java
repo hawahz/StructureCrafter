@@ -1,7 +1,8 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
-import net.createmod.catnip.net.base.BasePacketPayload;
+import io.github.hawah.structure_crafter.networking.utils.BasePacketPayload;
+import io.github.hawah.structure_crafter.networking.utils.PacketRegistry;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,13 +17,13 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     HANDHOLD_ITEM_CHANGED(HandholdItemChangePacket.class, HandholdItemChangePacket.STREAM_CODEC),
     CLIENTBOUND_CONTAINER_SLOT_CHANGED(ClientboundContainerSlotChangedPacket.class, ClientboundContainerSlotChangedPacket.STREAM_CODEC),
     ;
-    private final CatnipPacketRegistry.PacketType<?> type;
+    private final PacketRegistry.PacketHolder<?> type;
 
     <T extends BasePacketPayload> NetworkPackets(Class<T> clazz, StreamCodec<? super RegistryFriendlyByteBuf, T> codec) {
         String name = this.name().toLowerCase(Locale.ROOT);
-        this.type = new CatnipPacketRegistry.PacketType<>(
+        this.type = new PacketRegistry.PacketHolder<>(
                 new CustomPacketPayload.Type<>(asResource(name)),
-                clazz, codec
+                codec, clazz
         );
     }
 
@@ -33,11 +34,9 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     }
 
     public static void register() {
-        CatnipPacketRegistry packetRegistry = new CatnipPacketRegistry(StructureCrafter.MODID, "1.0");
         for (NetworkPackets packet : NetworkPackets.values()) {
-            packetRegistry.registerPacket(packet.type);
+            PacketRegistry.INSTANCE.register(packet.type);
         }
-        packetRegistry.registerAllPackets();
     }
 
     public static ResourceLocation asResource(String path) {

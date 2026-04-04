@@ -12,8 +12,8 @@ import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWa
 import io.github.hawah.structure_crafter.networking.ClientboundContainerSlotChangedPacket;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -111,7 +111,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             if (!currentFile.isEmpty()) {
                 lock = false;
                 activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
             }
             dirty = false;
         }
@@ -214,7 +214,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
 //        }
 
         lock = false;
-        CatnipServices.NETWORK.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
+        Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
         return true;
     }
 
@@ -231,7 +231,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 }
 //                lock = false;
 //                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-//                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+//                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
                 return true;
             } else if (delta < 0) {
@@ -241,7 +241,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 }
 //                lock = false;
 //                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-//                CatnipServices.NETWORK.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+//                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
                 dirty = true;
                 return true;
             }
@@ -339,7 +339,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             if (Minecraft.getInstance().screen == null || !isValid())
                 return;
             this.currentConfiguration.apply(this);
-            CatnipServices.NETWORK.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
+            Networking.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
 
         }
         public boolean onMouseScroll(double delta) {

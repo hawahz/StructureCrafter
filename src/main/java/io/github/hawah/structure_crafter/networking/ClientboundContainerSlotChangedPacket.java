@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
+import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public record ClientboundContainerSlotChangedPacket(int slotId, ItemStack itemStack) implements ServerboundPacketPayload {
+public record ClientboundContainerSlotChangedPacket(int slotId, ItemStack itemStack) implements ClientToServerPacket {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundContainerSlotChangedPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ClientboundContainerSlotChangedPacket::slotId,
