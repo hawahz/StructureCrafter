@@ -2,23 +2,34 @@ package io.github.hawah.structure_crafter.item.structure_wand;
 
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
+import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.BookViewScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.WritableBookContent;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -30,7 +41,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 public abstract class AbstractStructureWand extends Item implements ITooltipItem {
@@ -184,6 +197,51 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         else
             settings &= ~FORCE_BOUNDS_VISIBLE;
         stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void selectStructure(ItemStack stack, String structure) {
+        stack.set(DataComponentTypeRegistries.STRUCTURE_FILE, structure);
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        ItemStack itemStack = player.getOffhandItem();
+        if (!itemStack.is(Items.WRITABLE_BOOK) && !itemStack.is(Items.WRITTEN_BOOK))
+            return;
+        StructureData structureData = loadSchematic(player.level(), stack);
+        List<StructureTemplate.StructureBlockInfo> blockInfos = new StructurePlaceSettings().getRandomPalette(((StructureTemplateAccessor) structureData.structureTemplate()).getPalettes(), BlockPos.ZERO).blocks();
+        Stream<Map.Entry<Item, Integer>> consumedItems = StructureHandler.getNeededItems(blockInfos).entrySet().stream().sorted(
+                Comparator.comparingInt(e -> -e.getValue())
+        );
+        List<String> lines = consumedItems
+                .map(e -> e.getKey().getDescription().getString() + " x" + e.getValue())
+                .toList();
+        List<String> pages = new ArrayList<>();
+        StringBuilder page = new StringBuilder();
+        int lineCounter = 0;
+
+        for (String line : lines) {
+            if (lineCounter > 13) {
+                pages.add(page.toString());
+                page = new StringBuilder();
+                lineCounter = 0;
+            }
+            lineCounter ++;
+            page.append(line).append("\n");
+        }
+
+        if (!page.isEmpty()) pages.add(page.toString());
+        if (itemStack.is(Items.WRITABLE_BOOK)) {
+            Minecraft.getInstance()
+                    .getConnection()
+                    .send(new ServerboundEditBookPacket(
+                            40,
+                            pages,
+                            Optional.empty())
+                    );
+        } else if (itemStack.is(Items.WRITTEN_BOOK)) {
+        }
     }
 
 }

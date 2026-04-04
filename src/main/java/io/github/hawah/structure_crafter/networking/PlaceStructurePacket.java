@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
+import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
@@ -19,7 +20,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
@@ -29,7 +29,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -70,7 +69,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 activeTemplate
         );
 
-        HashMap<Item, Integer> consumes = getNeededItems(blockInfos);
+        HashMap<Item, Integer> consumes = StructureHandler.getNeededItems(blockInfos);
         int totalConsumes = consumes.values().stream().mapToInt(Integer::intValue).sum();
 
 
@@ -208,29 +207,6 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
     private static int getMin(ItemStack item, int count) {
         return Math.min(count, item.getCount());
-    }
-
-    private static @NotNull HashMap<Item, Integer> getNeededItems(List<StructureTemplate.StructureBlockInfo> blockInfos) {
-        HashMap<Item, Integer> consumes = new HashMap<>();
-        for (StructureTemplate.StructureBlockInfo info : blockInfos) {
-            Block block = info.state().getBlock();
-            ItemStack itemStack = new ItemStack(block);
-            if (itemStack.isEmpty()) {
-                continue;
-            }
-
-            Item item = getItem(itemStack);
-            if (consumes.containsKey(item)) {
-                consumes.put(item, consumes.get(item) + 1);
-            } else {
-                consumes.put(item, 1);
-            }
-        }
-        return consumes;
-    }
-
-    private static @NotNull Item getItem(ItemStack itemStack) {
-        return itemStack.getItem();
     }
 
     @Override

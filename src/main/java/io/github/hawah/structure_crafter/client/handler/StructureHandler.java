@@ -3,11 +3,25 @@ package io.github.hawah.structure_crafter.client.handler;
 import io.github.hawah.structure_crafter.Paths;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import net.minecraft.world.level.block.piston.PistonHeadBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,5 +56,33 @@ public class StructureHandler {
             // No Schematics created yet
         } catch (IOException ignored) {
         }
+    }
+
+    public static @NotNull HashMap<Item, Integer> getNeededItems(List<StructureTemplate.StructureBlockInfo> blockInfos) {
+        HashMap<Item, Integer> consumes = new HashMap<>();
+        for (StructureTemplate.StructureBlockInfo info : blockInfos) {
+            BlockState state = info.state();
+            Block block = state.getBlock();
+            if (BedPart.FOOT.equals(state.getOptionalValue(BlockStateProperties.BED_PART).orElse(BedPart.HEAD))) {
+                continue;
+            } else if (DoubleBlockHalf.UPPER.equals(state.getOptionalValue(BlockStateProperties.DOUBLE_BLOCK_HALF).orElse(DoubleBlockHalf.LOWER))) {
+                continue;
+            }
+
+            ItemStack itemStack = new ItemStack(block);
+            if (itemStack.isEmpty()) {
+                continue;
+            }
+            int counts = state.getOptionalValue(BlockStateProperties.CANDLES).orElse(
+                    state.getOptionalValue(BlockStateProperties.PICKLES).orElse(1)
+            );
+            Item item = itemStack.getItem();
+            if (consumes.containsKey(item)) {
+                consumes.put(item, consumes.get(item) + counts);
+            } else {
+                consumes.put(item, counts);
+            }
+        }
+        return consumes;
     }
 }

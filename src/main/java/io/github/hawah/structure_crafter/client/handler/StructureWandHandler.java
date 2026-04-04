@@ -112,7 +112,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             String currentFile = hud.getCurrentStructure();
             if (!currentFile.isEmpty()) {
                 lock = false;
-                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
+                AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
                 Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
             }
             dirty = false;
