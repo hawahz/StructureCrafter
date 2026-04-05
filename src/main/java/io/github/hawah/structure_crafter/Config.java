@@ -5,9 +5,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
 
 @EventBusSubscriber(modid = StructureCrafter.MODID)
 public class Config {
@@ -16,6 +13,10 @@ public class Config {
     public static final ModConfigSpec.EnumValue<BlackboardRenderType> BLACKBOARD_RENDER_TYPE = BUILDER
             .comment("Render Type of Blackboard")
             .defineEnum("blackboard_render_type", BlackboardRenderType.WRITE);
+
+    public static final ModConfigSpec.BooleanValue MATERIAL_LIST_SCATTERED_ENABLED = BUILDER
+            .comment("Will the material list pages fall apart")
+            .define("material_list_scattered", true);
 
     public static final ModConfigSpec.IntValue STRUCTURE_PLACE_DISTANCE = BUILDER
             .comment("Define how far can a survival player place a structure by using structure wand. Is always considered as the multiple number on default player reach distance")

@@ -11,8 +11,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.CompletableFuture;
 
+@ParametersAreNonnullByDefault
 public class ModRecipeGenerator extends RecipeProvider implements IConditionBuilder {
     public ModRecipeGenerator(PackOutput p_248933_, CompletableFuture<HolderLookup.Provider> p_323846_) {
         super(p_248933_, p_323846_);
@@ -38,6 +40,15 @@ public class ModRecipeGenerator extends RecipeProvider implements IConditionBuil
                 .define('d', Items.DIAMOND)
                 .define('w', Items.WHITE_WOOL)
                 .unlockedBy("has_obsidian", has(Items.OBSIDIAN))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ItemRegistries.MATERIAL_LIST)
+                .pattern(" i ")
+                .pattern(" p ")
+                .pattern("   ")
+                .define('i', Items.IRON_NUGGET)
+                .define('p', Items.PAPER)
+                .unlockedBy("has_wand", has(ItemRegistries.STRUCTURE_WAND))
                 .save(recipeOutput);
     }
 }

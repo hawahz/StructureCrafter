@@ -9,6 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public enum LangData {
     TITLE_BLACKBOARD_NAMETAG("title.blackboard_name_tag", "You decide to name your structure as...", 0),
 
@@ -60,6 +61,11 @@ public enum LangData {
     TOOLTIP_BUTTON_UNLOCK("tooltip.button.unlock", "Unlock", 0),
     TOOLTIP_BUTTON_ROTATE_LOCK("tooltip.button.rotate_lock", "Lock Rotation", 0),
     TOOLTIP_BUTTON_ROTATE_UNLOCK("tooltip.button.rotate_unlock", "Unlock Rotation", 0),
+    TOOLTIP_BUTTON_MATERIAL("tooltip.button.material", "Material", 0),
+    TOOLTIP_BUTTON_PREVIEW("tooltip.button.preview", "Statistics", 0),
+    TOOLTIP_BUTTON_CLIP("tooltip.button.clip", "Clip", 0),
+    GUI_PAGE_TOTAL_BUILD("gui.page_total_build","You can build up to %s of this structure.",1),
+    GUI_PAGE_BOTTLENECK_MATERIAL("gui.page_bottleneck_material","The current bottleneck material is:",0),
 
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 

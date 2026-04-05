@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.client.gui.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -116,8 +117,9 @@ public class TextureToggleButton extends AbstractWidget {
             setFocused(false);
             return;
         }
-        this.onPress.run();
+
         toggled = !toggled;
+        this.onPress.run();
     }
 
     @Override
@@ -149,12 +151,18 @@ public class TextureToggleButton extends AbstractWidget {
 
         if (this.getMessage().getString().isEmpty() || !this.isHovered())
             return;
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        pose.translate(-mouseX, -mouseY, 0);
+        pose.scale(1, 1, 1);
+        pose.translate(mouseX, mouseY, 0);
         guiGraphics.renderComponentTooltip(
                 Minecraft.getInstance().font,
                 List.of(isToggled()?this.messageToggled: this.getMessage()),
                 mouseX,
                 mouseY
         );
+        pose.popPose();
 
     }
 

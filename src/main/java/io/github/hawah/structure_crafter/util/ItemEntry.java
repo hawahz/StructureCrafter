@@ -42,12 +42,17 @@ public final class ItemEntry {
         return new ItemEntry(Item.getId(entry.getKey()), entry.getValue());
     }
 
+
     public Component getHoverName() {
-        return Item.byId(id).getDefaultInstance().getDisplayName();
+        return Item.byId(id).getDefaultInstance().getHoverName();
     }
 
     public int getCount() {
         return count;
+    }
+
+    public Item getItem() {
+        return Item.byId(id);
     }
 
     public ItemStack getDefaultStack() {
@@ -77,6 +82,10 @@ public final class ItemEntry {
     @Override
     public int hashCode() {
         return Objects.hash(id, count);
+    }
+
+    public boolean isSame(ItemEntry other) {
+        return id == other.id;
     }
 
     @Override

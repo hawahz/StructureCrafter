@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -105,17 +105,16 @@ public abstract class BaseScreen extends Screen {
         if (scale == 1) {
             return;
         }
-        poseStack.translate(+guiLeft+textureWidth/2F, +guiTop+textureHeight/2F, 0);
+        poseStack.translate(guiLeft +textureWidth/2F, guiTop +textureHeight/2F, 0);
         poseStack.scale(getScale(), getScale(), getScale());
         poseStack.translate(-guiLeft-textureWidth/2F, -guiTop-textureHeight/2F, 0);
     }
 
-    protected int applyScaleTransformX(float x) {
-        return (int) ((x - width/2F) / scale + width/2F);
-    }
-
-    protected int applyScaleTransformY(float y) {
-        return (int) ((y - height/2F) / scale + height/2F);
+    protected Vec2 getOriginalMousePos(int mouseX, int mouseY) {
+        return new Vec2(
+                (int) ((mouseX - width/2F) * scale + width/2F),
+                (int) ((mouseY - height/2F) * scale + height/2F)
+        );
     }
 
     protected void renderWindowPre(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}

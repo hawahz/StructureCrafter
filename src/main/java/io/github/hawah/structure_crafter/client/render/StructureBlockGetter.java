@@ -199,8 +199,13 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
 
     }
 
-    @Override public int getBrightness(LightLayer p_45554_, BlockPos p_45555_) {
-        return realLevel.getBrightness(p_45554_, p_45555_);
+    @Override public int getBrightness(LightLayer lightLayer, BlockPos p_45555_) {
+
+        if (lightLayer.equals(LightLayer.SKY)) {
+            return 15;
+        }
+
+        return realLevel.getBrightness(lightLayer, p_45555_);
     }
     @Override public int getRawBrightness(BlockPos p_45558_, int p_45559_) { return realLevel.getRawBrightness(p_45558_, p_45559_); }
     @Override public int getHeight() { return realLevel.getHeight(); }

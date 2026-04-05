@@ -108,10 +108,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
         HashMap<IItemHandler, HashMap<Integer, Integer>> itemHandlerMap = new HashMap<>();
 
-        NonNullList<ItemStack> items = NonNullList.create();
-        items.addAll(player.getInventory().items);
-        items.addAll(player.getInventory().armor);
-        items.addAll(player.getInventory().offhand);
+        NonNullList<ItemStack> items = StructureHandler.getInventoryItems(player);
 
         for (ItemStack item : items) {
             if (item.isEmpty()) {

@@ -19,8 +19,8 @@ public class ButtonGroup {
             if (disable) {
                 return;
             }
-            prevPress.run();
             announceChange(button);
+            prevPress.run();
         };
     }
 

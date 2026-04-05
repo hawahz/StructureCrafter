@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "i": {
+      "item": "minecraft:iron_nugget"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    " i ",
+    " p ",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "structure_crafter:material_list"
+  }
+}

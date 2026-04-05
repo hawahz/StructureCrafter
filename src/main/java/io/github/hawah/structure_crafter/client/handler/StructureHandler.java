@@ -1,15 +1,12 @@
 package io.github.hawah.structure_crafter.client.handler;
 
 import io.github.hawah.structure_crafter.Paths;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.piston.PistonBaseBlock;
-import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -84,5 +81,13 @@ public class StructureHandler {
             }
         }
         return consumes;
+    }
+
+    public static @NotNull NonNullList<ItemStack> getInventoryItems(Player player) {
+        NonNullList<ItemStack> items = NonNullList.create();
+        items.addAll(player.getInventory().items);
+        items.addAll(player.getInventory().armor);
+        items.addAll(player.getInventory().offhand);
+        return items;
     }
 }

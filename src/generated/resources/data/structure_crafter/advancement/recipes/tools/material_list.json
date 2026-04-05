@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "structure_crafter:material_list"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_wand": {
+      "conditions": {
+        "items": [
+          {
+            "items": "structure_crafter:structure_wand"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_wand"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "structure_crafter:material_list"
+    ]
+  }
+}

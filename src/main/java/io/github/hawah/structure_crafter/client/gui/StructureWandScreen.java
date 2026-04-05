@@ -145,9 +145,7 @@ public class StructureWandScreen extends BaseScreen {
                 16,
                 0,
                 32,
-                () -> {
-                    Util.getPlatform().openPath(Paths.STRUCTURE_DIR);
-                }
+                () -> Util.getPlatform().openPath(Paths.STRUCTURE_DIR)
         );
         addRenderableWidget(loadFile);
 
@@ -216,7 +214,7 @@ public class StructureWandScreen extends BaseScreen {
                 160,
                 16,
                 () -> {
-                    AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isToggled()? Block.UPDATE_ALL: 0);
+                    AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isToggled()? 0: Block.UPDATE_ALL);
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
@@ -242,7 +240,7 @@ public class StructureWandScreen extends BaseScreen {
                 128,
                 16,
                 () -> {
-                    AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), !replaceAirToggle.isToggled());
+                    AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), replaceAirToggle.isToggled());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
@@ -268,7 +266,7 @@ public class StructureWandScreen extends BaseScreen {
                 144,
                 16,
                 () -> {
-                    AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), boundingBoxToggle.isToggled());
+                    AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), !boundingBoxToggle.isToggled());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty(true);
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
@@ -294,9 +292,7 @@ public class StructureWandScreen extends BaseScreen {
                 240,
                 32,
 
-                () -> {
-                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setLock(lockToggle.isToggled());
-                }
+                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setLock(!lockToggle.isToggled())
          );
         addRenderableWidget(lockToggle);
         lockToggle.setToggled(!StructureCrafterClient.STRUCTURE_WAND_HANDLER.isLock());
@@ -317,9 +313,7 @@ public class StructureWandScreen extends BaseScreen {
                 16,
                 224,
                 32,
-                () -> {
-                    StructureCrafterClient.STRUCTURE_WAND_HANDLER.setRotateLock(!rotateLockToggle.isToggled());
-                }
+                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setRotateLock(rotateLockToggle.isToggled())
         );
         addRenderableWidget(rotateLockToggle);
         rotateLockToggle.setToggled(StructureCrafterClient.STRUCTURE_WAND_HANDLER.isRotateLock());
@@ -382,13 +376,8 @@ public class StructureWandScreen extends BaseScreen {
         prevPage = 0;
         if (forward != null && backward != null) {
             forward.active = currentPage < pages - 1;
-            backward.active = currentPage > 0;
+            backward.active = false;
         }
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return true;
     }
 
     @Override
