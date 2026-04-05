@@ -42,6 +42,10 @@ public class Config {
             .comment("Defined the max distance that can keep the preview locked")
             .defineInRange("preview_unlock_distance", 300, 1, Integer.MAX_VALUE);
 
+    public static final ModConfigSpec.BooleanValue LOW_COST = BUILDER
+            .comment("Whether to render with lower cost")
+            .define("render_low_cost", false);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     @SubscribeEvent

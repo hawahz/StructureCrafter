@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -27,11 +29,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class StructureRenderer {
 
@@ -41,6 +46,8 @@ public class StructureRenderer {
     private StructureTemplate template;
     private StructureBlockGetter blockGetter;
     private AABB boundingBox = null;
+    private float minDistCache = Float.MAX_VALUE;
+    private HashMap<Rot, Float> rotDistCache = new HashMap<>();
 
     /**
      * 主渲染方法
@@ -75,6 +82,7 @@ public class StructureRenderer {
                         .setRotation(StructureWandHandler.transferDirectionToRotation(playerDirection)),
                 anchorPos
         ));
+
         Frustum frustum = Minecraft.getInstance().levelRenderer.getFrustum();
         if (!frustum.isVisible(boundingBox)) {
             return;
@@ -101,6 +109,8 @@ public class StructureRenderer {
 //        poseStack.scale(-1, 1, 1);
         poseStack.translate(-0.5, -0.5, -0.5);
 
+        float minDist = Float.MAX_VALUE;
+        boolean enableCulling = blockInfos.size() > 2000;
         // 2. 遍历渲染所有的方块和方块实体
         for (StructureTemplate.StructureBlockInfo info : blockInfos) {
             BlockState state = info.state();
@@ -111,7 +121,10 @@ public class StructureRenderer {
             BlockPos worldPos = anchorPos.offset(localPos); // 方块在世界中的真实坐标
 
             BlockPos posLight = anchorPos.offset(localPos.rotate(Rotation.values()[Math.floorMod((int) (degree / 90), 4)]));
-            if (!frustum.isVisible(new AABB(posLight))) {
+            float dist = (float) posLight.getCenter().distanceTo(camera);
+
+            minDist = Math.min(minDist, dist);
+            if (!frustum.isVisible(new AABB(posLight)) || (Config.LOW_COST.get() && enableCulling && dist > minDistCache + 20 * Math.max(1, minDistCache/30))) {
                 continue;
             }
 
@@ -149,7 +162,13 @@ public class StructureRenderer {
             poseStack.popPose();
         }
 
+        minDistCache = minDist;
+
         poseStack.popPose();
+    }
+
+    private static @NotNull Vec3 getSubtract(Vec3 camera, BlockPos posLight) {
+        return camera.subtract(posLight.getCenter());
     }
 
     private static float getDegree(Direction playerDirection, Direction oPlayerDirection, float partialTicks) {
@@ -255,5 +274,19 @@ public class StructureRenderer {
     public void clearCache() {
         cachedBlockEntities.clear();
         cachedModelData.clear();
+        minDistCache = Float.MAX_VALUE;
+    }
+
+    public record Rot(float xRot, float yRot) {
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Rot rot)) return false;
+            return Float.compare(xRot, rot.xRot) == 0 && Float.compare(yRot, rot.yRot) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) xRot * 10000 + (int) yRot;
+        }
     }
 }
