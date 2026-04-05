@@ -38,6 +38,10 @@ public class Config {
             .comment("Max Size of Structure")
             .defineInRange("max_volume", 100000, -1, Integer.MAX_VALUE);
 
+    public static final ModConfigSpec.IntValue PREVIEW_UNLOCK_DISTANCE = BUILDER
+            .comment("Defined the max distance that can keep the preview locked")
+            .defineInRange("preview_unlock_distance", 300, 1, Integer.MAX_VALUE);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     @SubscribeEvent

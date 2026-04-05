@@ -159,7 +159,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             }
         }
 
-        if (lock && player.blockPosition().distManhattan(selectedPos) > 100) {
+        if (lock && player.blockPosition().distManhattan(selectedPos) > Config.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
             lock = false;
         }
 
@@ -317,7 +317,8 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         this.rotateLock = rotateLock;
     }
 
-    @Deprecated
+    @SuppressWarnings("unused")
+    @Deprecated(forRemoval = true)
     public static class ItemStackData {
 
         public int slotId;
@@ -339,14 +340,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         }
 
         public void config() {
-            if (Minecraft.getInstance().screen == null || !isValid())
+            if (Minecraft.getInstance().screen == null || isInValid())
                 return;
             this.currentConfiguration.apply(this);
             Networking.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
 
         }
         public boolean onMouseScroll(double delta) {
-            if (!this.isValid())
+            if (this.isInValid())
                 return false;
             if (Screen.hasShiftDown()) {
                 delta *= -1;
@@ -358,12 +359,12 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
 
-        public boolean isValid() {
-            return this.itemStack != null;
+        public boolean isInValid() {
+            return this.itemStack == null;
         }
 
         public boolean onMouseInput(int button, boolean pressed) {
-            if (!pressed || !isValid()) {
+            if (!pressed || isInValid()) {
                 return false;
             }
 
