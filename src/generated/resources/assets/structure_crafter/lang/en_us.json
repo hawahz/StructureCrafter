@@ -4,6 +4,8 @@
   "item.structure_crafter.structure_wand": "Structure Wand",
   "itemGroup.structure_crafter": "Structure Crafter",
   "structure_crafter.client_message.info_alarm_no_name": "You must name your structure!",
+  "structure_crafter.client_message.info_container_build_capability": "Items in the container can build up to %s structures.",
+  "structure_crafter.client_message.info_container_build_capability_with_inventory": "Items in the container plus your inventory can build up to %s structures.",
   "structure_crafter.client_message.info_create_file_success": "Saved as %1$s",
   "structure_crafter.client_message.info_no_anchor": "No anchor selected",
   "structure_crafter.client_message.info_no_selection": "No Selection",

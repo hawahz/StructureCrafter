@@ -9,8 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public final class ItemEntry {
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntry> STREAM_CODEC = StreamCodec.composite(
@@ -88,11 +87,25 @@ public final class ItemEntry {
         return id == other.id;
     }
 
+    public static List<ItemEntry> fromStacks(List<ItemStack> stacks) {
+        return stacks.stream().map(ItemEntry::fromStack).toList();
+    }
+
+    public static List<ItemEntry> flat(List<ItemEntry> before) {
+        Map<Integer, ItemEntry> merged = new HashMap<>();
+        for (ItemEntry entry : before) {
+            merged.merge(entry.id(), entry, (existing, newEntry) ->
+                    new ItemEntry(existing.id(), existing.count() + newEntry.count())
+            );
+        }
+        return new ArrayList<>(merged.values());
+    }
+
+
     @Override
     public String toString() {
         return "ItemEntry[" +
                 "id=" + id + ", " +
                 "count=" + count + ']';
     }
-
 }
