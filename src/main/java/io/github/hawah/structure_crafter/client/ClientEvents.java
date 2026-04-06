@@ -135,9 +135,9 @@ public class ClientEvents {
         if (KeyBinding.KeyBuffer.onMouseScrolled(delta)){
             event.setCanceled(true);
         }
-        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseScroll(delta)) {
-            event.setCanceled(true);
-        }
+//        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseScroll(delta)) {
+//            event.setCanceled(true);
+//        }
         if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseScroll(delta)) {
             event.setCanceled(true);
         }

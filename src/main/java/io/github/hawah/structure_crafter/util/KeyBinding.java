@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public enum KeyBinding {
     CTRL_ALT_R(KeyNode.CTRL, KeyNode.ALT, KeyNode.RIGHT),
     CTRL_ALT_L(KeyNode.CTRL, KeyNode.ALT, KeyNode.LEFT),
-    CTRL_ALT_S(KeyNode.CTRL, KeyNode.ALT),
+    CTRL_ALT_S(KeyNode.CTRL, KeyNode.ALT, KeyNode.SCROLL),
     CTRL_L(KeyNode.CTRL, KeyNode.LEFT),
     CTRL_R(KeyNode.CTRL, KeyNode.RIGHT),
     CTRL_S(KeyNode.CTRL, KeyNode.SCROLL),
@@ -131,6 +131,10 @@ public enum KeyBinding {
         }
 
         public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description) {
+            return new Action(validateDetect, action, description);
+        }
+
+        public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
             return new Action(validateDetect, action, description);
         }
 

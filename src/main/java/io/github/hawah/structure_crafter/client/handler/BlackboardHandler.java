@@ -101,10 +101,15 @@ public class BlackboardHandler {
                 KeyBinding.Action.EMPTY,
                 Component.literal("Show All Faces")
         ));
+        KeyBinding.CTRL_L.bind(KeyBinding.Action.of(
+                () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
+                KeyBinding.Action.EMPTY,
+                Component.literal("Pick Air as Center")
+        ));
         KeyBinding.CTRL_R.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
                 KeyBinding.Action.EMPTY,
-                Component.literal("Pick Air")
+                Component.literal("Pick Air as Point")
         ));
         KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
@@ -119,17 +124,26 @@ public class BlackboardHandler {
         KeyBinding.CTRL_ALT_S.bind(KeyBinding.Action.of(
                 () -> this.isActive() && selectedFace != null,
                 () -> {
+                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
+                    pushOrPullFace(intDelta, true);
                 },
-                Component.literal("Scroll")
+                Component.literal("Select Opposite"),
+                () -> {
+//                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
+//                    pushOrPullFace(intDelta, true);
+                }
         ));
         KeyBinding.ALT_S.bind(KeyBinding.Action.of(
                 () -> this.isActive() && selectedFace != null,
                 () -> {
+                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
+                    pushOrPullFace(intDelta, false);
                 },
-                Component.literal("Select Opposite")
+                Component.literal("Push/Pull Face")
         ));
     }
 
+    @Deprecated
     public boolean onMouseScroll(double delta) {
         if (firstPos == null) {
             return false;
@@ -139,7 +153,7 @@ public class BlackboardHandler {
         }
         int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
         if (canPushOrPullFace()) {
-            pushOrPullFace(intDelta);
+            pushOrPullFace(intDelta, Screen.hasControlDown());
             return true;
         }
 
@@ -426,10 +440,10 @@ public class BlackboardHandler {
     }
 
 
-    private void pushOrPullFace(int intDelta) {
+    private void pushOrPullFace(int intDelta, boolean opposite) {
         Vec3i normal = selectedFace.getNormal();
         AABB box = cachedBoundingBox;
-        AABB aabb = (intDelta < 0) ^ Screen.hasControlDown()?
+        AABB aabb = (intDelta < 0) ^ opposite?
                 box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
                 box.contract(normal.getX(), normal.getY(), normal.getZ());
         firstPos = BlockPos.containing(aabb.getMinPosition());
