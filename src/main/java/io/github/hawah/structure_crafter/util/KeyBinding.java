@@ -12,15 +12,20 @@ import java.util.function.Supplier;
 public enum KeyBinding {
     CTRL_ALT_R(KeyNode.CTRL, KeyNode.ALT, KeyNode.RIGHT),
     CTRL_ALT_L(KeyNode.CTRL, KeyNode.ALT, KeyNode.LEFT),
-    CTRL_ALT_M(KeyNode.CTRL, KeyNode.ALT),
+    CTRL_ALT_S(KeyNode.CTRL, KeyNode.ALT),
     CTRL_L(KeyNode.CTRL, KeyNode.LEFT),
     CTRL_R(KeyNode.CTRL, KeyNode.RIGHT),
+    CTRL_S(KeyNode.CTRL, KeyNode.SCROLL),
     ALT_L(KeyNode.ALT, KeyNode.LEFT),
     ALT_R(KeyNode.ALT, KeyNode.RIGHT),
+    ALT_S(KeyNode.ALT, KeyNode.SCROLL),
     SHIFT_L(KeyNode.SHIFT, KeyNode.LEFT),
     SHIFT_R(KeyNode.SHIFT, KeyNode.RIGHT),
+    SHIFT_S(KeyNode.SHIFT, KeyNode.SCROLL),
     LEFT(KeyNode.LEFT),
     RIGHT(KeyNode.RIGHT),
+    CTRL(KeyNode.CTRL),
+    ALT(KeyNode.ALT),
     ;
     private final List<Action> actions = new ArrayList<>();
     private final KeyNode[] keys;
@@ -61,10 +66,10 @@ public enum KeyBinding {
                 continue;
             }
             for (Action action : binding.actions) {
-                if (!action.validateDetect.get()) {
+                if (!action.tryActivate()) {
                     continue;
                 }
-                action.action.run();
+                KeyNode.update(0, false, 0);
                 return;
             }
         }
@@ -74,30 +79,56 @@ public enum KeyBinding {
         private final Supplier<Boolean> validateDetect;
         private final Runnable action;
         private final Component description;
+        private boolean activated = false;
+        private final Runnable onRelease;
 
         protected Action(Supplier<Boolean> validateDetect, Runnable action, Component description) {
+            this(validateDetect, action, description, () -> {});
+        }
+
+        protected Action(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
             this.validateDetect = validateDetect;
             this.action = action;
             this.description = description;
+            this.onRelease = onRelease;
         }
 
         public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description) {
             return new Action(validateDetect, action, description);
         }
+
+        public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
+            return new Action(validateDetect, action, description, onRelease);
+        }
+
+        public boolean tryActivate() {
+            if (!validateDetect.get()) {
+                if (activated) {
+                    onRelease.run();
+                }
+                return false;
+            }
+            activated = true;
+            action.run();
+            return true;
+        }
     }
 
     public static class KeyBuffer {
-
-        protected static final KeyBuffer INSTANCE = new KeyBuffer();
+        public static double scroll = 0;
 
         public static boolean onMousePressed(int mouseButton, boolean pressed) {
             KeyNode.update(mouseButton, pressed, 0);
             return KeyBinding.isConsumed();
         }
 
-        public static boolean onMouseScrolled(float delta) {
+        public static boolean onMouseScrolled(double delta) {
             KeyNode.update(-1, false, delta);
             return KeyBinding.isConsumed();
+        }
+
+        public static int getIntDelta() {
+            return (int) (scroll > 0? Math.ceil(scroll): Math.floor(scroll));
         }
     }
 
@@ -124,10 +155,11 @@ public enum KeyBinding {
             return values()[id];
         }
 
-        public static void update(int mouseButton, boolean pressed, float scroll) {
+        public static void update(int mouseButton, boolean pressed, double scroll) {
             for (KeyNode node : values()) {
                 node.pressed = node.detection.detect(mouseButton, pressed, scroll);
             }
+            KeyBuffer.scroll = scroll;
         }
 
         public List<KeyNode> getValidNext() {
@@ -135,7 +167,7 @@ public enum KeyBinding {
         }
 
         interface IKeyNodeDetection {
-            boolean detect(int mouseButton, boolean pressed, float scroll);
+            boolean detect(int mouseButton, boolean pressed, double scroll);
         }
     }
 

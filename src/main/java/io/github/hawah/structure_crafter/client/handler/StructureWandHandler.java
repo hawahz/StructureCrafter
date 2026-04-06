@@ -14,6 +14,7 @@ import io.github.hawah.structure_crafter.networking.ClientboundContainerSlotChan
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -24,6 +25,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -73,6 +75,33 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private final StructureWandHUD hud = new StructureWandHUD();
     @Deprecated
     public ItemStackData data = new ItemStackData();
+
+    public StructureWandHandler() {
+        KeyBinding.RIGHT.bind(KeyBinding.Action.of(
+                () -> active && selectedPos != null,
+                () ->{
+                    lock = false;
+                    Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
+                },
+                Component.literal("Place")
+        ));
+        KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
+                () -> active,
+                () -> ScreenOpener.open(new StructureWandScreen()),
+                Component.literal("Open Config")
+        ));
+        KeyBinding.LEFT.bind(KeyBinding.Action.of(
+                () -> active,
+                () -> lock = !lock && selectedPos != null,
+                Component.literal("Lock/Unlock")
+        ));
+//        KeyBinding.ALT_S.bind(KeyBinding.Action.of(
+//                () -> active,
+//                () -> {
+//
+//                }
+//        ));
+    }
 
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
@@ -186,6 +215,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
 
     }
 
+    @Deprecated
     public boolean onMouseInput(int button, boolean pressed) {
         if (!active) {
             return false;

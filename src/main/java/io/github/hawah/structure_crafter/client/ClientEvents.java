@@ -97,14 +97,13 @@ public class ClientEvents {
         boolean pressed = event.getAction() != 0;
         if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
             event.setCanceled(true);
-            return;
         }
-        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseInput(button, pressed)) {
-            event.setCanceled(true);
-        }
-        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseInput(button, pressed)) {
-            event.setCanceled(true);
-        }
+//        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseInput(button, pressed)) {
+//            event.setCanceled(true);
+//        }
+//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseInput(button, pressed)) {
+//            event.setCanceled(true);
+//        }
     }
 
     @SubscribeEvent
@@ -132,6 +131,10 @@ public class ClientEvents {
             return;
         }
         double delta = event.getScrollDeltaY();
+
+        if (KeyBinding.KeyBuffer.onMouseScrolled(delta)){
+            event.setCanceled(true);
+        }
         if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseScroll(delta)) {
             event.setCanceled(true);
         }

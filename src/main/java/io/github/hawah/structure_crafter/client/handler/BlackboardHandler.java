@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.handler;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -58,6 +60,61 @@ public class BlackboardHandler {
     @SuppressWarnings("FieldCanBeLocal")
     private final int MAX_REACH = 100;
 
+    public BlackboardHandler() {
+        KeyBinding.RIGHT.bind(KeyBinding.Action.of(
+                ()-> this.isActive() && selectedPos != null,
+                () -> {
+                    if (firstPos == null) {
+                        firstPos = selectedPos;
+                        return;
+                    }
+                    if (secondPos == null) {
+                        setSecondPos(selectedPos);
+                        return;
+                    }
+                    firstPos = selectedPos;
+                    setSecondPos(null);
+                },
+                Component.literal("Select Zone Point")
+        ));
+        KeyBinding.LEFT.bind(KeyBinding.Action.of(
+                ()-> this.isActive() && selectedPos != null,
+                () -> centerPos = selectedPos,
+                Component.literal("Select Center Point")
+        ));
+        KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
+                this::isActive,
+                this::delete,
+                Component.literal("Delete All")
+        ));
+        KeyBinding.SHIFT_L.bind(KeyBinding.Action.of(
+                this::isActive,
+                this::deleteCenter,
+                Component.literal("Delete Anchor")
+        ));
+        KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
+                () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
+                () -> {
+                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
+                    reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
+                },
+                Component.literal("Discard")
+        ));
+        // TODO Take over scrolling
+        KeyBinding.CTRL_ALT_S.bind(KeyBinding.Action.of(
+                () -> this.isActive() && selectedFace != null,
+                () -> {
+                },
+                Component.literal("Scroll")
+        ));
+        KeyBinding.ALT_S.bind(KeyBinding.Action.of(
+                () -> this.isActive() && selectedFace != null,
+                () -> {
+                },
+                Component.literal("Select Opposite")
+        ));
+    }
+
     public boolean onMouseScroll(double delta) {
         if (firstPos == null) {
             return false;
@@ -66,10 +123,6 @@ public class BlackboardHandler {
             return false;
         }
         int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
-        if (canReachAir()) {
-            reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
-            return true;
-        }
         if (canPushOrPullFace()) {
             pushOrPullFace(intDelta);
             return true;
@@ -82,6 +135,7 @@ public class BlackboardHandler {
      * Handle MouseInput when local player holds a {@link Blackboard} item
      * @param button Use {@link GLFW} patterns
      * */
+    @Deprecated
     public boolean onMouseInput(int button, boolean pressed) {
         boolean isRight;
         if ((!(isRight = (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT)) && button != GLFW.GLFW_MOUSE_BUTTON_LEFT) || !pressed) {
