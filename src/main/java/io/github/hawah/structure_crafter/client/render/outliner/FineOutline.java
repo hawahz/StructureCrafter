@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class FineOutline extends OutlineElement {
+public class FineOutline extends OutlineElement<FineOutline> {
     /**
      * 渲染选框
      * @param poseStack  变换矩阵栈

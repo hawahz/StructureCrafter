@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public abstract class OutlineElement extends ColoredElement {
+public abstract class OutlineElement<T extends OutlineElement<T>> extends ColoredElement<T> {
     protected Vec3 oPos0 = Vec3.ZERO;
     protected Vec3 oPos1 = Vec3.ZERO;
     protected Vec3 visualPos0 = Vec3.ZERO;
@@ -31,18 +31,18 @@ public abstract class OutlineElement extends ColoredElement {
         visualPos1 = visualPos1.lerp(actualPos1, deltaTicks.orElse(StructureCrafterClient.ANI_DELTAF));
     }
 
-    public <T extends OutlineElement> T face(Direction direction) {
+    public T face(Direction direction) {
         renderedFaces.clear();
         if (direction != null) {
             renderedFaces.add(direction);
         }
         return (T) this;
     }
-    public <T extends OutlineElement> T clearFaces() {
+    public T clearFaces() {
         renderedFaces.clear();
         return (T) this;
     }
-    public <T extends OutlineElement> T faces(Direction... directions) {
+    public T faces(Direction... directions) {
         if (directions != null) {
             renderedFaces.addAll(Arrays.stream(directions).filter(Objects::nonNull).toList());
         }

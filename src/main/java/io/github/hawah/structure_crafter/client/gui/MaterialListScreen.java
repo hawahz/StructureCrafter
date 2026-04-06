@@ -20,7 +20,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
@@ -421,11 +423,13 @@ public class MaterialListScreen extends BaseScreen{
 
 
         for (String line : firstPage.split("\n")) {
+            Style s = Style.EMPTY;
             guiGraphics.drawString(
                     font,
-                    line,
+                    Component.literal(line).withStyle(style ->
+                                    style.withFont(ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "boutique"))),
                     itemPageFirst.isEmpty() || itemPageFirst.get(i).count() <= 0? left - 26: left,
-                    top + 8 - font.lineHeight/2F + i * 11*2 + frontY / sc,
+                    (int) (top + 8 - font.lineHeight/2F + i * 11*2 + frontY / sc),
                     0x000000,
                     false
             );

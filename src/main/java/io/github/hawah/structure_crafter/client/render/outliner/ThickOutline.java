@@ -9,7 +9,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-public class ThickOutline extends OutlineElement {
+public class ThickOutline extends OutlineElement<ThickOutline> {
     private float visualThickness = 0.0F, actualThickness;
 
     public ThickOutline() {
@@ -167,11 +167,13 @@ public class ThickOutline extends OutlineElement {
         super.tick();
         this.visualThickness = Mth.lerp(visualThickness, actualThickness, 0.2F);
     }
-    public void setThickness(float actualThickness) {
+    public ThickOutline setThickness(float actualThickness) {
         this.actualThickness = actualThickness;
+        return this;
     }
-    public void setThicknessForcefully(float thickness) {
+    public ThickOutline setThicknessForcefully(float thickness) {
         this.actualThickness = thickness;
         this.visualThickness = thickness;
+        return this;
     }
 }

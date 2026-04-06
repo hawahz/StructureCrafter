@@ -10,12 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class RenderElement {
+@SuppressWarnings("unchecked")
+public abstract class RenderElement<T extends RenderElement<T>> {
 
     protected List<LazySet> lazySets = new ArrayList<>();
 
     protected boolean dirty = true;
     public boolean discarded = false;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     protected Optional<Float> deltaTicks = Optional.empty();
     public void lazySet(int delayTicks, Runnable setter) {
         lazySets.add(LazySet.create(delayTicks, setter));
@@ -28,17 +30,17 @@ public abstract class RenderElement {
 
     public abstract void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick);
 
-    public <T extends RenderElement> T discard() {
+    public T discard() {
         discarded = true;
         return (T) this;
     }
 
-    public <T extends RenderElement> T setPriority(int priority) {
+    public T setPriority(int priority) {
         this.priority = priority;
         return (T) this;
     }
 
-    public <T extends RenderElement> T smooth(float smooth) {
+    public T smooth(float smooth) {
         this.deltaTicks = Optional.of(smooth);
         return (T) this;
     }

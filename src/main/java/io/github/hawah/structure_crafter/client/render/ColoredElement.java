@@ -4,7 +4,7 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import net.minecraft.util.Mth;
 
 @SuppressWarnings("unchecked")
-public abstract class ColoredElement extends RenderElement{
+public abstract class ColoredElement<T extends ColoredElement<T>> extends RenderElement<T>{
     protected float r = 1.0F, g = 1.0F, b = 1.0F, a = 1.0F;
     protected float or;
     protected float og;
@@ -13,8 +13,16 @@ public abstract class ColoredElement extends RenderElement{
     protected float targetR = 1.0F, targetG = 1.0F, targetB = 1.0F, targetA = 1.0F;
 
 
-
-    public <T extends ColoredElement> T setRGBA(float r, float g, float b, float a) {
+    /**
+     * 设置元素的颜色和透明度值
+     *
+     * @param r 红色分量，范围通常为0.0-1.0
+     * @param g 绿色分量，范围通常为0.0-1.0
+     * @param b 蓝色分量，范围通常为0.0-1.0
+     * @param a 透明度分量，范围通常为0.0-1.0
+     * @return 返回当前对象的引用，支持链式调用
+     */
+    public T setRGBA(float r, float g, float b, float a) {
         setR(r);
         setG(g);
         setB(b);
@@ -22,18 +30,33 @@ public abstract class ColoredElement extends RenderElement{
         return (T) this;
     }
 
-    public <T extends ColoredElement> T fade() {
+    /**
+     * 将元素设置为淡出状态
+     *
+     * @return 返回当前对象的引用，支持链式调用
+     */
+    public T fade() {
         setA(0);
         return (T) this;
     }
 
-    public <T extends ColoredElement> T lazyFade(int delayTicks) {
+    /**
+     * 延迟指定 tick 数后执行淡出操作
+     *
+     * @param delayTicks 延迟的 tick 数量
+     * @return 返回当前对象的引用，支持链式调用
+     */
+    public T lazyFade(int delayTicks) {
         lazySet(delayTicks, this::fade);
         return (T) this;
     }
-
+    /**
+     * 丢弃元素，先执行淡出效果再调用父类的丢弃逻辑
+     *
+     * @return 返回当前对象的引用，支持链式调用
+     */
     @Override
-    public <T extends RenderElement> T discard() {
+    public T discard() {
         this.fade();
         return super.discard();
     }

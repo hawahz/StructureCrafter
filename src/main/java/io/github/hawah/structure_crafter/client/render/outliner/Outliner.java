@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.StructureCrafter;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -15,7 +15,7 @@ import java.util.List;
 public class Outliner {
     private static Outliner INSTANCE = null;
 
-    private final HashMap<Object, OutlineElement> outlines = new HashMap<>();
+    private final HashMap<Object, OutlineElement<?>> outlines = new HashMap<>();
 
     public static boolean hasInstance() {
         return INSTANCE != null;
@@ -28,19 +28,25 @@ public class Outliner {
         return INSTANCE;
     }
 
-    public OutlineElement thickBox(Object slot) {
+    public OutlineElement<?> thickBox(Object slot) {
         if (outlines.containsKey(slot)) {
-            OutlineElement outline = outlines.get(slot);
-            return outline;
+            OutlineElement<?> outlineElement = outlines.get(slot);
+            if (!(outlineElement instanceof ThickOutline)) {
+                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
+            }
+            return outlineElement;
         }
         ThickOutline outline = new ThickOutline();
         outlines.put(slot, outline);
         return outline;
     }
 
-    public OutlineElement chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+    public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
         if (outlines.containsKey(slot)) {
-            OutlineElement outline = outlines.get(slot);
+            OutlineElement<?> outline = outlines.get(slot);
+            if (!(outline instanceof ThickOutline)) {
+                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
+            }
             outline.setPositions(
                     new Vec3(
                             Math.min(first.getX(), second.getX()),
