@@ -91,8 +91,9 @@ public enum Textures {
             return textures.getHeight();
         }
 
-        public void reset() {
+        public Builder reset() {
             variant = 0;
+            return this;
         }
     }
 

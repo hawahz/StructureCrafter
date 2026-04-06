@@ -61,6 +61,14 @@ public enum KeyBinding {
     }
 
     public boolean canDisplay() {
+        for (KeyNode value : KeyNode.values()) {
+            if (Arrays.asList(keys).contains(value)) {
+                continue;
+            }
+            if (value.isActive() && !value.isEnd()) {
+                return false;
+            }
+        }
         for (Action action : actions) {
             if (action.validateDetect.get()) {
                 return true;
@@ -72,7 +80,7 @@ public enum KeyBinding {
     public Component getValidDescription() {
         for (Action action : actions) {
             if (action.validateDetect.get()) {
-                return action.description;
+                return action.description.get();
             }
         }
         return Component.empty();
@@ -98,15 +106,24 @@ public enum KeyBinding {
     public static class Action {
         private final Supplier<Boolean> validateDetect;
         private final Runnable action;
-        private final Component description;
+        private final Supplier<Component> description;
         private boolean activated = false;
         private final Runnable onRelease;
+        public static final Runnable EMPTY = () -> {};
 
         protected Action(Supplier<Boolean> validateDetect, Runnable action, Component description) {
             this(validateDetect, action, description, () -> {});
         }
 
+        protected Action(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description) {
+            this(validateDetect, action, description, () -> {});
+        }
+
         protected Action(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
+            this(validateDetect, action, () -> description, onRelease);
+        }
+
+        protected Action(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description, Runnable onRelease) {
             this.validateDetect = validateDetect;
             this.action = action;
             this.description = description;
@@ -117,7 +134,11 @@ public enum KeyBinding {
             return new Action(validateDetect, action, description);
         }
 
-        public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
+        public static Action of(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description) {
+            return new Action(validateDetect, action, description);
+        }
+
+        public static Action of(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description, Runnable onRelease) {
             return new Action(validateDetect, action, description, onRelease);
         }
 
@@ -130,7 +151,7 @@ public enum KeyBinding {
             }
             activated = true;
             action.run();
-            return true;
+            return !action.equals(EMPTY);
         }
     }
 
@@ -166,20 +187,22 @@ public enum KeyBinding {
     }
 
     public enum KeyNode {
-        CTRL((mouseButton, pressed, scroll)->Screen.hasControlDown(), 1, 4, 4, 5),
-        ALT((mouseButton, pressed, scroll) -> Screen.hasAltDown(), 0, 3, 4, 5),
-        SHIFT((mouseButton, pressed, scroll) -> Screen.hasShiftDown(), 3, 4, 5),
-        LEFT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_LEFT && pressed),
-        RIGHT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT && pressed),
-        SCROLL((mouseButton, pressed, scroll) -> scroll != 0),
+        CTRL((mouseButton, pressed, scroll)->Screen.hasControlDown(), false, 1, 4, 4, 5),
+        ALT((mouseButton, pressed, scroll) -> Screen.hasAltDown(), false, 0, 3, 4, 5),
+        SHIFT((mouseButton, pressed, scroll) -> Screen.hasShiftDown(), false, 3, 4, 5),
+        LEFT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_LEFT && pressed, true),
+        RIGHT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT && pressed, true),
+        SCROLL((mouseButton, pressed, scroll) -> scroll != 0, true),
         ;
         private final IKeyNodeDetection detection;
+        private final boolean isEnd;
         private final Supplier<List<KeyNode>> validNext;
         private boolean pressed = false;
 
 
-        KeyNode(IKeyNodeDetection detection, int... validNext) {
+        KeyNode(IKeyNodeDetection detection, boolean isEnd, int... validNext) {
             this.detection = detection;
+            this.isEnd = isEnd;
             this.validNext = () -> Arrays.stream(validNext).mapToObj(KeyNode::getById).toList();
         }
 
@@ -201,6 +224,10 @@ public enum KeyBinding {
 
         public List<KeyNode> getValidNext() {
             return validNext.get();
+        }
+
+        public boolean isEnd() {
+            return isEnd;
         }
 
         interface IKeyNodeDetection {

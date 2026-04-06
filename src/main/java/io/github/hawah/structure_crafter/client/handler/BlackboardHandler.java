@@ -75,7 +75,11 @@ public class BlackboardHandler {
                     firstPos = selectedPos;
                     setSecondPos(null);
                 },
-                Component.literal("Select Zone Point")
+                () -> selectedPos == null?
+                        firstPos == null?
+                                Component.literal("Select First Point"):
+                                Component.literal("Select Second Point"):
+                        Component.literal("Clear and Select First")
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 ()-> this.isActive() && selectedPos != null,
@@ -92,6 +96,16 @@ public class BlackboardHandler {
                 this::deleteCenter,
                 Component.literal("Delete Anchor")
         ));
+        KeyBinding.CTRL.bind(KeyBinding.Action.of(
+                () -> this.isActive() && firstPos != null && secondPos != null,
+                KeyBinding.Action.EMPTY,
+                Component.literal("Show All Faces")
+        ));
+        KeyBinding.CTRL_R.bind(KeyBinding.Action.of(
+                () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
+                KeyBinding.Action.EMPTY,
+                Component.literal("Pick Air")
+        ));
         KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
                 () -> {
@@ -99,7 +113,7 @@ public class BlackboardHandler {
                     reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
                     System.out.println("reach");
                 },
-                Component.literal("Pick Air")
+                Component.literal("Change Reach Distance")
         ));
         // TODO Take over scrolling
         KeyBinding.CTRL_ALT_S.bind(KeyBinding.Action.of(

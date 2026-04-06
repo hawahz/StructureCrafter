@@ -34,13 +34,13 @@ public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
 //        int startY = Math.max(mainWindow.getGuiScaledWidth() - 32, 0);
         int startY = mainWindow.getGuiScaledHeight() - 36;
 
-        for (KeyBinding value : KeyBinding.values()) {
+        for (KeyBinding bindedKey : KeyBinding.values()) {
             int startX = Math.max(mainWindow.getGuiScaledWidth() - 32, 0);
-            if (!value.canDisplay()) {
+            if (!bindedKey.canDisplay()) {
                 continue;
             }
-            for (KeyBinding.KeyNode key : value.keys) {
-                if (key.isActive() && !KeyBinding.KeyNode.RIGHT.equals(key) && !KeyBinding.KeyNode.LEFT.equals(key) && !KeyBinding.KeyNode.SCROLL.equals(key)) {
+            for (KeyBinding.KeyNode key : bindedKey.keys) {
+                if (key.isActive() && !key.isEnd()) {
                     continue;
                 }
                 Textures.Builder builder = Textures.KEYMAP.builder();
@@ -57,7 +57,7 @@ public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
                 startX -= 16;
             }
             Font font = Minecraft.getInstance().font;
-            Component validDescription = value.getValidDescription();
+            Component validDescription = bindedKey.getValidDescription();
             guiGraphics.drawString(
                     font,
                     validDescription,
