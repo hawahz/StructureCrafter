@@ -12,6 +12,7 @@ import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
+import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
@@ -19,7 +20,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -76,6 +76,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
         AnimationTickHolder.tick();
+        KeyBinding.tick();
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
@@ -94,6 +95,10 @@ public class ClientEvents {
         }
         int button = event.getButton();
         boolean pressed = event.getAction() != 0;
+        if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
+            event.setCanceled(true);
+            return;
+        }
         if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseInput(button, pressed)) {
             event.setCanceled(true);
         }
