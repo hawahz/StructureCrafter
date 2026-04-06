@@ -93,13 +93,15 @@ public class BlackboardHandler {
 
 
 
-        if (!isRight & selectedPos != null) {
+        if (!isRight) {
             if (Minecraft.getInstance().player.isShiftKeyDown()) {
                 deleteCenter();
                 return true;
             }
-            centerPos = selectedPos;
-            return true;
+            if (selectedPos != null) {
+                centerPos = selectedPos;
+                return true;
+            }
         }
 
         if (Minecraft.getInstance().player.isShiftKeyDown()) {
@@ -272,15 +274,19 @@ public class BlackboardHandler {
                     .finish();
         }
 
-        if (centerPos != null) {
+        if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null)) {
             Outliner.getInstance()
                     .chaseThickBox(
                             centerSlot,
-                            centerPos,
-                            centerPos
+                            centerPos==null? selectedPos: centerPos,
+                            centerPos==null? selectedPos: centerPos
                     )
                     .setRGBA(1, 216F/255, 0, 1)
                     .setPriority(1)
+                    .finish();
+        } else {
+            Outliner.getInstance().thickBox(centerSlot)
+                    .fade()
                     .finish();
         }
     }
@@ -373,7 +379,7 @@ public class BlackboardHandler {
     }
 
     private boolean canReachAir() {
-        return Screen.hasControlDown() && (firstPos == null || secondPos == null);
+        return Screen.hasControlDown() && (firstPos == null || secondPos == null || centerPos == null);
     }
 
     /**

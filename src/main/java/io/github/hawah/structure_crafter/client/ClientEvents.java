@@ -12,6 +12,7 @@ import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
+import io.github.hawah.structure_crafter.util.Models;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -159,9 +160,7 @@ public class ClientEvents {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onRegisterModel(ModelEvent.RegisterAdditional event) {
-        event.register(ModelResourceLocation.standalone(
-                ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "addition/blackboard_raw")
-        ));
+        Models.register(event);
     }
 
     @SubscribeEvent

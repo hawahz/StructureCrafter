@@ -1,18 +1,17 @@
 package io.github.hawah.structure_crafter.client.gui;
 
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.ColoredLabel;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -20,10 +19,8 @@ import java.awt.*;
 
 public class BlackboardCheckScreen extends BaseScreen {
 
+    public static final Textures BACKGROUND = Textures.NAMETAG_BACKGROUND;
     private ColoredLabel alarmLabel;
-
-    private final ResourceLocation texture =
-            ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "nametag" + ".png");
 
     public BlackboardCheckScreen() {
         super(Component.literal("blackboard"));
@@ -37,7 +34,7 @@ public class BlackboardCheckScreen extends BaseScreen {
 
     @Override
     protected void init() {
-        setTextureSize(109, 32);
+        setTextureSize(BACKGROUND.getWidth(), BACKGROUND.getHeight());
         guiLeft += 20;
 
         super.init();
@@ -54,16 +51,18 @@ public class BlackboardCheckScreen extends BaseScreen {
         setFocused(nameField);
         addRenderableWidget(nameField);
 
+        Textures.Builder confirmBuilder = Textures.CONFIRM_NAMETAG.builder();
+
         confirm = new TextureButton(
                 guiLeft + 113,
                 guiTop - 2,
-                16,
-                14,
+                confirmBuilder.getWidth(),
+                confirmBuilder.getHeight(),
                 Component.empty(),
-                texture,
-                80, 96,
-                80, 112,
-                80, 128,
+                confirmBuilder.getResource(),
+                confirmBuilder.getStartX(), confirmBuilder.getStartY(),
+                confirmBuilder.variant(Textures.Variants.HOVER).getStartX(), confirmBuilder.getStartY(),
+                confirmBuilder.variant(Textures.Variants.DISABLED).getStartX(), confirmBuilder.getStartY(),
                 () -> {
                     if (nameField.getValue().isEmpty()) {
                         alarmNoName();
@@ -77,16 +76,18 @@ public class BlackboardCheckScreen extends BaseScreen {
         );
         addRenderableWidget(confirm);
 
+        Textures.Builder deleteBuilder = Textures.DELETE_NAMETAG.builder();
+
         delete = new TextureButton(
                 guiLeft + 113,
                 guiTop + 29,
-                15,
-                16,
+                deleteBuilder.getWidth(),
+                deleteBuilder.getHeight(),
                 Component.empty(),
-                texture,
-                96, 96,
-                96, 112,
-                96, 128,
+                deleteBuilder.getResource(),
+                deleteBuilder.getStartX(), deleteBuilder.getStartY(),
+                deleteBuilder.variant(Textures.Variants.HOVER).getStartX(), deleteBuilder.getStartY(),
+                deleteBuilder.variant(Textures.Variants.DISABLED).getStartX(), deleteBuilder.getStartY(),
                 () -> {
                     StructureCrafterClient.BLACKBOARD_HANDLER.delete();
                     onClose();
@@ -94,16 +95,18 @@ public class BlackboardCheckScreen extends BaseScreen {
         );
         addRenderableWidget(delete);
 
+        Textures.Builder discardBuilder = Textures.DISCARD_NAMETAG.builder();
+
         discard = new TextureButton(
                 guiLeft + 113,
                 guiTop + 11,
-                17,
-                16,
+                discardBuilder.getWidth(),
+                discardBuilder.getHeight(),
                 Component.empty(),
-                texture,
-                111, 96,
-                111, 112,
-                111, 128,
+                discardBuilder.getResource(),
+                discardBuilder.getStartX(), discardBuilder.getStartY(),
+                discardBuilder.variant(Textures.Variants.HOVER).getStartX(), discardBuilder.getStartY(),
+                discardBuilder.variant(Textures.Variants.DISABLED).getStartX(), discardBuilder.getStartY(),
                 this::onClose
         );
         addRenderableWidget(discard);
@@ -150,11 +153,11 @@ public class BlackboardCheckScreen extends BaseScreen {
     @Override
     protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.blit(
-                texture,
+                BACKGROUND.getResource(),
                 guiLeft,
                 guiTop,
-                73,
-                32,
+                BACKGROUND.getStartX(),
+                BACKGROUND.getStartY(),
                 textureWidth,
                 textureHeight
         );

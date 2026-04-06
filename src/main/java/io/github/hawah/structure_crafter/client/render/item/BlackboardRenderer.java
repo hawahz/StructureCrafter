@@ -5,10 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.Config;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.util.Models;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,8 +16,6 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.*;
@@ -215,9 +213,7 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     private BakedModel getBakedModel() {
-        return Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(
-                ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "addition/blackboard_raw")
-        ));
+        return Models.BLACKBOARD.getBakedModel();
     }
 
     private static void renderGeneralItemByBakedModel(ItemStack stack,
