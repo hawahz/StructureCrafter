@@ -36,9 +36,8 @@ public class Outliner {
             }
             return outlineElement;
         }
-        ThickOutline outline = new ThickOutline();
-        outlines.put(slot, outline);
-        return outline;
+        //        outlines.put(slot, outline);
+        return new ThickOutline();
     }
 
     public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
@@ -100,6 +99,10 @@ public class Outliner {
     public void clearSlot(Object slot) {
         outlines.computeIfPresent(slot, (object, outlineElement) -> outlineElement.discard());
         outlines.remove(slot);
+    }
+
+    public void clear() {
+        outlines.clear();
     }
 
     public void updateOutlinePosition(Object slot, Vec3 p0, Vec3 p1) {

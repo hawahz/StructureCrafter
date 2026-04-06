@@ -37,6 +37,7 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -141,6 +142,12 @@ public class ClientEvents {
         if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseScroll(delta)) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        Outliner.getInstance().clear();
+        StructureCrafterClient.BLACKBOARD_HANDLER.discard();
     }
 
     @SubscribeEvent

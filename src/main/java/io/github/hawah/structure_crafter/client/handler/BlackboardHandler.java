@@ -116,7 +116,6 @@ public class BlackboardHandler {
                 () -> {
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
                     reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
-                    System.out.println("reach");
                 },
                 Component.literal("Change Reach Distance")
         ));
