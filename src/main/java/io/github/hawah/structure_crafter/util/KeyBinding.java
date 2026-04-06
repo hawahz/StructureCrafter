@@ -28,7 +28,7 @@ public enum KeyBinding {
     ALT(KeyNode.ALT),
     ;
     private final List<Action> actions = new ArrayList<>();
-    private final KeyNode[] keys;
+    public final KeyNode[] keys;
 
     KeyBinding(KeyNode... keys) {
         this.keys = keys;
@@ -60,7 +60,27 @@ public enum KeyBinding {
         return true;
     }
 
+    public boolean canDisplay() {
+        for (Action action : actions) {
+            if (action.validateDetect.get()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Component getValidDescription() {
+        for (Action action : actions) {
+            if (action.validateDetect.get()) {
+                return action.description;
+            }
+        }
+        return Component.empty();
+    }
+
     public static void tick() {
+
+        KeyBuffer.update();
         for (KeyBinding binding : values()) {
             if (!binding.isActive()) {
                 continue;
@@ -69,7 +89,7 @@ public enum KeyBinding {
                 if (!action.tryActivate()) {
                     continue;
                 }
-                KeyNode.update(0, false, 0);
+                KeyBuffer.update(0, false, 0);
                 return;
             }
         }
@@ -116,15 +136,28 @@ public enum KeyBinding {
 
     public static class KeyBuffer {
         public static double scroll = 0;
+        private static int oMouseButton = -1;
+        private static boolean oPressed = false;
+        private static double oDelta;
 
         public static boolean onMousePressed(int mouseButton, boolean pressed) {
-            KeyNode.update(mouseButton, pressed, 0);
+            update(mouseButton, pressed, 0);
             return KeyBinding.isConsumed();
         }
 
         public static boolean onMouseScrolled(double delta) {
-            KeyNode.update(-1, false, delta);
+            update(-1, false, delta);
             return KeyBinding.isConsumed();
+        }
+
+        public static void update(int mouseButton, boolean pressed, double delta) {
+            KeyNode.update(mouseButton, pressed, delta);
+            oMouseButton = mouseButton;
+            oPressed = pressed;
+            oDelta = delta;
+        }
+        public static void update() {
+            KeyNode.update(oMouseButton, oPressed, oDelta);
         }
 
         public static int getIntDelta() {
@@ -148,6 +181,10 @@ public enum KeyBinding {
         KeyNode(IKeyNodeDetection detection, int... validNext) {
             this.detection = detection;
             this.validNext = () -> Arrays.stream(validNext).mapToObj(KeyNode::getById).toList();
+        }
+
+        public boolean isActive() {
+            return pressed;
         }
 
         public static KeyNode getById(int id) {

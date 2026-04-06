@@ -83,12 +83,12 @@ public class BlackboardHandler {
                 Component.literal("Select Center Point")
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
-                this::isActive,
+                () -> this.isActive() && firstPos != null,
                 this::delete,
                 Component.literal("Delete All")
         ));
         KeyBinding.SHIFT_L.bind(KeyBinding.Action.of(
-                this::isActive,
+                () -> this.isActive() && centerPos != null,
                 this::deleteCenter,
                 Component.literal("Delete Anchor")
         ));
@@ -97,8 +97,9 @@ public class BlackboardHandler {
                 () -> {
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
                     reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
+                    System.out.println("reach");
                 },
-                Component.literal("Discard")
+                Component.literal("Pick Air")
         ));
         // TODO Take over scrolling
         KeyBinding.CTRL_ALT_S.bind(KeyBinding.Action.of(

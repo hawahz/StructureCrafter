@@ -10,6 +10,7 @@ public enum Textures {
     CONFIRM_NAMETAG("textures/gui/nametag.png", 80, 96, 16, 14, 2, 80, 112, 80, 128),
     DISCARD_NAMETAG("textures/gui/nametag.png", 111, 96, 17, 16, 2, 111, 112, 111, 128),
     STRUCTURE_WAND("textures/gui/structure_wand.png", 0, 0, 80, 195, 0),
+    KEYMAP("textures/gui/buttons.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
     ;
     private final ResourceLocation resource;
     private final int startX;
@@ -105,5 +106,13 @@ public enum Textures {
         NORBAL_HOVER,
         TOGGLE,
         TOGGLE_HOVER;
+    }
+    public enum KeyVariants {
+        CTRL,
+        SHIFT,
+        ALT,
+        RIGHT,
+        LEFT,
+        SCROLL
     }
 }

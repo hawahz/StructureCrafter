@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter;
 
+import io.github.hawah.structure_crafter.client.gui.KeyTipHUD;
 import io.github.hawah.structure_crafter.client.handler.BlackboardHandler;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.client.utils.TimerWarper;
@@ -8,6 +9,7 @@ import io.github.hawah.structure_crafter.client.utils.TimerWarper;
 public class StructureCrafterClient {
     public static final BlackboardHandler BLACKBOARD_HANDLER = new BlackboardHandler();
     public static final StructureWandHandler STRUCTURE_WAND_HANDLER = new StructureWandHandler();
+    public static final KeyTipHUD KEY_TIP_HUD = new KeyTipHUD();
     public static final TimerWarper TIMER = new TimerWarper();
     public static final double ANI_DELTA = 0.5;
     public static final float ANI_DELTAF = 0.5F;
