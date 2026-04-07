@@ -4,7 +4,6 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.block.ConnectorBlock;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -15,10 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -252,10 +249,6 @@ public class ConnectorBlockEntity extends BlockEntity {
         if (attachedContainer.isEmpty()) {
             return;
         }
-        BlockState state;
-        if ((state = level.getBlockState(worldPosition.relative(facing))).getBlock() instanceof ChestBlock) {
-//            state.setValue(BlockStateProperties.LOCKED, true);
-        }
         for (IItemHandler iItemHandler : attachedContainer) {
             for (int i = 0; i < iItemHandler.getSlots(); i++) {
                 ItemStack itemStack = iItemHandler.getStackInSlot(i);
@@ -266,10 +259,6 @@ public class ConnectorBlockEntity extends BlockEntity {
 
     @Override
     public void setRemoved() {
-        BlockState state;
-        if (level != null && (state = level.getBlockState(worldPosition.relative(facing))).getBlock() instanceof ChestBlock && state.hasProperty(BlockStateProperties.LOCKED)) {
-//            state.setValue(BlockStateProperties.LOCKED, false);
-        }
         super.setRemoved();
     }
 }
