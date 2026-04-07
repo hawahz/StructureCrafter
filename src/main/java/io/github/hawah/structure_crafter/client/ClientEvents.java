@@ -11,8 +11,12 @@ import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
+import io.github.hawah.structure_crafter.networking.PlayerInventoryRemoveItemPacket;
+import io.github.hawah.structure_crafter.networking.ServerboundTelephoneChanged;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
@@ -20,10 +24,17 @@ import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -86,10 +97,25 @@ public class ClientEvents {
     }
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
-//        int button = event.getButton();
-//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseInput(button, true)) {
-//            event.setCanceled(true);
-//        }
+        int button = event.getButton();
+        Screen screen = event.getScreen();
+        if (screen instanceof AbstractContainerScreen<?> containerScreen) {
+            ItemStack hoveredItem = containerScreen.getSlotUnderMouse() != null? containerScreen.getSlotUnderMouse().getItem(): null;
+            ItemStack carried = containerScreen.getMenu().getCarried();
+            boolean cancelInteract = (hoveredItem != null &&
+                    button >= 0 && button <= 2 &&
+                    hoveredItem.is(ItemRegistries.TELEPHONE_HANDSET) &&
+                    !(screen instanceof EffectRenderingInventoryScreen<?>)
+            );
+            if (cancelInteract) {
+                event.setCanceled(true);
+            } else if (carried.is(ItemRegistries.TELEPHONE_HANDSET) && hoveredItem == null) {
+                Networking.sendToServer(new PlayerInventoryRemoveItemPacket(carried.copy()));
+                Networking.sendToServer(new ServerboundTelephoneChanged(carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, BlockPos.ZERO)));
+                carried.shrink(1);
+            }
+        }
+
     }
     @SubscribeEvent
     public static void onMouseInput(InputEvent.MouseButton.Pre event) {
@@ -109,18 +135,14 @@ public class ClientEvents {
 //        }
     }
 
+    private static ItemStack hoveredItem = ItemStack.EMPTY;
     @SubscribeEvent
     public static void onContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
-//        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
-//        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
-//        if (slotUnderMouse == null)
-//            return;
-//        StructureWandHandler.ItemStackData configData = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
-//        if (slotUnderMouse.getItem().getItem() instanceof AbstractStructureWand) {
-//            configData.init(slotUnderMouse.getItem(), slotUnderMouse.index);
-//        } else {
-//            configData.clear();
-//        }
+        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
+        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
+        if (slotUnderMouse == null)
+            return;
+        hoveredItem = slotUnderMouse.getItem();
     }
     @SubscribeEvent
     public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {

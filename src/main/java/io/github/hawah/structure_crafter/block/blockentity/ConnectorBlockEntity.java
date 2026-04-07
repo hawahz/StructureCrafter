@@ -11,6 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,10 +26,12 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+//TODO 强绑定玩家，以及解绑后的判断逻辑，密钥
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @EventBusSubscriber
@@ -37,7 +42,17 @@ public class ConnectorBlockEntity extends BlockEntity {
     private final Direction facing;
     // Server only
     public static final HashSet<BlockPos> containersTakeOver = new HashSet<>();
-    public boolean hasTelephone = true;
+
+    public void setHasTelephone(boolean hasTelephone) {
+        this.hasTelephone = hasTelephone;
+        setChanged();
+    }
+
+    public boolean hasTelephone() {
+        return hasTelephone;
+    }
+
+    private boolean hasTelephone = true;
     public final IItemHandler itemHandler = new IItemHandler() {
         @Override
         public int getSlots() {
@@ -69,6 +84,7 @@ public class ConnectorBlockEntity extends BlockEntity {
             ItemEntry itemEntry = ItemEntry.fromStack(stack);
             itemEntry.setCount(1);
             List<ItemEntry.Slot> s;
+            setChanged();
             // 寻找匹配物品
             if (items.containsKey(itemEntry)) {
                 s = items.get(itemEntry);
@@ -117,6 +133,7 @@ public class ConnectorBlockEntity extends BlockEntity {
                     break;
                 }
             }
+            setChanged();
 
             return itemEntry.toStack(retAmount);
         }
@@ -136,9 +153,28 @@ public class ConnectorBlockEntity extends BlockEntity {
         super(BlockEntityRegistry.CONNECTOR.get(), pos, blockState);
         this.facing = blockState.getValue(ConnectorBlock.FACING).getOpposite();
     }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.handleUpdateTag(tag, lookupProvider);
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        hasTelephone = tag.getBoolean("hasTelephone");
         if (!tag.contains("items")) {
             return;
         }
@@ -161,7 +197,6 @@ public class ConnectorBlockEntity extends BlockEntity {
             }
             items.put(itemEntry, slots);
         }
-        hasTelephone = tag.getBoolean("hasTelephone");
     }
 
     @Override
@@ -261,4 +296,6 @@ public class ConnectorBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
     }
+
+
 }

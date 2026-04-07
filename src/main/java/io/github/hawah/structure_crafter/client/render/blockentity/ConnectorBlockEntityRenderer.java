@@ -20,7 +20,7 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Connect
 
     @Override
     public void render(ConnectorBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (!blockEntity.hasTelephone)
+        if (!blockEntity.hasTelephone())
             return;
         BakedModel bakedModel = Models.PHONE.getBakedModel();
         poseStack.pushPose();
