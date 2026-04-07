@@ -35,6 +35,11 @@ public abstract class RenderElement<T extends RenderElement<T>> {
         return (T) this;
     }
 
+    public T lazyDiscard(int delayTicks) {
+        lazySet(delayTicks, this::discard);
+        return (T) this;
+    }
+
     public T setPriority(int priority) {
         this.priority = priority;
         return (T) this;

@@ -18,6 +18,7 @@ public class ModEnUsLangProvider extends LanguageProvider {
         add("itemGroup.structure_crafter", "Structure Crafter");
         add(ItemRegistries.STRUCTURE_WAND.get(), "Structure Wand");
         add(ItemRegistries.MATERIAL_LIST.get(), "Material List");
+        add(ItemRegistries.TELEPHONE_HANDSET.get(), "Telephone Handset");
 
         genLang(this);
     }

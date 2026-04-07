@@ -1,7 +1,10 @@
 package io.github.hawah.structure_crafter.client.handler;
 
 import io.github.hawah.structure_crafter.Paths;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -89,5 +92,20 @@ public class StructureHandler {
         items.addAll(player.getInventory().armor);
         items.addAll(player.getInventory().offhand);
         return items;
+    }
+
+    public static ListTag newIntegerList(int... pValues) {
+        ListTag listtag = new ListTag();
+        for (int i : pValues)
+            listtag.add(IntTag.valueOf(i));
+        return listtag;
+    }
+
+    public static ListTag posTag(BlockPos pos) {
+        return newIntegerList(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static BlockPos parsePos(ListTag tag) {
+        return new BlockPos(tag.getInt(0), tag.getInt(1), tag.getInt(2));
     }
 }

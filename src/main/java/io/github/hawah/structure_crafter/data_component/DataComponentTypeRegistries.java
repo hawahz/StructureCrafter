@@ -2,12 +2,10 @@ package io.github.hawah.structure_crafter.data_component;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.structure_crafter.StructureCrafter;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -44,9 +42,9 @@ public class DataComponentTypeRegistries {
                     .networkSynchronized(MaterialListComponent.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Vec3i> STRUCTURE_BOUNDS = register(
+    public static final DataComponentType<BlockPos> TELEPHONE_HANDSET_SOURCE = register(
             "schematic_bounds",
-            builder -> builder.persistent(Vec3i.CODEC).networkSynchronized(CatnipStreamCodecs.VEC3I)
+            builder -> builder.persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC)
     );
 
     public static final DataComponentType<Integer> STRUCTURE_WAND_SETTINGS = register(

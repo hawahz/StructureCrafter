@@ -50,6 +50,8 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear Selection", 0),
 
+    TOOLTIP_TELEPHONE_HANDSET("tooltip." + ItemRegistries.TELEPHONE_HANDSET.getRegisteredName(), "Binding (%s, %s, %s)", 3, ChatFormatting.GRAY, ChatFormatting.BOLD),
+
     TOOLTIP_BUTTON_OPEN_FOLDER("tooltip.button.open_folder", "Open Folder", 0),
     TOOLTIP_BUTTON_REFRESH("tooltip.button.refresh", "Refresh", 0),
     TOOLTIP_BUTTON_DELETE("tooltip.button.delete", "Discard Temporary", 0),

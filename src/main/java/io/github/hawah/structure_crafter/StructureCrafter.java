@@ -1,6 +1,8 @@
 package io.github.hawah.structure_crafter;
 
 import com.mojang.logging.LogUtils;
+import io.github.hawah.structure_crafter.block.BlockRegistry;
+import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
@@ -52,6 +54,10 @@ public class StructureCrafter {
 
         ItemRegistries.register(modEventBus);
 
+        BlockRegistry.register(modEventBus);
+
+        BlockEntityRegistry.register(modEventBus);
+
         DataComponentTypeRegistries.register(modEventBus);
 
         //CREATIVE_MODE_TABS.register(modEventBus);
@@ -75,6 +81,7 @@ public class StructureCrafter {
                 event.accept(ItemRegistries.STRUCTURE_WAND.get());
                 event.accept(ItemRegistries.BLACKBOARD.get());
                 event.accept(ItemRegistries.MATERIAL_LIST.get());
+                event.accept(ItemRegistries.CONNECTOR_BLOCK_ITEM.get());
             }
         }
     }

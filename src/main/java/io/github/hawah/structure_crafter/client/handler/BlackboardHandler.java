@@ -17,8 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -230,7 +228,7 @@ public class BlackboardHandler {
         structure.fillFromWorld(level, origin, bounds, true, Blocks.AIR);
         CompoundTag data = structure.save(new CompoundTag());
 
-        data.put("center", newIntegerList(
+        data.put("center", StructureHandler.newIntegerList(
                 centerPos.getX() - origin.getX(),
                 centerPos.getY() - origin.getY(),
                 centerPos.getZ() - origin.getZ()
@@ -548,10 +546,4 @@ public class BlackboardHandler {
 
     }
 
-    private static ListTag newIntegerList(int... pValues) {
-        ListTag listtag = new ListTag();
-        for (int i : pValues)
-            listtag.add(IntTag.valueOf(i));
-        return listtag;
-    }
 }

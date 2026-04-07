@@ -1,14 +1,9 @@
 package io.github.hawah.structure_crafter.datagen;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.item.ItemRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -26,7 +21,8 @@ public class DataGenerator {
 //        addClient(event, StampWeaverItemModelProvider::new);
         addServer(event, ModRecipeGenerator::new);
         addClient(event, ModEnUsLangProvider::new);
-
+        addClient(event, ModBlockStateGenerator::new);
+        addClient(event, ModItemModelProvider::new);
     }
 
 

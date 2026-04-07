@@ -5,6 +5,8 @@ import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
+import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
+import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
@@ -155,7 +157,7 @@ public class ClientEvents {
         List<Either<FormattedText, TooltipComponent>> tooltipElements = event.getTooltipElements();
         ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof ITooltipItem tooltipItem) {
-            tooltipItem.handleTooltip(tooltipElements);
+            tooltipItem.handleTooltip(tooltipElements, itemStack);
         }
     }
 
@@ -171,6 +173,14 @@ public class ClientEvents {
         event.registerItem(
                 ClientItemRendererExtensions.of(new BlackboardRenderer()),
                 ItemRegistries.BLACKBOARD
+        );
+    }
+
+    @SubscribeEvent
+    public static void registerBlockRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(
+                BlockEntityRegistry.CONNECTOR.get(),
+                (ctx)->new ConnectorBlockEntityRenderer()
         );
     }
 

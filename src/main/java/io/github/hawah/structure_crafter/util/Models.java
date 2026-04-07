@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 public enum Models {
     BLACKBOARD("addition/blackboard_raw"),
+    PHONE("addition/phone"),
     ;
     private final ModelResourceLocation modelResource;
     Models(String path) {
