@@ -75,39 +75,39 @@ public class BlackboardHandler {
                 },
                 () -> selectedPos == null?
                         firstPos == null?
-                                Component.literal("Select First Point"):
-                                Component.literal("Select Second Point"):
-                        Component.literal("Clear and Select First")
+                                LangData.HUD_TIP_BLACKBOARD_SELECT_FIRST_POINT.get():
+                                LangData.HUD_TIP_BLACKBOARD_SELECT_SECOND_POINT.get():
+                        LangData.HUD_TIP_BLACKBOARD_CLEAR_AND_SELECT_FIRST.get()
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 ()-> this.isActive() && selectedPos != null,
                 () -> centerPos = selectedPos,
-                Component.literal("Select Center Point")
+                LangData.HUD_TIP_BLACKBOARD_SELECT_ANCHOR.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
                 () -> this.isActive() && firstPos != null,
                 this::delete,
-                Component.literal("Delete All")
+                LangData.HUD_TIP_BLACKBOARD_DELETE_ALL.get()
         ));
         KeyBinding.SHIFT_L.bind(KeyBinding.Action.of(
                 () -> this.isActive() && centerPos != null,
                 this::deleteCenter,
-                Component.literal("Delete Anchor")
+                LangData.HUD_TIP_BLACKBOARD_DELETE_ANCHOR.get()
         ));
         KeyBinding.CTRL.bind(KeyBinding.Action.of(
                 () -> this.isActive() && firstPos != null && secondPos != null,
                 KeyBinding.Action.EMPTY,
-                Component.literal("Show All Faces")
+                LangData.HUD_TIP_BLACKBOARD_SHOW_ALL_FACES.get()
         ));
         KeyBinding.CTRL_L.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
                 KeyBinding.Action.EMPTY,
-                Component.literal("Pick Air as Center")
+                LangData.HUD_TIP_BLACKBOARD_PICK_AIR_CENTER.get()
         ));
         KeyBinding.CTRL_R.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
                 KeyBinding.Action.EMPTY,
-                Component.literal("Pick Air as Point")
+                LangData.HUD_TIP_BLACKBOARD_PICK_AIR_POINT.get()
         ));
         KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
                 () -> this.isActive() && (firstPos == null || secondPos == null || centerPos == null),
@@ -115,7 +115,7 @@ public class BlackboardHandler {
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
                     reach = Mth.clamp(reach + intDelta, 0, MAX_REACH);
                 },
-                Component.literal("Change Reach Distance")
+                LangData.HUD_TIP_BLACKBOARD_CHANGE_DISTANCE.get()
         ));
         // TODO Take over scrolling
         KeyBinding.CTRL_ALT_S.bind(KeyBinding.Action.of(
@@ -124,7 +124,7 @@ public class BlackboardHandler {
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
                     pushOrPullFace(intDelta, true);
                 },
-                Component.literal("Select Opposite"),
+                LangData.HUD_TIP_BLACKBOARD_SELECT_OPPOSITE_FACE.get(),
                 () -> {
 //                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
 //                    pushOrPullFace(intDelta, true);
@@ -136,7 +136,7 @@ public class BlackboardHandler {
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
                     pushOrPullFace(intDelta, false);
                 },
-                Component.literal("Push/Pull Face")
+                LangData.HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE.get()
         ));
     }
 

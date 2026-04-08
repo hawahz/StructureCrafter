@@ -172,6 +172,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             if (player.isShiftKeyDown()) {
                 IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
                 if (capability != null) {
+                    //TODO Translatable
                     player.displayClientMessage(Component.literal(String.valueOf(capability.getSlots())), true);
                 }
                 return InteractionResult.CONSUME;

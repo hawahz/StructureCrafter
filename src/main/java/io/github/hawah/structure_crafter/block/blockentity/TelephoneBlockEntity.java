@@ -418,6 +418,7 @@ public class TelephoneBlockEntity extends BlockEntity {
         }
         event.setUseBlock(TriState.FALSE);
         Player player = event.getEntity();
+        //TODO Translatable
         player.displayClientMessage(
                 Component.literal("This is taken over."),
                 true
