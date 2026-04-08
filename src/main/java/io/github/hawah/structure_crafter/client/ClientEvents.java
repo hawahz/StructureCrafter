@@ -23,7 +23,6 @@ import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
-import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -32,6 +31,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
@@ -42,36 +43,28 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
-    public static void onRenderWorld(RenderLevelStageEvent event) {
-        if (!RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
-            return;
-        }
+    public static void onRenderWorld(RenderLevelStageEvent.AfterParticles event) {
         PoseStack poseStack = event.getPoseStack();
         RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
-        Camera camera = event.getCamera();
-        Vec3 cameraPos = camera.getPosition();
-        DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.getPartialTick());
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Vec3 cameraPos = camera.position();
+        DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.get);
         MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
         if (Outliner.hasInstance()) {
             Outliner.getInstance().render(
                     poseStack,
-                    bufferSource.getBuffer(RenderType.debugQuads()),
+                    bufferSource.getBuffer(RenderTypes.debugQuads()),
                     cameraPos,
                     partialTick
             );
@@ -235,7 +228,7 @@ public class ClientEvents {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void onRegisterModel(ModelEvent.RegisterAdditional event) {
+    public static void onRegisterModel(ModelEvent.RegisterLoaders event) {
         Models.register(event);
     }
 
@@ -247,14 +240,14 @@ public class ClientEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void loadCompleted(FMLLoadCompleteEvent event) {
-        ModContainer modContainer = ModList.get()
-                .getModContainerById(StructureCrafter.MODID)
-                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
-
-        Supplier<IConfigScreenFactory> configScreen = () ->
-                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
-        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
-    }
+//    @SubscribeEvent
+//    public static void loadCompleted(FMLLoadCompleteEvent event) {
+//        ModContainer modContainer = ModList.get()
+//                .getModContainerById(StructureCrafter.MODID)
+//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
+//
+//        Supplier<IConfigScreenFactory> configScreen = () ->
+//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
+//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+//    }
 }

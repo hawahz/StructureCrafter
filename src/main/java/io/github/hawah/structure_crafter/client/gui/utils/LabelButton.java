@@ -15,7 +15,8 @@ public class LabelButton extends Button {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    //TODO
+    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         new Color(0x00CF68);
         int i = !this.isHovered()?
@@ -23,6 +24,6 @@ public class LabelButton extends Button {
                         0xBCBCBC :
                         0x00CF68 :
                 0xFFFFFF;
-        this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+        this.renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
     }
 }

@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.block;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.MapCodec;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
@@ -7,20 +8,16 @@ import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistr
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,7 +34,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -79,15 +77,22 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        if (facing.getOpposite() == state.getValue(FACING) && !state.canSurvive(level, currentPos)) {
+    protected BlockState updateShape(BlockState state,
+                                     LevelReader level,
+                                     ScheduledTickAccess scheduledTickAccess,
+                                     BlockPos pos,
+                                     Direction direction,
+                                     BlockPos neighborPos,
+                                     BlockState neighborState,
+                                     RandomSource random) {
+        if (direction.getOpposite() == state.getValue(FACING) && !state.canSurvive(level, pos)) {
             return Blocks.AIR.defaultBlockState();
         } else {
             if (state.getValue(WATERLOGGED)) {
-                level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+                scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
             }
 
-            return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+            return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
         }
     }
 
@@ -151,15 +156,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     public boolean isPriority(PlayerInteractEvent.RightClickBlock event) {
         BlockHitResult hitVec = event.getHitVec();
         BlockPos blockPos = hitVec.getBlockPos();
-        return event.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, blockPos, event.getFace()) != null;
-    }
-
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) {
-            //TODO Remove Take Over Container Blocks
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+        return event.getLevel().getCapability(Capabilities.Item.BLOCK, blockPos, event.getFace()) != null;
     }
 
     @Override
@@ -170,10 +167,10 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                                BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
             if (player.isShiftKeyDown()) {
-                IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
+                ResourceHandler<ItemResource> capability = level.getCapability(Capabilities.Item.BLOCK, pos, state, blockEntity, hitResult.getDirection());
                 if (capability != null) {
                     //TODO Translatable
-                    player.displayClientMessage(Component.literal(String.valueOf(capability.getSlots())), true);
+                    player.displayClientMessage(Component.literal(String.valueOf(capability.size())), true);
                 }
                 return InteractionResult.CONSUME;
             }
@@ -214,7 +211,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack,
+    protected InteractionResult useItemOn(ItemStack stack,
                                               BlockState state,
                                               Level level,
                                               BlockPos pos,
@@ -225,9 +222,9 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
             blockEntity.setHasTelephone(true);
             stack.shrink(1);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @SubscribeEvent

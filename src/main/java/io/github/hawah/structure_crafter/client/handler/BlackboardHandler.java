@@ -150,7 +150,7 @@ public class BlackboardHandler {
         }
         int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
         if (canPushOrPullFace()) {
-            pushOrPullFace(intDelta, Screen.hasControlDown());
+            pushOrPullFace(intDelta, Minecraft.getInstance().hasControlDown());
             return true;
         }
 
@@ -225,7 +225,7 @@ public class BlackboardHandler {
 
         StructureTemplate structure = new StructureTemplate();
         Level level = Minecraft.getInstance().level;
-        structure.fillFromWorld(level, origin, bounds, true, Blocks.AIR);
+        structure.fillFromWorld(level, origin, bounds, true, List.of(Blocks.AIR));
         CompoundTag data = structure.save(new CompoundTag());
 
         data.put("center", StructureHandler.newIntegerList(
@@ -294,7 +294,7 @@ public class BlackboardHandler {
             setSelectedPos(null);
 
         // select face
-        if (firstPos != null && secondPos != null && Screen.hasAltDown()) {
+        if (firstPos != null && secondPos != null && Minecraft.getInstance().hasAltDown()) {
             selectedFace = scrolling <= 0? intersectRayWithBox(
                     player.getEyePosition(),
                     getTraceTarget(player, 300, player.getEyePosition())
@@ -348,7 +348,7 @@ public class BlackboardHandler {
                                     secondPos
                     )
                     .face(selectedFace)
-                    .faces(Minecraft.getInstance().screen == null && Screen.hasControlDown() && !Screen.hasAltDown() && secondPos != null? Direction.values(): null)
+                    .faces(Minecraft.getInstance().screen == null && Minecraft.getInstance().hasControlDown() && !Minecraft.getInstance().hasAltDown() && secondPos != null? Direction.values(): null)
                     .setRGBA(1, gb, gb, 1)
                     .setPriority(0)
                     .finish();
@@ -438,7 +438,7 @@ public class BlackboardHandler {
 
 
     private void pushOrPullFace(int intDelta, boolean opposite) {
-        Vec3i normal = selectedFace.getNormal();
+        Vec3i normal = selectedFace.getUnitVec3i();
         AABB box = cachedBoundingBox;
         AABB aabb = (intDelta < 0) ^ opposite?
                 box.expandTowards(normal.getX(), normal.getY(), normal.getZ()) :
@@ -451,15 +451,15 @@ public class BlackboardHandler {
     }
 
     private boolean canPushOrPullFace() {
-        return selectedFace != null && Screen.hasAltDown();
+        return selectedFace != null && Minecraft.getInstance().hasAltDown();
     }
 
     private boolean canSelectOpposite() {
-        return Screen.hasControlDown() && selectedFace != null && scrolling <= 0;
+        return Minecraft.getInstance().hasControlDown() && selectedFace != null && scrolling <= 0;
     }
 
     private boolean canReachAir() {
-        return Screen.hasControlDown() && (firstPos == null || secondPos == null || centerPos == null);
+        return Minecraft.getInstance().hasControlDown() && (firstPos == null || secondPos == null || centerPos == null);
     }
 
     /**

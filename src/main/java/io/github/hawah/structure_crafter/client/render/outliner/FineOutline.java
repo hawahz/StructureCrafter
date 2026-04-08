@@ -31,20 +31,20 @@ public class FineOutline extends OutlineElement<FineOutline> {
 
         // 使用 LevelRenderer 的内置方法渲染线框
         // 注意：原生的线宽调节在很多现代 GPU 上受限，通常取决于 RenderType
-        LevelRenderer.renderLineBox(
-                poseStack,
-                buffer,
-                0,
-                0,
-                0,
-                width,
-                height,
-                depth,
-                r,
-                g,
-                b,
-                a
-        );
+//        LevelRenderer.renderLineBox(
+//                poseStack,
+//                buffer,
+//                0,
+//                0,
+//                0,
+//                width,
+//                height,
+//                depth,
+//                r,
+//                g,
+//                b,
+//                a
+//        );
 
         poseStack.popPose();
     }

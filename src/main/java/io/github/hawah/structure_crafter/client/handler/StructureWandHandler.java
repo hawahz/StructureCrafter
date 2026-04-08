@@ -230,7 +230,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (!pressed) {
             return false;
         }
-        if (Screen.hasShiftDown()) {
+        if (Minecraft.getInstance().hasShiftDown()) {
             ScreenOpener.open(new StructureWandScreen());
             return true;
         }
@@ -255,7 +255,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
 
-        if (Screen.hasAltDown()) {
+        if (Minecraft.getInstance().hasAltDown()) {
             if (delta > 0) {
                 String currentFile = hud.scrollUp();
                 if (currentFile.isEmpty()) {
@@ -281,7 +281,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         if (selectedPos == null) {
             return false;
         }
-        if (Screen.hasControlDown()) {
+        if (Minecraft.getInstance().hasControlDown()) {
             if (lock) {
                 return true;
             }
@@ -379,7 +379,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         public boolean onMouseScroll(double delta) {
             if (this.isInValid())
                 return false;
-            if (Screen.hasShiftDown()) {
+            if (Minecraft.getInstance().hasShiftDown()) {
                 delta *= -1;
                 int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
                 currentConfiguration = Configuration.values()[Math.floorMod(currentConfiguration.ordinal() + intDelta, Configuration.values().length)];
@@ -398,7 +398,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 return false;
             }
 
-            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && Screen.hasShiftDown()) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && Minecraft.getInstance().hasShiftDown()) {
                 config();
                 return true;
             }

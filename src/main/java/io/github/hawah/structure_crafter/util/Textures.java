@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.util;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public enum Textures {
@@ -12,7 +12,7 @@ public enum Textures {
     STRUCTURE_WAND("textures/gui/structure_wand.png", 0, 0, 80, 195, 0),
     KEYMAP("textures/gui/buttons.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
     ;
-    private final ResourceLocation resource;
+    private final Identifier resource;
     private final int startX;
     private final int startY;
     private final int width;
@@ -22,7 +22,7 @@ public enum Textures {
     private final Builder builder;
 
     Textures(String path, int startX, int startY, int width, int height, int variantCounts, int... variant) {
-        this.resource = ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, path);
+        this.resource = Identifier.fromNamespaceAndPath(StructureCrafter.MODID, path);
         this.startX = startX;
         this.startY = startY;
         this.width = width;
@@ -33,7 +33,7 @@ public enum Textures {
         this.builder = new Builder(this);
     }
 
-    public ResourceLocation getResource() {
+    public Identifier getResource() {
         return resource;
     }
 
@@ -71,7 +71,7 @@ public enum Textures {
         public <T extends Enum<T>> Builder variant(Enum<T> variant) {
             return this.variant(variant.ordinal());
         }
-        public ResourceLocation getResource() {
+        public Identifier getResource() {
             return textures.getResource();
         }
 

@@ -3,7 +3,6 @@ package io.github.hawah.structure_crafter.client.gui.utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
 import java.awt.*;
@@ -79,7 +78,7 @@ public class ColoredLabel extends GuiAnimateElement{
                 x - Minecraft.getInstance().font.width(text)/2,
                 y,
                 Minecraft.getInstance().font.width(text),
-                FastColor.ARGB32.color(a, r, g, b)
+                a << 24 | r << 16 | g << 8 | b
         );
 
 

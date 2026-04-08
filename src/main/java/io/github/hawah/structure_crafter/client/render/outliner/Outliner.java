@@ -6,7 +6,6 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class Outliner {
         return new ThickOutline();
     }
 
-    public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+    public OutlineElement<?> chaseThickBox(Object slot, BlockPos first, BlockPos second) {
         if (outlines.containsKey(slot)) {
             OutlineElement<?> outline = outlines.get(slot);
             if (!(outline instanceof ThickOutline)) {
@@ -67,7 +66,7 @@ public class Outliner {
         );
     }
 
-    public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+    public OutlineElement<?> chaseBox(Object slot, BlockPos first, BlockPos second) {
         if (overOutlines.containsKey(slot)) {
             OutlineElement<?> outline = overOutlines.get(slot);
             if (!(outline instanceof FineOutline)) {
@@ -93,7 +92,7 @@ public class Outliner {
     }
 
     @NotNull
-    private OutlineElement<?> getOutlineElement(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
+    private OutlineElement<?> getOutlineElement( BlockPos first, BlockPos second, OutlineElement<?> outline) {
         outline.setPositions(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),

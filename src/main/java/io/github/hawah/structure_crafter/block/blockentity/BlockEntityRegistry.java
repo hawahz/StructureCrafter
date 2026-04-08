@@ -15,7 +15,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 @EventBusSubscriber
 public class BlockEntityRegistry {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, StructureCrafter.MODID);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("connector", () -> BlockEntityType.Builder.of(TelephoneBlockEntity::new, BlockRegistry.TELEPHONE_BLOCK.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register("connector", () -> new BlockEntityType<>(
+                    TelephoneBlockEntity::new,
+                    false,
+                    BlockRegistry.TELEPHONE_BLOCK.get()
+            ));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITY_TYPES.register(eventBus);
@@ -24,7 +29,7 @@ public class BlockEntityRegistry {
     @SubscribeEvent
     public static void registerCapability(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(),
                 (blockEntity, direction) -> {
                     if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {

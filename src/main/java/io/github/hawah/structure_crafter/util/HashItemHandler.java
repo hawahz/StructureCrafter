@@ -1,9 +1,9 @@
 package io.github.hawah.structure_crafter.util;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.HashItemComponent;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@Deprecated
 public class HashItemHandler implements IItemHandler {
 
     private final Map<ItemEntry, List<ItemEntry.LazySlot>> items = new HashMap<>();

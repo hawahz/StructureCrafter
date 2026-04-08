@@ -88,9 +88,9 @@ public class StructureHandler {
 
     public static @NotNull NonNullList<ItemStack> getInventoryItems(Player player) {
         NonNullList<ItemStack> items = NonNullList.create();
-        items.addAll(player.getInventory().items);
-        items.addAll(player.getInventory().armor);
-        items.addAll(player.getInventory().offhand);
+        items.addAll(player.getInventory().getNonEquipmentItems());
+//        items.addAll(player.getInventory().armor);
+//        items.addAll(player.getInventory().offhand);
         return items;
     }
 
@@ -106,6 +106,6 @@ public class StructureHandler {
     }
 
     public static BlockPos parsePos(ListTag tag) {
-        return new BlockPos(tag.getInt(0), tag.getInt(1), tag.getInt(2));
+        return new BlockPos(tag.getInt(0).orElseThrow(), tag.getInt(1).orElseThrow(), tag.getInt(2).orElseThrow());
     }
 }

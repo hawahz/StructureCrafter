@@ -16,6 +16,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -26,9 +27,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -297,10 +296,10 @@ public final class ItemEntry implements DataComponentHolder {
                             .parse(NbtOps.INSTANCE, tag.get("dimension"))
                             .resultOrPartial(System.err::println)
                             .orElseThrow(),
-                    StructureHandler.parsePos(tag.getList("pos", Tag.TAG_INT)),
-                    tag.getInt("slot"),
-                    tag.getInt("counts"),
-                    tag.getInt("limit")
+                    StructureHandler.parsePos(tag.getList("pos").orElseThrow()),
+                    tag.getInt("slot").orElseThrow(),
+                    tag.getInt("counts").orElseThrow(),
+                    tag.getInt("limit").orElseThrow()
             );
         }
 
@@ -388,7 +387,11 @@ public final class ItemEntry implements DataComponentHolder {
             }
 
         public static Slot parse(CompoundTag tag) {
-                return new Slot(StructureHandler.parsePos(tag.getList("pos", Tag.TAG_INT)), tag.getInt("slot"), tag.getInt("counts"), tag.getInt("limit"));
+                return new Slot(
+                        StructureHandler.parsePos(tag.getList("pos").orElse(new ListTag())),
+                        tag.getInt("slot").orElseThrow(),
+                        tag.getInt("counts").orElseThrow(),
+                        tag.getInt("limit").orElseThrow());
             }
 
         public int validCounts() {

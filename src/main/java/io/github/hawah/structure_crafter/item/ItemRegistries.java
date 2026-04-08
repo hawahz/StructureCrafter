@@ -2,18 +2,12 @@ package io.github.hawah.structure_crafter.item;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.block.BlockRegistry;
-import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
-import io.github.hawah.structure_crafter.data_component.HashItemComponent;
 import io.github.hawah.structure_crafter.item.blackboard.Blackboard;
 import io.github.hawah.structure_crafter.item.structure_wand.StructureWand;
-import io.github.hawah.structure_crafter.util.HashItemHandler;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -30,18 +24,18 @@ public class ItemRegistries {
         ITEM.register(eventBus);
     }
 
-    @SubscribeEvent
-    public static void registerCapability(RegisterCapabilitiesEvent event) {
-        event.registerItem(
-                Capabilities.ItemHandler.ITEM,
-                (stack, access) ->{
-                    HashItemComponent hashItemComponent = stack.get(DataComponentTypeRegistries.HASH_ITEM);
-                    if (hashItemComponent == null) {
-                        return null;
-                    }
-                    return new HashItemHandler(stack);
-                },
-                ItemRegistries.TELEPHONE_HANDSET
-        );
-    }
+//    @SubscribeEvent
+//    public static void registerCapability(RegisterCapabilitiesEvent event) {
+//        event.registerItem(
+//                Capabilities.Item.ITEM,
+//                (stack, access) ->{
+//                    HashItemComponent hashItemComponent = stack.get(DataComponentTypeRegistries.HASH_ITEM);
+//                    if (hashItemComponent == null) {
+//                        return null;
+//                    }
+//                    return new HashItemHandler(stack);
+//                },
+//                ItemRegistries.TELEPHONE_HANDSET
+//        );
+//    }
 }
