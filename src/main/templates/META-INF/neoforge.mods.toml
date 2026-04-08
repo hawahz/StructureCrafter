@@ -32,7 +32,8 @@ credits="MIT" #optional
 authors = "${mod_authors}" #optional
 logoFile = "icon.png"
 description = '''${mod_description}'''
-
+[modproperties.structure_crafter]
+    configuredBackground="minecraft:textures/block/stone.png"
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 [[mixins]]
 config = "${mod_id}.mixins.json"
