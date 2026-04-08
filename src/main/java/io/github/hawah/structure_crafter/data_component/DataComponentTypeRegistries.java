@@ -2,7 +2,6 @@ package io.github.hawah.structure_crafter.data_component;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.structure_crafter.StructureCrafter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -42,14 +41,19 @@ public class DataComponentTypeRegistries {
                     .networkSynchronized(MaterialListComponent.STREAM_CODEC)
     );
 
-    public static final DataComponentType<BlockPos> TELEPHONE_HANDSET_SOURCE = register(
+    public static final DataComponentType<TelephoneHandsetComponent> TELEPHONE_HANDSET_SOURCE = register(
             "schematic_bounds",
-            builder -> builder.persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC)
+            builder -> builder.persistent(TelephoneHandsetComponent.CODEC).networkSynchronized(TelephoneHandsetComponent.STREAM_CODEC)
     );
 
     public static final DataComponentType<Integer> STRUCTURE_WAND_SETTINGS = register(
             "structure_wand_settings",
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
+    public static final DataComponentType<HashItemComponent> HASH_ITEM = register(
+            "hash_item",
+            builder -> builder.persistent(HashItemComponent.CODEC).networkSynchronized(HashItemComponent.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {

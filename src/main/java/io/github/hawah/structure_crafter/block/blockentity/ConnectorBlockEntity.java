@@ -259,6 +259,7 @@ public class ConnectorBlockEntity extends BlockEntity {
         ItemEntry itemEntry = ItemEntry.fromStack(itemStack);
         itemEntry.setCount(1);
         int counts = itemStack.getCount();
+        assert level != null;
         items.merge(itemEntry, List.of(new ItemEntry.Slot(pos, slot, counts, limits)), (existing, newEntry) -> {
             ArrayList<ItemEntry.Slot> ret = new ArrayList<>();
             ret.addAll(newEntry);
@@ -287,7 +288,12 @@ public class ConnectorBlockEntity extends BlockEntity {
         for (IItemHandler iItemHandler : attachedContainer) {
             for (int i = 0; i < iItemHandler.getSlots(); i++) {
                 ItemStack itemStack = iItemHandler.getStackInSlot(i);
-                insertItemWithoutRepeatCheck(itemStack, i, worldPosition.relative(facing), Math.max(iItemHandler.getSlotLimit(i), itemStack.getMaxStackSize()));
+                insertItemWithoutRepeatCheck(
+                        itemStack,
+                        i,
+                        worldPosition.relative(facing),
+                        Math.max(iItemHandler.getSlotLimit(i), itemStack.getMaxStackSize())
+                );
             }
         }
     }

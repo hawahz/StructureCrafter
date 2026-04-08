@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.Config;
@@ -12,6 +13,7 @@ import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererEx
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.networking.PlayerInventoryRemoveItemPacket;
@@ -26,12 +28,9 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
@@ -59,32 +58,40 @@ import java.util.function.Supplier;
 public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent event) {
-        if (!RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
-            return;
-        }
-
         PoseStack poseStack = event.getPoseStack();
         RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
-
-
-
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
-        DeltaTracker partialTick = StructureCrafterClient.TIMER.warp(event.getPartialTick());
-
-        if (Outliner.hasInstance()) {
-            Outliner.getInstance().render(
+        if (RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
+            DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.getPartialTick());
+            MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
+            if (Outliner.hasInstance()) {
+                Outliner.getInstance().render(
+                        poseStack,
+                        bufferSource.getBuffer(RenderType.debugQuads()),
+                        cameraPos,
+                        partialTick
+                );
+            }
+            StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(
                     poseStack,
-                    renderBuffers.bufferSource().getBuffer(RenderType.debugQuads()),
+                    bufferSource,
+                    cameraPos
+            );
+            bufferSource.endBatch();
+        } else if (RenderLevelStageEvent.Stage.AFTER_LEVEL.equals(event.getStage())) {
+            DeltaTracker partialTick = StructureCrafterClient.TIMER_OVER.warp(event.getPartialTick());
+            OutlineBufferSource outlineBufferSource = renderBuffers.outlineBufferSource();
+            RenderSystem.disableDepthTest();
+            Outliner.getInstance().renderOverlay(
+                    poseStack,
+                    outlineBufferSource.getBuffer(RenderType.lines()),
                     cameraPos,
                     partialTick
             );
+            outlineBufferSource.endOutlineBatch();
+            RenderSystem.enableDepthTest();
         }
-        StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(
-                poseStack,
-                renderBuffers.bufferSource(),
-                cameraPos
-        );
     }
 
     @SubscribeEvent
@@ -111,7 +118,7 @@ public class ClientEvents {
                 event.setCanceled(true);
             } else if (carried.is(ItemRegistries.TELEPHONE_HANDSET) && hoveredItem == null) {
                 Networking.sendToServer(new PlayerInventoryRemoveItemPacket(carried.copy()));
-                Networking.sendToServer(new ServerboundTelephoneChanged(carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, BlockPos.ZERO)));
+                Networking.sendToServer(new ServerboundTelephoneChanged(carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY)));
                 carried.shrink(1);
             }
         }

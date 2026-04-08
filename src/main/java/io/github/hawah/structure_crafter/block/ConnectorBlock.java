@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.hawah.structure_crafter.block.blockentity.ConnectorBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -168,10 +169,10 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
         if (level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
             blockEntity.setHasTelephone(false);
             ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
-            telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, pos);
+            telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
             player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
             if (level.isClientSide()){
-                Outliner.getInstance().chaseThickBox(new Object(), pos, pos)
+                Outliner.getInstance().chaseBox(new Object(), pos, pos)
                         .setRGBA(0, 1, 0, 1)
                         .lazyDiscard(50)
                         .finish();
@@ -197,7 +198,8 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
                                               Player player,
                                               InteractionHand hand,
                                               BlockHitResult hitResult) {
-        if (pos.equals(stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null)) && level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        TelephoneHandsetComponent component = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null);
+        if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && !blockEntity.hasTelephone()) {
             blockEntity.setHasTelephone(true);
             stack.shrink(1);
             return ItemInteractionResult.SUCCESS;

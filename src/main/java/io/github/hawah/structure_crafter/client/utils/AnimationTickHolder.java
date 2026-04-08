@@ -64,6 +64,6 @@ public class AnimationTickHolder {
     public static float getPartialTicks(boolean ignorePaused) {
         Minecraft mc = Minecraft.getInstance();
         float delta = mc.getTimer().getGameTimeDeltaPartialTick(false);
-        return ignorePaused? StructureCrafterClient.TIMER.getGameTimeDeltaPartialTick(true): delta;
+        return ignorePaused? StructureCrafterClient.TIMER_NORMAL.getGameTimeDeltaPartialTick(true): delta;
     }
 }

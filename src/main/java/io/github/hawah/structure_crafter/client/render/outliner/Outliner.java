@@ -7,6 +7,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class Outliner {
     private static Outliner INSTANCE = null;
 
     private final HashMap<Object, OutlineElement<?>> outlines = new HashMap<>();
+    private final HashMap<Object, OutlineElement<?>> overOutlines = new HashMap<>();
 
     public static boolean hasInstance() {
         return INSTANCE != null;
@@ -46,20 +48,40 @@ public class Outliner {
             if (!(outline instanceof ThickOutline)) {
                 StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
             }
-            outline.setPositions(
-                    new Vec3(
-                            Math.min(first.getX(), second.getX()),
-                            Math.min(first.getY(), second.getY()),
-                            Math.min(first.getZ(), second.getZ())
-                    ),
-                    new Vec3(
-                            Math.max(first.getX(), second.getX()) + 1.0,
-                            Math.max(first.getY(), second.getY()) + 1.0,
-                            Math.max(first.getZ(), second.getZ()) + 1.0
-                    ));
-            return outline;
+            return getOutlineElement(first, second, outline);
         }
         ThickOutline outline = new ThickOutline();
+        outlines.put(slot, getOutlineElement(first, second, outline));
+        return outline;
+    }
+
+    public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+        outlines.forEach((object, outlineElement) ->
+                outlineElement.render(poseStack, buffer, cameraPos, partialTick)
+        );
+    }
+
+    public void renderOverlay(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+        overOutlines.forEach((object, outlineElement) ->
+                outlineElement.render(poseStack, buffer, cameraPos, partialTick)
+        );
+    }
+
+    public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
+        if (overOutlines.containsKey(slot)) {
+            OutlineElement<?> outline = overOutlines.get(slot);
+            if (!(outline instanceof FineOutline)) {
+                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at chaseBox()");
+            }
+            return getOutlineElement(first, second, outline);
+        }
+        FineOutline outline = new FineOutline();
+        overOutlines.put(slot, getOutlineElement(first, second, outline));
+        return outline;
+    }
+
+    @NotNull
+    private OutlineElement<?> getOutlineElement(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
         outline.setPositions(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),
@@ -70,16 +92,8 @@ public class Outliner {
                         Math.max(first.getX(), second.getX()) + 1.0,
                         Math.max(first.getY(), second.getY()) + 1.0,
                         Math.max(first.getZ(), second.getZ()) + 1.0
-                )
-        );
-        outlines.put(slot, outline);
+                ));
         return outline;
-    }
-
-    public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
-        outlines.forEach((object, outlineElement) -> {
-            outlineElement.render(poseStack, buffer, cameraPos, partialTick);
-        });
     }
 
     public static void tick() {
@@ -93,7 +107,15 @@ public class Outliner {
                 slotsToRemove.add(object);
             }
         });
+        List<Object> outlineSlotsToRemove = new ArrayList<>();
+        INSTANCE.overOutlines.forEach((object, outlineElement) -> {
+            outlineElement.tick();
+            if (Math.abs(outlineElement.oa) < 0.01 && outlineElement.discarded) {
+                outlineSlotsToRemove.add(object);
+            }
+        });
         slotsToRemove.forEach(object -> INSTANCE.clearSlot(object));
+        outlineSlotsToRemove.forEach(object -> INSTANCE.clearSlot(object));
     }
 
     public void clearSlot(Object slot) {

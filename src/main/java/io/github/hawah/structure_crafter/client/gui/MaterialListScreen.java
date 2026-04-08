@@ -22,7 +22,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
@@ -76,7 +75,7 @@ public class MaterialListScreen extends BaseScreen{
 
         CompletableFuture
                 .supplyAsync(() -> {
-                    List<ItemEntry> lines = component.getItemWithCounts();
+                    List<ItemEntry> lines = component.itemWithCounts();
                     List<String> pages = new ArrayList<>();
                     StringBuilder page = new StringBuilder();
                     int lineCounter = 0;
@@ -120,7 +119,7 @@ public class MaterialListScreen extends BaseScreen{
                         inventory.put(Item.getId(item.getItem()), inventory.getOrDefault(Item.getId(item.getItem()), 0) + item.getCount());
                     }
 
-                    List<ItemEntry> consumes = component.getItemWithCounts();
+                    List<ItemEntry> consumes = component.itemWithCounts();
                     HashMap<Item, Integer> batchedMap = new HashMap<>();
                     for (ItemEntry consume : consumes) {
                         batchedMap.put(

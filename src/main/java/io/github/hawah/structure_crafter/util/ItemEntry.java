@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.BlockPos;
@@ -21,9 +22,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -227,6 +230,121 @@ public final class ItemEntry implements DataComponentHolder {
         return components;
     }
 
+    public static final class LazySlot {
+        private final ResourceKey<Level> dimension;
+        private final BlockPos pos;
+        private final int slot;
+        private int counts;
+        private final int limit;
+
+        public static final Codec<LazySlot> CODEC = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(LazySlot::dimension),
+                        BlockPos.CODEC.fieldOf("pos").forGetter(LazySlot::pos),
+                        Codec.INT.fieldOf("slot").forGetter(LazySlot::slot),
+                        Codec.INT.fieldOf("counts").forGetter(LazySlot::counts),
+                        Codec.INT.fieldOf("limit").forGetter(LazySlot::limit)
+                ).apply(instance, LazySlot::new));
+
+        private ResourceKey<Level> dimension() {
+            return dimension;
+        }
+
+        public static final StreamCodec<ByteBuf, LazySlot> STREAM_CODEC = StreamCodec.composite(
+                ResourceKey.streamCodec(Registries.DIMENSION), LazySlot::dimension,
+                BlockPos.STREAM_CODEC, LazySlot::pos,
+                ByteBufCodecs.INT, LazySlot::slot,
+                ByteBufCodecs.INT, LazySlot::counts,
+                ByteBufCodecs.INT, LazySlot::limit,
+                LazySlot::new
+        );
+
+        public boolean setCounts(int counts) {
+            int delta = counts - this.counts;
+            this.counts = counts;
+            return delta != 0;
+        }
+
+        public LazySlot(ResourceKey<Level> dimension, BlockPos pos, int slot, int counts, int limit) {
+            this.dimension = dimension;
+            this.pos = pos;
+            this.slot = slot;
+            this.counts = counts;
+            this.limit = limit;
+        }
+
+        public static LazySlot fromSlot(Slot slot, Level level) {
+            return new LazySlot(level.dimension(), slot.pos(), slot.slot(), slot.counts(), slot.limit());
+        }
+
+        public CompoundTag save(CompoundTag tag) {
+            tag.put("dimension", ResourceKey.codec(Registries.DIMENSION).encodeStart(NbtOps.INSTANCE, dimension).result().orElseThrow());
+            tag.put("pos", StructureHandler.posTag(pos));
+            tag.putInt("slot", slot);
+            tag.putInt("counts", counts);
+            tag.putInt("limit", limit);
+            return tag;
+        }
+
+        public static LazySlot parse(CompoundTag tag) {
+            return new LazySlot(
+                    ResourceKey.codec(Registries.DIMENSION)
+                            .parse(NbtOps.INSTANCE, tag.get("dimension"))
+                            .resultOrPartial(System.err::println)
+                            .orElseThrow(),
+                    StructureHandler.parsePos(tag.getList("pos", Tag.TAG_INT)),
+                    tag.getInt("slot"),
+                    tag.getInt("counts"),
+                    tag.getInt("limit")
+            );
+        }
+
+        public int validCounts() {
+            return limit - counts;
+        }
+
+        public BlockPos pos() {
+            return pos;
+        }
+
+        public int slot() {
+            return slot;
+        }
+
+        public int counts() {
+            return counts;
+        }
+
+        public int limit() {
+            return limit;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (Slot) obj;
+            return Objects.equals(this.pos, that.pos) &&
+                    this.slot == that.slot &&
+                    this.counts == that.counts &&
+                    this.limit == that.limit;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(pos, slot, counts, limit);
+        }
+
+        @Override
+        public String toString() {
+            return "LazySlot[" +
+                    "pos=" + pos + ", " +
+                    "slot=" + slot + ", " +
+                    "counts=" + counts + ", " +
+                    "limit=" + limit + ']';
+        }
+    }
+
     public static final class Slot {
         private final BlockPos pos;
         private final int slot;
@@ -313,6 +431,6 @@ public final class ItemEntry implements DataComponentHolder {
                     "limit=" + limit + ']';
         }
 
-        }
+    }
 }
 
