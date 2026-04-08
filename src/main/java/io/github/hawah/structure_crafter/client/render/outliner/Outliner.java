@@ -80,6 +80,18 @@ public class Outliner {
         return outline;
     }
 
+    public OutlineElement<?> box(Object slot) {
+        if (overOutlines.containsKey(slot)) {
+            OutlineElement<?> outlineElement = overOutlines.get(slot);
+            if (!(outlineElement instanceof FineOutline)) {
+                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at box()");
+            }
+            return outlineElement;
+        }
+        //        outlines.put(slot, outline);
+        return new FineOutline();
+    }
+
     @NotNull
     private OutlineElement<?> getOutlineElement(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
         outline.setPositions(

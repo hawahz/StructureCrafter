@@ -81,7 +81,7 @@ public class StructureCrafter {
                 event.accept(ItemRegistries.STRUCTURE_WAND.get());
                 event.accept(ItemRegistries.BLACKBOARD.get());
                 event.accept(ItemRegistries.MATERIAL_LIST.get());
-                event.accept(ItemRegistries.CONNECTOR_BLOCK_ITEM.get());
+                event.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM.get());
             }
         }
     }

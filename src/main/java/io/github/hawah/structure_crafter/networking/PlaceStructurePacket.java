@@ -2,6 +2,8 @@ package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
@@ -13,6 +15,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -116,6 +119,17 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
             }
             IItemHandler handler;
             if ((handler = item.getCapability(Capabilities.ItemHandler.ITEM)) != null) {
+                itemHandlerMap.put(handler, new HashMap<>());
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    shrinkIfMatch(itemHandlerMap.getOrDefault(handler, new HashMap<>()), consumes, handler, i);
+                }
+            } else if (item.has(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) {
+                TelephoneHandsetComponent handsetComponent = item.get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE);
+                BlockPos sourcePos = handsetComponent.pos();
+                ResourceKey<Level> dimension = handsetComponent.dimension();
+                handler = player.getServer()
+                        .getLevel(dimension)
+                        .getCapability(Capabilities.ItemHandler.BLOCK, sourcePos, Direction.NORTH);
                 itemHandlerMap.put(handler, new HashMap<>());
                 for (int i = 0; i < handler.getSlots(); i++) {
                     shrinkIfMatch(itemHandlerMap.getOrDefault(handler, new HashMap<>()), consumes, handler, i);

@@ -15,7 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 @EventBusSubscriber
 public class BlockEntityRegistry {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, StructureCrafter.MODID);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ConnectorBlockEntity>> CONNECTOR = BLOCK_ENTITY_TYPES.register("connector", () -> BlockEntityType.Builder.of(ConnectorBlockEntity::new, BlockRegistry.CONNECTOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TelephoneBlockEntity>> TELEPHONE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("connector", () -> BlockEntityType.Builder.of(TelephoneBlockEntity::new, BlockRegistry.TELEPHONE_BLOCK.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITY_TYPES.register(eventBus);
@@ -25,10 +25,12 @@ public class BlockEntityRegistry {
     public static void registerCapability(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
-                BlockEntityRegistry.CONNECTOR.get(),
+                BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(),
                 (blockEntity, direction) -> {
-                    if (blockEntity instanceof ConnectorBlockEntity connectorBlockEntity)
-                        return connectorBlockEntity.itemHandler;
+                    if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {
+                        telephoneBlockEntity.setDirty();
+                        return telephoneBlockEntity.itemHandler;
+                    }
                     return null;
                 }
         );

@@ -1,16 +1,13 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.block.blockentity.ConnectorBlockEntity;
+import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
-import io.github.hawah.structure_crafter.item.TelephoneHandset;
 import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -25,7 +22,7 @@ public record ServerboundTelephoneChanged(TelephoneHandsetComponent component) i
         try (ServerLevel level = player.serverLevel()) {
             BlockPos pos = player.blockPosition();
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof ConnectorBlockEntity telephoneBlockEntity) {
+            if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {
                 telephoneBlockEntity.setHasTelephone(!telephoneBlockEntity.hasTelephone());
                 telephoneBlockEntity.setChanged();
                 level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);

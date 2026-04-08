@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.client.render.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.hawah.structure_crafter.block.blockentity.ConnectorBlockEntity;
+import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.util.Models;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,11 +15,11 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<ConnectorBlockEntity> {
+public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<TelephoneBlockEntity> {
 
 
     @Override
-    public void render(ConnectorBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    public void render(TelephoneBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         if (!blockEntity.hasTelephone())
             return;
         BakedModel bakedModel = Models.PHONE.getBakedModel();

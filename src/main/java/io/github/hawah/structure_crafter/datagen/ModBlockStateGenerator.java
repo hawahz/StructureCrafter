@@ -14,9 +14,9 @@ public class ModBlockStateGenerator extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
         horizontalBlock(
-                BlockRegistry.CONNECTOR.get(),
+                BlockRegistry.TELEPHONE_BLOCK.get(),
                 models().getExistingFile(
-                        modLoc("block/connector_phone_booth")
+                        modLoc("block/phone_booth")
                 )
         );
     }

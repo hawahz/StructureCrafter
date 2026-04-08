@@ -1,12 +1,12 @@
 package io.github.hawah.structure_crafter.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
+import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
@@ -16,6 +16,7 @@ import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistr
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
+import io.github.hawah.structure_crafter.item.TelephoneHandset;
 import io.github.hawah.structure_crafter.networking.PlayerInventoryRemoveItemPacket;
 import io.github.hawah.structure_crafter.networking.ServerboundTelephoneChanged;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
@@ -58,42 +59,39 @@ import java.util.function.Supplier;
 public class ClientEvents {
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent event) {
+        if (!RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
+            return;
+        }
         PoseStack poseStack = event.getPoseStack();
         RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
-        if (RenderLevelStageEvent.Stage.AFTER_PARTICLES.equals(event.getStage())) {
-            DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.getPartialTick());
-            MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
-            if (Outliner.hasInstance()) {
-                Outliner.getInstance().render(
-                        poseStack,
-                        bufferSource.getBuffer(RenderType.debugQuads()),
-                        cameraPos,
-                        partialTick
-                );
-            }
-            StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(
+        DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.getPartialTick());
+        MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
+        if (Outliner.hasInstance()) {
+            Outliner.getInstance().render(
                     poseStack,
-                    bufferSource,
-                    cameraPos
-            );
-            bufferSource.endBatch();
-        } else if (RenderLevelStageEvent.Stage.AFTER_LEVEL.equals(event.getStage())) {
-            DeltaTracker partialTick = StructureCrafterClient.TIMER_OVER.warp(event.getPartialTick());
-            OutlineBufferSource outlineBufferSource = renderBuffers.outlineBufferSource();
-            RenderSystem.disableDepthTest();
-            Outliner.getInstance().renderOverlay(
-                    poseStack,
-                    outlineBufferSource.getBuffer(RenderType.lines()),
+                    bufferSource.getBuffer(RenderType.debugQuads()),
                     cameraPos,
                     partialTick
             );
-            outlineBufferSource.endOutlineBatch();
-            RenderSystem.enableDepthTest();
         }
+        StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(
+                poseStack,
+                bufferSource,
+                cameraPos
+        );
+        bufferSource.endBatch();
+
+        Outliner.getInstance().renderOverlay(
+                poseStack,
+                bufferSource.getBuffer(OverRenderType.OVERLAY_LINES),
+                cameraPos,
+                partialTick
+        );
     }
 
+    private static boolean holdTelephone = false;
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
         AnimationTickHolder.tick();
@@ -101,6 +99,28 @@ public class ClientEvents {
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        ItemStack item;
+        if (!(item = player.getMainHandItem()).is(ItemRegistries.TELEPHONE_HANDSET) || !player.isShiftKeyDown()) {
+            if (holdTelephone) {
+                holdTelephone = false;
+                Outliner.getInstance().box(TelephoneHandset.slot)
+                        .fade()
+                        .discard()
+                        .finish();
+                TelephoneHandset.slot = new Object();
+            }
+            return;
+        }
+        if (holdTelephone)
+            return;
+        holdTelephone = true;
+        TelephoneHandset.chaseOutline(item)
+                .setRGBA(0, 1, 0, 1)
+                .finish();
     }
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
@@ -208,7 +228,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void registerBlockRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(
-                BlockEntityRegistry.CONNECTOR.get(),
+                BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(),
                 (ctx)->new ConnectorBlockEntityRenderer()
         );
     }

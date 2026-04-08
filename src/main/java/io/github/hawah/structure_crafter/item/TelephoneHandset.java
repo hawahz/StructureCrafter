@@ -1,8 +1,9 @@
 package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
-import io.github.hawah.structure_crafter.block.blockentity.ConnectorBlockEntity;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
+import io.github.hawah.structure_crafter.client.render.outliner.OutlineElement;
+import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.HashItemComponent;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
@@ -22,11 +23,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
 public class TelephoneHandset extends Item implements ITooltipItem{
@@ -59,14 +59,82 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         if (!(level instanceof ServerLevel serverLevel) || !(hashItemComponent = stack.getOrDefault(DataComponentTypeRegistries.HASH_ITEM, HashItemComponent.EMPTY)).dirty()) {
             return;
         }
-        final long start = System.nanoTime();
-        final long budget = 1_000_000;
+        if (!(serverLevel.getBlockEntity(handsetComponent.pos()) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
+            return;
+        }
+        //updateChangedDataFromStack(stack, serverLevel, connectorBlockEntity, hashItemComponent);
+    }
 
-        IItemHandler capability = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, handsetComponent.pos(), Direction.NORTH);
-        List<ItemEntry.LazySlot> changedSlots = new ArrayList<>();
-        changedSlots.addAll(hashItemComponent.changedSlots().entries());
-        for (ItemEntry.LazySlot changedSlot : changedSlots) {
+    private static void updateChangedDataFromStack(ItemStack stack, ServerLevel serverLevel, TelephoneBlockEntity telephoneBlockEntity, HashItemComponent hashItemComponent) {
+        List<ItemEntry.LazySlot> originalChangedSlots = hashItemComponent.changedSlots().entries();
+        Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots =
+                originalChangedSlots.stream()
+                        .collect(Collectors.toMap(ItemEntry.LazySlot::toSlot, changedSlot -> changedSlot));
+        try {
+            final long start = System.nanoTime();
+            final long budget = 1_000;
+            // 尝试将更新的内容更新到源方块上
+            // 如果超时，保存到下一tick执行
+            // 取出保存下来标记为变化的格子
+            // 将其转换成Map，一是操作是需要Slot，二是Map可以直接通过Slot获取原数据，方便更新回物品中
+            // 对相关联的connector遍历格子
+            // 每个格子遍历改变的格子，如果击中，那么开始操作
+            for (ItemEntry itemsInConnector : telephoneBlockEntity.getKeys()) {
+                for (ItemEntry.Slot changedSlot : changedSlots.keySet()) {
+                    // 击中时，从原初方块获取能力
+                    // 先操作改变能力
+                    // 然后再把改变的内容更新到be上
+                    if (telephoneBlockEntity.getItems().get(itemsInConnector).contains(changedSlot)) {
+                        ServerLevel dimensionLevel = serverLevel.getServer().getLevel(changedSlots.get(changedSlot).dimension());
+                        if (dimensionLevel == null)
+                            continue;
+                        IItemHandler capability = dimensionLevel
+                                .getCapability(Capabilities.ItemHandler.BLOCK, changedSlot.pos(), Direction.UP);
+                        if (capability == null)
+                            continue;
+                        if (itemsInConnector.isEmpty()) {
+                            tryInsertItemBack(telephoneBlockEntity, hashItemComponent, itemsInConnector, changedSlot, changedSlots, capability);
+                            originalChangedSlots.remove(changedSlots.get(changedSlot));
+                            if (System.nanoTime() - start > budget) {
+                                return;
+                            }
+                            continue;
+                        }
+                        tryRemoveItem(telephoneBlockEntity, itemsInConnector, changedSlot, capability, originalChangedSlots, changedSlots);
+                    }
+                    if (System.nanoTime() - start > budget) {
+                        return;
+                    }
+                }
+            }
+        } finally {
+            stack.update(DataComponentTypeRegistries.HASH_ITEM, HashItemComponent.EMPTY, (h) ->
+                    new HashItemComponent(
+                            h.items(),
+                            HashItemComponent.LazySlotWarper.warp(originalChangedSlots),
+                            !originalChangedSlots.isEmpty()
+                    ));
+        }
+    }
 
+    private static void tryRemoveItem(TelephoneBlockEntity telephoneBlockEntity, ItemEntry itemsInConnector, ItemEntry.Slot changedSlot, IItemHandler capability, List<ItemEntry.LazySlot> originalChangedSlots, Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots) {
+        if (changedSlot.counts() == 0) {
+            telephoneBlockEntity.getItems().get(itemsInConnector).remove(changedSlot);
+            telephoneBlockEntity.getItems().get(ItemEntry.EMPTY).add(changedSlot);
+        }
+        capability.extractItem(changedSlot.slot(), changedSlot.counts(), false);
+        originalChangedSlots.remove(changedSlots.get(changedSlot));
+    }
+
+    private static void tryInsertItemBack(TelephoneBlockEntity telephoneBlockEntity, HashItemComponent hashItemComponent, ItemEntry itemsInConnector, ItemEntry.Slot changedSlot, Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots, IItemHandler capability) {
+        for (ItemEntry itemEntry : hashItemComponent.items().keySet()) {
+            if (!hashItemComponent.items().get(itemEntry).entries().contains(changedSlots.get(changedSlot))) {
+                continue;
+            }
+            capability.insertItem(changedSlot.slot(), itemEntry.toStack(changedSlot.counts()), false);
+            telephoneBlockEntity.getItems().get(itemsInConnector).remove(changedSlot);
+            telephoneBlockEntity.getItems().get(itemEntry).add(changedSlot);
+            break;
         }
     }
 
@@ -93,12 +161,19 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         }
         serverLevel.getChunk(pos);
         BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-        if (blockEntity instanceof ConnectorBlockEntity connectorBlockEntity) {
-            connectorBlockEntity.setHasTelephone(true);
-            connectorBlockEntity.setChanged();
+        if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {
+            telephoneBlockEntity.setHasTelephone(true);
+            telephoneBlockEntity.setChanged();
             serverLevel.sendBlockUpdated(pos, blockEntity.getBlockState(), blockEntity.getBlockState(), Block.UPDATE_ALL);
         }
     }
 
+    public static Object slot = new Object();
+
+    public static OutlineElement<?> chaseOutline(ItemStack itemStack) {
+        TelephoneHandsetComponent telephoneComponent = itemStack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
+        BlockPos pos = telephoneComponent.pos();
+        return Outliner.getInstance().chaseBox(slot, pos, pos);
+    }
 
 }

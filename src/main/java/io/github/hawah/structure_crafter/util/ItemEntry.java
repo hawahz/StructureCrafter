@@ -187,7 +187,7 @@ public final class ItemEntry implements DataComponentHolder {
     }
 
     public ItemStack toStack(int count) {
-        ItemStack itemStack = Item.byId(count).getDefaultInstance();
+        ItemStack itemStack = Item.byId(id()).getDefaultInstance();
         itemStack.applyComponents(components);
         itemStack.setCount(count);
         return itemStack;
@@ -202,6 +202,7 @@ public final class ItemEntry implements DataComponentHolder {
         }
         return new ArrayList<>(merged.values());
     }
+
 
 
     @Override
@@ -246,7 +247,7 @@ public final class ItemEntry implements DataComponentHolder {
                         Codec.INT.fieldOf("limit").forGetter(LazySlot::limit)
                 ).apply(instance, LazySlot::new));
 
-        private ResourceKey<Level> dimension() {
+        public ResourceKey<Level> dimension() {
             return dimension;
         }
 
@@ -275,6 +276,10 @@ public final class ItemEntry implements DataComponentHolder {
 
         public static LazySlot fromSlot(Slot slot, Level level) {
             return new LazySlot(level.dimension(), slot.pos(), slot.slot(), slot.counts(), slot.limit());
+        }
+
+        public Slot toSlot() {
+            return new Slot(pos, slot, counts, limit);
         }
 
         public CompoundTag save(CompoundTag tag) {

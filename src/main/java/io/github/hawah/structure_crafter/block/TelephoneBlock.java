@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.block;
 
 import com.mojang.serialization.MapCodec;
-import io.github.hawah.structure_crafter.block.blockentity.ConnectorBlockEntity;
+import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
@@ -10,6 +10,7 @@ import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -36,6 +37,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -43,9 +45,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @EventBusSubscriber
-public class ConnectorBlock extends HorizontalDirectionalBlock implements EntityBlock, SimpleWaterloggedBlock, IPlacePriority {
+public class TelephoneBlock extends HorizontalDirectionalBlock implements EntityBlock, SimpleWaterloggedBlock, IPlacePriority {
 
-    public static final MapCodec<ConnectorBlock> CODEC = simpleCodec(ConnectorBlock::new);
+    public static final MapCodec<TelephoneBlock> CODEC = simpleCodec(TelephoneBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public static final VoxelShape NORTH = Block.box(2, 2, 11, 14, 14, 16);
@@ -53,7 +55,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
     public static final VoxelShape EAST = VoxelShapeMaker.getByHorizontalDirection(Direction.EAST, NORTH);
     public static final VoxelShape WEST = VoxelShapeMaker.getByHorizontalDirection(Direction.WEST, NORTH);
 
-    public ConnectorBlock() {
+    public TelephoneBlock() {
         super(Properties.of());
         this.registerDefaultState(
                 this.stateDefinition.any()
@@ -62,7 +64,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
         );
     }
 
-    public ConnectorBlock(Properties properties) {
+    public TelephoneBlock(Properties properties) {
         this();
     }
 
@@ -97,7 +99,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new ConnectorBlockEntity(pos, state);
+        return new TelephoneBlockEntity(pos, state);
     }
 
     @Override
@@ -154,7 +156,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity) {
+        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) {
             //TODO Remove Take Over Container Blocks
         }
         super.onRemove(state, level, pos, newState, isMoving);
@@ -166,10 +168,30 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
                                                BlockPos pos,
                                                Player player,
                                                BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
+        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
+            if (player.isShiftKeyDown()) {
+                IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
+                if (capability != null) {
+                    player.displayClientMessage(Component.literal(String.valueOf(capability.getSlots())), true);
+                }
+                return InteractionResult.CONSUME;
+            }
+
             blockEntity.setHasTelephone(false);
             ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
             telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
+//            telephoneHandset.set(
+//                    DataComponentTypeRegistries.HASH_ITEM,
+//                    new HashItemComponent(
+//                            blockEntity.getItems().entrySet().stream().map(entry ->
+//                                    new Tuple<>(
+//                                            entry.getKey(),
+//                                            HashItemComponent.LazySlotWarper.warp(entry.getValue().stream().map(item -> ItemEntry.LazySlot.fromSlot(item, level)).toList())
+//                                    )
+//                            ).collect(Collectors.toMap(Tuple::getA, Tuple::getB)),
+//                            HashItemComponent.LazySlotWarper.EMPTY,
+//                            false
+//                    ));
             player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
             if (level.isClientSide()){
                 Outliner.getInstance().chaseBox(new Object(), pos, pos)
@@ -184,7 +206,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
 
     @Override
     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
             return 0.0f;
         }
         return super.getDestroyProgress(state, player, level, pos);
@@ -199,7 +221,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
                                               InteractionHand hand,
                                               BlockHitResult hitResult) {
         TelephoneHandsetComponent component = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null);
-        if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
             blockEntity.setHasTelephone(true);
             stack.shrink(1);
             return ItemInteractionResult.SUCCESS;
@@ -214,7 +236,7 @@ public class ConnectorBlock extends HorizontalDirectionalBlock implements Entity
                 continue;
             }
             BlockPos pos = event.getPos().relative(direction);
-            if (event.getLevel().getBlockEntity(pos) instanceof ConnectorBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+            if (event.getLevel().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
                 event.setCanceled(true);
             }
         }

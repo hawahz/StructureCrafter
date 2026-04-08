@@ -1,4 +1,5 @@
 {
+  "block.structure_crafter.phone_booth": "Phone Booth",
   "item.structure_crafter.blackboard": "Blackboard",
   "item.structure_crafter.material_list": "Material List",
   "item.structure_crafter.structure_wand": "Structure Wand",
@@ -68,5 +69,6 @@
   "structure_crafter.tooltip.structure_crafter:structure_wand8": "[Shift + Left Click]",
   "structure_crafter.tooltip.structure_crafter:structure_wand9": "Clear Selection",
   "structure_crafter.tooltip.structure_crafter:structure_wandconfig": "-[Scroll] / [Right Click]-",
+  "structure_crafter.tooltip.structure_crafter:telephone_handset0": "Binding (%s, %s, %s)",
   "structure_crafter.tooltip_shift": "-[Shift]-"
 }

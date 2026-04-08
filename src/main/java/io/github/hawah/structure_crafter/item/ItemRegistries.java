@@ -24,7 +24,7 @@ public class ItemRegistries {
     public static final DeferredItem<Blackboard> BLACKBOARD = ITEM.register("blackboard", Blackboard::new);
     public static final DeferredItem<MaterialList> MATERIAL_LIST = ITEM.register("material_list", MaterialList::new);
     public static final DeferredItem<TelephoneHandset> TELEPHONE_HANDSET = ITEM.register("telephone_handset", TelephoneHandset::new);
-    public static final DeferredItem<BlockItem> CONNECTOR_BLOCK_ITEM = ITEM.register("connector", () -> new PriorityBlockItem(BlockRegistry.CONNECTOR.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> TELEPHONE_BLOCK_ITEM = ITEM.register("telephone_block_item", () -> new PriorityBlockItem(BlockRegistry.TELEPHONE_BLOCK.get(), new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEM.register(eventBus);
