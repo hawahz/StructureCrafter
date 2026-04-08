@@ -82,6 +82,10 @@ public enum LangData {
     HUD_TIP_BLACKBOARD_SELECT_OPPOSITE_FACE("hud.blackboard_select_opposite_face","Select Opposite Face", 0),
     HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE("hud.blackboard_push_or_pull_face","Push/Pull Face", 0),
 
+    HUD_TIP_STRUCTURE_WAND_PLACE("hud.structure_wand_place","Place Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG("hud.structure_wand_open_config","Open Settings", 0),
+    HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK("hud.structure_lock_unlock","Lock/Unlock", 0),
+
     GUI_PAGE_TOTAL_BUILD("gui.page_total_build","You can build up to %s of this structure.",1),
     GUI_PAGE_BOTTLENECK_MATERIAL("gui.page_bottleneck_material","The current bottleneck material is:",0),
 

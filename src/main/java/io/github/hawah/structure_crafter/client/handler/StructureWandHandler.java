@@ -9,6 +9,7 @@ import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
 import io.github.hawah.structure_crafter.client.render.StructureRenderer;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.ClientboundContainerSlotChangedPacket;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
@@ -25,7 +26,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -83,17 +83,17 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                     lock = false;
                     Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
                 },
-                Component.literal("Place")
+                LangData.HUD_TIP_STRUCTURE_WAND_PLACE.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
                 () -> active,
                 () -> ScreenOpener.open(new StructureWandScreen()),
-                Component.literal("Open Config")
+                LangData.HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG.get()
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 () -> active,
                 () -> lock = !lock && selectedPos != null,
-                Component.literal("Lock/Unlock")
+                LangData.HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK.get()
         ));
 //        KeyBinding.ALT_S.bind(KeyBinding.Action.of(
 //                () -> active,
