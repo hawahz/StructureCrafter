@@ -1,6 +1,8 @@
 package io.github.hawah.structure_crafter.block.blockentity;
 
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
+import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
@@ -41,7 +43,7 @@ import java.util.*;
 @EventBusSubscriber
 public class TelephoneBlockEntity extends BlockEntity {
 
-    private final Direction facing;
+    public final Direction facing;
 
 
     // Server only
@@ -236,6 +238,9 @@ public class TelephoneBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         hasTelephone = tag.getBoolean("hasTelephone");
         hasBeacon = tag.getBoolean("hasBeacon");
+        if (hasTelephone() && level != null && level.isClientSide()) {
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(worldPosition);
+        }
     }
 
     @Override
@@ -308,7 +313,12 @@ public class TelephoneBlockEntity extends BlockEntity {
         }
         Networking.sendToAll(new TelephoneBlockEntityBeaconChangedPacket(blockEntity.getBlockPos(), false));
         blockEntity.setHasBeacon(false);
-        serverLevel.setChunkForced(chunkPos.x, chunkPos.z, false);
+        for (int x = chunkPos.x - 1; x <= chunkPos.x + 1; x++) {
+            for (int z = chunkPos.z - 1; z <= chunkPos.z + 1; z++) {
+                serverLevel.setChunkForced(x, z, false);
+            }
+        }
+
     }
 
     @Override
@@ -317,8 +327,14 @@ public class TelephoneBlockEntity extends BlockEntity {
 
         if (!(level instanceof ServerLevel serverLevel))
             return;
+        if (!hasBeacon)
+            return;
+        ChunkPos chunkPos = new ChunkPos(getBlockPos());
+        for (int x = chunkPos.x - 1; x <= chunkPos.x + 1; x++) {
+            for (int z = chunkPos.z - 1; z <= chunkPos.z + 1; z++) {
+                serverLevel.setChunkForced(x, z, false);
+            }
+        }
 
-        ChunkPos pos = new ChunkPos(worldPosition);
-        serverLevel.setChunkForced(pos.x, pos.z, false);
     }
 }

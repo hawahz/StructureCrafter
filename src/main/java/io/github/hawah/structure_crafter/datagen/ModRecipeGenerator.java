@@ -50,5 +50,7 @@ public class ModRecipeGenerator extends RecipeProvider implements IConditionBuil
                 .define('p', Items.PAPER)
                 .unlockedBy("has_wand", has(ItemRegistries.STRUCTURE_WAND))
                 .save(recipeOutput);
+
+
     }
 }

@@ -14,7 +14,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -23,11 +26,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 @ParametersAreNonnullByDefault
+@EventBusSubscriber
 public class TelephoneHandset extends Item implements ITooltipItem{
     public TelephoneHandset() {
         super(new Properties().stacksTo(1));
@@ -76,7 +83,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!(entity instanceof Player player)) {
+        if (!(entity instanceof Player player) || !stack.is(ItemRegistries.TELEPHONE_HANDSET)) {
             return;
         }
         TelephoneHandsetComponent handsetComponent = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
@@ -85,6 +92,8 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         }
         BlockPos pos = handsetComponent.pos();
         if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
+            stack.shrink(1);
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
             return;
         }
         Vec3 directionVec = pos.getCenter().subtract(player.position());
@@ -105,79 +114,6 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         }
         //updateChangedDataFromStack(stack, serverLevel, connectorBlockEntity, hashItemComponent);
     }
-
-//    private static void updateChangedDataFromStack(ItemStack stack, ServerLevel serverLevel, TelephoneBlockEntity telephoneBlockEntity, HashItemComponent hashItemComponent) {
-//        List<ItemEntry.LazySlot> originalChangedSlots = hashItemComponent.changedSlots().entries();
-//        Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots =
-//                originalChangedSlots.stream()
-//                        .collect(Collectors.toMap(ItemEntry.LazySlot::toSlot, changedSlot -> changedSlot));
-//        try {
-//            final long start = System.nanoTime();
-//            final long budget = 1_000;
-//            // 尝试将更新的内容更新到源方块上
-//            // 如果超时，保存到下一tick执行
-//            // 取出保存下来标记为变化的格子
-//            // 将其转换成Map，一是操作是需要Slot，二是Map可以直接通过Slot获取原数据，方便更新回物品中
-//            // 对相关联的connector遍历格子
-//            // 每个格子遍历改变的格子，如果击中，那么开始操作
-//            for (ItemEntry itemsInConnector : telephoneBlockEntity.getKeys()) {
-//                for (ItemEntry.Slot changedSlot : changedSlots.keySet()) {
-//                    // 击中时，从原初方块获取能力
-//                    // 先操作改变能力
-//                    // 然后再把改变的内容更新到be上
-//                    if (telephoneBlockEntity.getItems().get(itemsInConnector).contains(changedSlot)) {
-//                        ServerLevel dimensionLevel = serverLevel.getServer().getLevel(changedSlots.get(changedSlot).dimension());
-//                        if (dimensionLevel == null)
-//                            continue;
-//                        IItemHandler capability = dimensionLevel
-//                                .getCapability(Capabilities.ItemHandler.BLOCK, changedSlot.pos(), Direction.UP);
-//                        if (capability == null)
-//                            continue;
-//                        if (itemsInConnector.isEmpty()) {
-//                            tryInsertItemBack(telephoneBlockEntity, hashItemComponent, itemsInConnector, changedSlot, changedSlots, capability);
-//                            originalChangedSlots.remove(changedSlots.get(changedSlot));
-//                            if (System.nanoTime() - start > budget) {
-//                                return;
-//                            }
-//                            continue;
-//                        }
-//                        tryRemoveItem(telephoneBlockEntity, itemsInConnector, changedSlot, capability, originalChangedSlots, changedSlots);
-//                    }
-//                    if (System.nanoTime() - start > budget) {
-//                        return;
-//                    }
-//                }
-//            }
-//        } finally {
-//            stack.update(DataComponentTypeRegistries.HASH_ITEM, HashItemComponent.EMPTY, (h) ->
-//                    new HashItemComponent(
-//                            h.items(),
-//                            HashItemComponent.LazySlotWarper.warp(originalChangedSlots),
-//                            !originalChangedSlots.isEmpty()
-//                    ));
-//        }
-//    }
-//
-//    private static void tryRemoveItem(TelephoneBlockEntity telephoneBlockEntity, ItemEntry itemsInConnector, ItemEntry.Slot changedSlot, IItemHandler capability, List<ItemEntry.LazySlot> originalChangedSlots, Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots) {
-//        if (changedSlot.counts() == 0) {
-//            telephoneBlockEntity.getItems().get(itemsInConnector).remove(changedSlot);
-//            telephoneBlockEntity.getItems().get(ItemEntry.EMPTY).add(changedSlot);
-//        }
-//        capability.extractItem(changedSlot.slot(), changedSlot.counts(), false);
-//        originalChangedSlots.remove(changedSlots.get(changedSlot));
-//    }
-//
-//    private static void tryInsertItemBack(TelephoneBlockEntity telephoneBlockEntity, HashItemComponent hashItemComponent, ItemEntry itemsInConnector, ItemEntry.Slot changedSlot, Map<ItemEntry.Slot, ItemEntry.LazySlot> changedSlots, IItemHandler capability) {
-//        for (ItemEntry itemEntry : hashItemComponent.items().keySet()) {
-//            if (!hashItemComponent.items().get(itemEntry).entries().contains(changedSlots.get(changedSlot))) {
-//                continue;
-//            }
-//            capability.insertItem(changedSlot.slot(), itemEntry.toStack(changedSlot.counts()), false);
-//            telephoneBlockEntity.getItems().get(itemsInConnector).remove(changedSlot);
-//            telephoneBlockEntity.getItems().get(itemEntry).add(changedSlot);
-//            break;
-//        }
-//    }
 
     @Override
     public boolean onDroppedByPlayer(ItemStack item, Player player) {
@@ -210,4 +146,38 @@ public class TelephoneHandset extends Item implements ITooltipItem{
     }
 
     public static Object slot = new Object();
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack stack = player.getItemInHand(usedHand);
+        TelephoneHandsetComponent handsetComponent = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
+        if (!level.dimension().equals(handsetComponent.dimension())) {
+            if (level.isClientSide()) {
+                player.displayClientMessage(LangData.MESSAGE_TELEPHONE_CHANNEL_NOT_FOUND.get(), true);
+            }
+            return InteractionResultHolder.pass(stack);
+        }
+        return super.use(level, player, usedHand);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTossHandset(ItemTossEvent event) {
+        ItemEntity entity = event.getEntity();
+        ItemStack item = entity.getItem();
+        if (!(item.getItem() instanceof TelephoneHandset)) {
+            return;
+        }
+        event.setCanceled(true);
+        TelephoneHandsetComponent component;
+        if ((component = item.get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) == null)
+            return;
+        BlockPos pos = component.pos();
+        Player player = event.getPlayer();
+        if (player.level().isClientSide()) {
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
+        }
+        if (player.level().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) {
+            blockEntity.setHasTelephone(true);
+        }
+    }
 }

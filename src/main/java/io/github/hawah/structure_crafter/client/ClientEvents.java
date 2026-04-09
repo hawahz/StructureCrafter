@@ -127,9 +127,12 @@ public class ClientEvents {
             if (cancelInteract) {
                 event.setCanceled(true);
             } else if (carried.is(ItemRegistries.TELEPHONE_HANDSET) && hoveredItem == null) {
-                Networking.sendToServer(new PlayerInventoryRemoveItemPacket(carried.copy()));
-                Networking.sendToServer(new ServerboundTelephoneChanged(carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY)));
-                carried.shrink(1);
+//                Networking.sendToServer(new PlayerInventoryRemoveItemPacket(carried.copy()));
+//                TelephoneHandsetComponent telephoneHandsetComponent = carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
+//                Networking.sendToServer(new ServerboundTelephoneChanged(telephoneHandsetComponent));
+//                StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(telephoneHandsetComponent.pos());
+//                carried.shrink(1);
+
             }
         }
 

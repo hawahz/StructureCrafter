@@ -11,6 +11,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -184,7 +185,6 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             return InteractionResult.CONSUME;
         }
         if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
-
             blockEntity.setHasTelephone(false);
             ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
             telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
@@ -196,13 +196,21 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                         .finish();
             }
             return InteractionResult.SUCCESS;
+        } else if (!blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
+            ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
+            telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
+            int slotMatchingItem = player.getInventory().findSlotMatchingItem(telephoneHandset);
+            if (slotMatchingItem != -1) {
+                player.getInventory().setItem(slotMatchingItem, ItemStack.EMPTY);
+                player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
+            }
         }
         return InteractionResult.FAIL;
     }
 
     @Override
     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone() && !player.isShiftKeyDown()) {
             return 0.0f;
         }
         return super.getDestroyProgress(state, player, level, pos);
@@ -246,12 +254,22 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                 continue;
             }
             BlockPos pos = event.getPos().relative(direction);
-            if (event.getLevel().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+            if (event.getLevel().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone() && direction.equals(blockEntity.facing.getOpposite())) {
                 event.setCanceled(true);
             }
         }
-        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone() && !event.getPlayer().isShiftKeyDown()) {
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerAttackBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+            Player player = event.getEntity();
+            if (!player.isShiftKeyDown()) {
+                event.setCanceled(true);
+            }
         }
     }
 

@@ -43,6 +43,7 @@
   "structure_crafter.hud.structure_lock_unlock": "Lock/Unlock",
   "structure_crafter.hud.structure_wand_open_config": "Open Settings",
   "structure_crafter.hud.structure_wand_place": "Place Structure",
+  "structure_crafter.message.telephone_channel_not_found": "§kFound No Channel",
   "structure_crafter.title.blackboard_name_tag": "You decide to name your structure as...",
   "structure_crafter.tooltip.button.bounds_hidden": "Hide Bounds",
   "structure_crafter.tooltip.button.bounds_visible": "Show Bounds",

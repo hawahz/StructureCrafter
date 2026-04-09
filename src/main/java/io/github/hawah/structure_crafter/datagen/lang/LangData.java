@@ -107,6 +107,8 @@ public enum LangData {
     CONFIG_STRUCTURE_WAND_RENDER_BOUNDS("config.structure_wand_render_bounds","-Show Bounds-",0),
     CONFIG_STRUCTURE_WAND_RENDER_NONE("config.structure_wand_render_none","-Hide Bounds-",0),
 
+    MESSAGE_TELEPHONE_CHANNEL_NOT_FOUND("message.telephone_channel_not_found","§kFound No Channel",0),
+
     ;
 
     public final String key;

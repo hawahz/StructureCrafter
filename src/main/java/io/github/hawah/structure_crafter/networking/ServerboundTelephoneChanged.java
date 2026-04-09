@@ -20,11 +20,11 @@ public record ServerboundTelephoneChanged(TelephoneHandsetComponent component) i
     @Override
     public void handle(ServerPlayer player) {
         try (ServerLevel level = player.serverLevel()) {
-            BlockPos pos = player.blockPosition();
+            BlockPos pos = component.pos();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {
                 telephoneBlockEntity.setHasTelephone(!telephoneBlockEntity.hasTelephone());
-                telephoneBlockEntity.setChanged();
+//                telephoneBlockEntity.setChanged();
                 level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);
             }
         } catch (IOException ignored) {
