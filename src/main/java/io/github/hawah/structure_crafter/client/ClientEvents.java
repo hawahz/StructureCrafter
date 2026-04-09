@@ -7,6 +7,7 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
+import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
@@ -23,6 +24,7 @@ import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
+import io.github.hawah.structure_crafter.util.Textures;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -81,7 +83,7 @@ public class ClientEvents {
                 bufferSource,
                 cameraPos
         );
-        bufferSource.endBatch();
+        //bufferSource.endBatch();
 
         Outliner.getInstance().renderOverlay(
                 poseStack,
@@ -89,6 +91,17 @@ public class ClientEvents {
                 cameraPos,
                 partialTick
         );
+
+        TelephoneWireRenderer.render(
+                poseStack,
+                bufferSource.getBuffer(RenderType.entityCutout(Textures.FULL_RED.getResource())),
+                new Vec3(-2, -59, -1),
+                new Vec3(10, -59, -1),
+                cameraPos,
+                0.1F
+        );
+
+        bufferSource.endBatch();
     }
 
     private static boolean holdTelephone = false;

@@ -8,6 +8,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 import java.util.function.Predicate;
 
@@ -16,6 +17,12 @@ public class RaycastHelper {
         Vec3 origin = player.getEyePosition();
         Vec3 target = getTraceTarget(player, range, origin);
         ClipContext context = new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
+        return level.clip(context);
+    }
+
+    public static BlockHitResult rayTraceRange(Level level, Vec3 start, Vec3 dir, double range) {
+        Vec3 target = start.add(dir.scale(range));
+        ClipContext context = new ClipContext(start, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         return level.clip(context);
     }
 
