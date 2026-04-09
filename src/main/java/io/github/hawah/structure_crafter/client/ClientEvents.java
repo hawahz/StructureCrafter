@@ -74,7 +74,7 @@ public class ClientEvents {
                 bufferSource,
                 cameraPos
         );
-        bufferSource.endBatch();
+        //bufferSource.endBatch();
 
         Outliner.getInstance().renderOverlay(
                 poseStack,
@@ -82,6 +82,17 @@ public class ClientEvents {
                 cameraPos,
                 partialTick
         );
+
+        TelephoneWireRenderer.render(
+                poseStack,
+                bufferSource.getBuffer(RenderType.entityCutout(Textures.FULL_RED.getResource())),
+                new Vec3(-2, -59, -1),
+                new Vec3(10, -59, -1),
+                cameraPos,
+                0.1F
+        );
+
+        bufferSource.endBatch();
     }
 
     private static boolean holdTelephone = false;
