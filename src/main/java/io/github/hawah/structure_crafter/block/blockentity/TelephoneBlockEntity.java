@@ -215,7 +215,7 @@ public class TelephoneBlockEntity extends BlockEntity {
                 BlockEntity be = level.getBlockEntity(pos);
                 // 核心修复：如果是另一个连接器，则只导通路径，不将其作为目标容器添加
                 if (be instanceof TelephoneBlockEntity) {
-                    queue.add(pos);
+                    //queue.add(pos);
                 } else {
                     // 是普通的容器（如箱子、熔炉等）
                     handlers.add(handler);
