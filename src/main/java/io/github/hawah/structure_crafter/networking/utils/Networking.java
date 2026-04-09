@@ -1,15 +1,12 @@
 package io.github.hawah.structure_crafter.networking.utils;
 
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -17,11 +14,15 @@ public class Networking {
 
 
     public static void sendToServer(ClientToServerPacket packet) {
-        PacketDistributor.sendToServer(packet);
+        ClientPacketDistributor.sendToServer(packet);
     }
 
     public static void sendToPlayer(ServerToClientPacket packet, ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    public static void sendToAll(ServerToClientPacket packet) {
+        PacketDistributor.sendToAllPlayers(packet);
     }
 
 

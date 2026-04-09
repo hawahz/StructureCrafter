@@ -3,11 +3,10 @@ package io.github.hawah.structure_crafter.networking;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.utils.BasePacketPayload;
 import io.github.hawah.structure_crafter.networking.utils.PacketRegistry;
-import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Locale;
 
@@ -21,6 +20,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     MATERIAL_LIST_UPLOAD(MaterialListUploadPacket.class, MaterialListUploadPacket.STREAM_CODEC),
     INVENTORY_REMOVE_ITEM(PlayerInventoryRemoveItemPacket.class, PlayerInventoryRemoveItemPacket.STREAM_CODEC),
     TELEPHONE_CHANGED_TO_SERVER(ServerboundTelephoneChanged.class, ServerboundTelephoneChanged.STREAM_CODEC),
+    TELEPHONE_BEACON_CHANGED_TO_CLIENT(TelephoneBlockEntityBeaconChangedPacket.class, TelephoneBlockEntityBeaconChangedPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 
@@ -44,7 +44,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
         }
     }
 
-    public static ResourceLocation asResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, path);
+    public static Identifier asResource(String path) {
+        return Identifier.fromNamespaceAndPath(StructureCrafter.MODID, path);
     }
 }

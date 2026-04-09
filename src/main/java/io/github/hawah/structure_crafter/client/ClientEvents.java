@@ -8,8 +8,6 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
-import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
-import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -23,18 +21,18 @@ import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
+import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +43,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
@@ -59,7 +56,7 @@ public class ClientEvents {
         RenderBuffers renderBuffers = Minecraft.getInstance().renderBuffers();
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         Vec3 cameraPos = camera.position();
-        DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.get);
+        DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(Minecraft.getInstance().getDeltaTracker());
         MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
         if (Outliner.hasInstance()) {
             Outliner.getInstance().render(
@@ -82,20 +79,17 @@ public class ClientEvents {
                 cameraPos,
                 partialTick
         );
-
-        TelephoneWireRenderer.render(
+        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(
                 poseStack,
-                bufferSource.getBuffer(RenderType.entityCutout(Textures.FULL_RED.getResource())),
-                new Vec3(-2, -59, -1),
-                new Vec3(10, -59, -1),
+                bufferSource.getBuffer(RenderTypes.entityCutout(Textures.TELEPHONE_WIRE.getResource())),
                 cameraPos,
-                0.1F
+                0.2F,
+                partialTick.getGameTimeDeltaPartialTick(true)
         );
 
         bufferSource.endBatch();
     }
 
-    private static boolean holdTelephone = false;
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
         AnimationTickHolder.tick();
@@ -103,40 +97,21 @@ public class ClientEvents {
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
-        }
-        ItemStack item;
-        if (!(item = player.getMainHandItem()).is(ItemRegistries.TELEPHONE_HANDSET) || !player.isShiftKeyDown()) {
-            if (holdTelephone) {
-                holdTelephone = false;
-                Outliner.getInstance().box(TelephoneHandset.slot)
-                        .fade()
-                        .discard()
-                        .finish();
-                TelephoneHandset.slot = new Object();
-            }
-            return;
-        }
-        if (holdTelephone)
-            return;
-        holdTelephone = true;
-        TelephoneHandset.chaseOutline(item)
-                .setRGBA(0, 1, 0, 1)
-                .finish();
+        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
+        TelephoneHandset.clientTick();
     }
+
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
         int button = event.getButton();
         Screen screen = event.getScreen();
         if (screen instanceof AbstractContainerScreen<?> containerScreen) {
-            ItemStack hoveredItem = containerScreen.getSlotUnderMouse() != null? containerScreen.getSlotUnderMouse().getItem(): null;
+            ItemStack hoveredItem = containerScreen.getSlotUnderMouse() != null ? containerScreen.getSlotUnderMouse().getItem() : null;
             ItemStack carried = containerScreen.getMenu().getCarried();
             boolean cancelInteract = (hoveredItem != null &&
                     button >= 0 && button <= 2 &&
                     hoveredItem.is(ItemRegistries.TELEPHONE_HANDSET) &&
-                    !(screen instanceof EffectRenderingInventoryScreen<?>)
+                    !(screen instanceof InventoryScreen)
             );
             if (cancelInteract) {
                 event.setCanceled(true);
@@ -148,6 +123,7 @@ public class ClientEvents {
         }
 
     }
+
     @SubscribeEvent
     public static void onMouseInput(InputEvent.MouseButton.Pre event) {
         if (Minecraft.getInstance().screen != null) {
@@ -158,15 +134,10 @@ public class ClientEvents {
         if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
             event.setCanceled(true);
         }
-//        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseInput(button, pressed)) {
-//            event.setCanceled(true);
-//        }
-//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseInput(button, pressed)) {
-//            event.setCanceled(true);
-//        }
     }
 
     private static ItemStack hoveredItem = ItemStack.EMPTY;
+
     @SubscribeEvent
     public static void onContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
         AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
@@ -175,12 +146,14 @@ public class ClientEvents {
             return;
         hoveredItem = slotUnderMouse.getItem();
     }
+
     @SubscribeEvent
     public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
 //        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseScroll(event.getScrollDeltaY())) {
 //            event.setCanceled(true);
 //        }
     }
+
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (Minecraft.getInstance().screen != null) {
@@ -188,7 +161,7 @@ public class ClientEvents {
         }
         double delta = event.getScrollDeltaY();
 
-        if (KeyBinding.KeyBuffer.onMouseScrolled(delta)){
+        if (KeyBinding.KeyBuffer.onMouseScrolled(delta)) {
             event.setCanceled(true);
         }
 //        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseScroll(delta)) {
@@ -216,24 +189,24 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void registerGuiOverlays(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "structure_wand"), StructureCrafterClient.STRUCTURE_WAND_HANDLER);
-        event.registerAbove(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "key_tip_hud"), StructureCrafterClient.KEY_TIP_HUD);
+        event.registerAbove(VanillaGuiLayers.HOTBAR, Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "structure_wand"), StructureCrafterClient.STRUCTURE_WAND_HANDLER);
+        event.registerAbove(VanillaGuiLayers.HOTBAR, Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "key_tip_hud"), StructureCrafterClient.KEY_TIP_HUD);
 
     }
 
     @SubscribeEvent
-    public static void registerRenderers(RegisterClientExtensionsEvent event) {
-        event.registerItem(
-                ClientItemRendererExtensions.of(new BlackboardRenderer()),
-                ItemRegistries.BLACKBOARD
-        );
+    public static void registerRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(
+                Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "Blackboard"),
+
+                );
     }
 
     @SubscribeEvent
     public static void registerBlockRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(
                 BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(),
-                (ctx)->new ConnectorBlockEntityRenderer()
+                (ctx) -> new ConnectorBlockEntityRenderer()
         );
     }
 
@@ -250,15 +223,4 @@ public class ClientEvents {
             event.setCanceled(true);
         }
     }
-
-//    @SubscribeEvent
-//    public static void loadCompleted(FMLLoadCompleteEvent event) {
-//        ModContainer modContainer = ModList.get()
-//                .getModContainerById(StructureCrafter.MODID)
-//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
-//
-//        Supplier<IConfigScreenFactory> configScreen = () ->
-//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
-//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
-//    }
 }

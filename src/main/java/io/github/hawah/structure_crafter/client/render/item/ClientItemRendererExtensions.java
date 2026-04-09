@@ -1,24 +1,24 @@
 package io.github.hawah.structure_crafter.client.render.item;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 @MethodsReturnNonnullByDefault
 public class ClientItemRendererExtensions implements IClientItemExtensions {
 
-    protected final BlockEntityWithoutLevelRenderer renderer;
+    protected final SpecialModelRenderer<?> renderer;
 
-    public ClientItemRendererExtensions(BlockEntityWithoutLevelRenderer renderer) {
+    public ClientItemRendererExtensions(SpecialModelRenderer<?> renderer) {
         this.renderer = renderer;
     }
 
-    public static ClientItemRendererExtensions of(BlockEntityWithoutLevelRenderer renderer) {
+    public static ClientItemRendererExtensions of(SpecialModelRenderer<?> renderer) {
         return new ClientItemRendererExtensions(renderer);
     }
 
     @Override
-    public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+    public SpecialModelRenderer<?> getCustomRenderer() {
         return renderer;
     }
 }

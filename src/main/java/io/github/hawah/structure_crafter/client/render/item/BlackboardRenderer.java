@@ -15,20 +15,20 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.client.ClientHooks;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
-public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
-
-    public BlackboardRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-    }
+public class BlackboardRenderer implements SpecialModelRenderer<BlackboardRenderer> {
 
     @Override
     public void renderByItem(ItemStack stack,
@@ -330,4 +330,18 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
 
+    @Override
+    public void submit(@Nullable BlackboardRenderer argument, ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, int packedOverlay, boolean hasFoil, int outlineColor) {
+
+    }
+
+    @Override
+    public void getExtents(Consumer<Vector3fc> output) {
+
+    }
+
+    @Override
+    public @Nullable BlackboardRenderer extractArgument(ItemStack stack) {
+        return null;
+    }
 }

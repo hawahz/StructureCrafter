@@ -2,6 +2,8 @@ package io.github.hawah.structure_crafter.block.blockentity;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
+import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -9,11 +11,16 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.TriState;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -34,6 +41,7 @@ import java.util.*;
 public class TelephoneBlockEntity extends BlockEntity {
 
     private final Direction facing;
+
 
     // Server only
     public static final HashSet<BlockPos> containersTakeOver = new HashSet<>();
@@ -239,11 +247,13 @@ public class TelephoneBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput tag) {
         super.loadAdditional(tag);
         hasTelephone = tag.getBooleanOr("hasTelephone", true);
+        hasBeacon = tag.getBooleanOr("hasBeacon", false);
     }
 
     @Override
     protected void saveAdditional(ValueOutput tag) {
         tag.putBoolean("hasTelephone", hasTelephone);
+        tag.putBoolean("hasBeacon", hasBeacon);
     }
 
     @SubscribeEvent
@@ -260,5 +270,60 @@ public class TelephoneBlockEntity extends BlockEntity {
                 Component.literal("This is taken over."),
                 true
         );
+    }
+
+    public boolean hasBeacon() {
+        return hasBeacon;
+    }
+
+    public void setHasBeacon(boolean hasBeacon) {
+        setChanged();
+        this.hasBeacon = hasBeacon;
+    }
+
+    public boolean hasBeacon = false;
+    public static void tick(Level level, BlockPos pos, BlockState state, TelephoneBlockEntity blockEntity) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        ChunkPos chunkPos = new ChunkPos(blockEntity.getBlockPos());
+        List<LevelChunk> nearChunks = new ArrayList<>();
+        for (int x = chunkPos.x - 1; x <= chunkPos.x + 1; x++) {
+            for (int z = chunkPos.z - 1; z <= chunkPos.z + 1; z++) {
+                nearChunks.add(level.getChunk(x, z));
+            }
+        }
+
+        for (LevelChunk chunk : nearChunks){
+            Map<BlockPos, BlockEntity> blockEntities = chunk.getBlockEntities();
+            for (BlockEntity be : blockEntities.values()) {
+                if (be instanceof BeaconBlockEntity) {
+                    if (blockEntity.hasBeacon()) {
+                        return;
+                    }
+                    blockEntity.setHasBeacon(true);
+                    Networking.sendToAll(new TelephoneBlockEntityBeaconChangedPacket(blockEntity.getBlockPos(), true));
+                    serverLevel.setChunkForced(chunkPos.x, chunkPos.z, true);
+                    return;
+                }
+            }
+        }
+        if (!blockEntity.hasBeacon()) {
+            return;
+        }
+        Networking.sendToAll(new TelephoneBlockEntityBeaconChangedPacket(blockEntity.getBlockPos(), false));
+        blockEntity.setHasBeacon(false);
+        serverLevel.setChunkForced(chunkPos.x, chunkPos.z, false);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+
+        if (!(level instanceof ServerLevel serverLevel))
+            return;
+
+        ChunkPos pos = new ChunkPos(worldPosition);
+        serverLevel.setChunkForced(pos.x, pos.z, false);
     }
 }
