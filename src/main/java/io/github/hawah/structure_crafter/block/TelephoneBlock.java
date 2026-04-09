@@ -168,7 +168,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                                BlockPos pos,
                                                Player player,
                                                BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
+        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty() && hitResult.getDirection().equals(state.getValue(FACING))) {
             if (player.isShiftKeyDown()) {
                 IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
                 if (capability != null) {
