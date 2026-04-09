@@ -87,22 +87,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
             return;
         }
-        Vec3 directionVec = pos.getCenter().subtract(player.position());
-        float maxDistance = 32;
-        boolean shouldPull = directionVec.length() > maxDistance && !telephoneBlockEntity.hasBeacon;
-        if (shouldPull) {
-            float factor = (float) ((directionVec.length() - maxDistance) / 32f);
-            player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
-        }
-        if (level.isClientSide()) {
-            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
-                    pos,
-                    pos.getCenter(),
-                    Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
-                    telephoneBlockEntity.hasBeacon,
-                    player.getMainHandItem().equals(stack) || shouldPull
-            );
-        }
+        //updateChangedDataFromStack(stack, serverLevel, connectorBlockEntity, hashItemComponent);
     }
 
     @Override

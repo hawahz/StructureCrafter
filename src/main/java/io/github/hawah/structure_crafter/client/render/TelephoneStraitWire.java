@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -27,7 +28,6 @@ public class TelephoneStraitWire {
             Vec3 cameraPos,
             float width,
             float partialTicks) {
-//        RenderSystem.setShaderTexture(0, Textures.TELEPHONE_WIRE.getResource());
         if (!shouldRender) {
             return;
         }

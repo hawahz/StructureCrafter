@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
 import io.netty.buffer.ByteBuf;

@@ -8,6 +8,7 @@ import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -169,15 +171,16 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                                BlockPos pos,
                                                Player player,
                                                BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty() && hitResult.getDirection().equals(state.getValue(FACING))) {
-            if (player.isShiftKeyDown()) {
-                ResourceHandler<ItemResource> capability = level.getCapability(Capabilities.Item.BLOCK, pos, state, blockEntity, hitResult.getDirection());
-                if (capability != null) {
-                    //TODO Translatable
-                    player.displayClientMessage(Component.literal(String.valueOf(capability.size())), true);
-                }
-                return InteractionResult.CONSUME;
+         if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) || !hitResult.getDirection().equals(state.getValue(FACING)))
+            return InteractionResult.PASS;
+        if (player.isShiftKeyDown() && level.isClientSide()) {
+            ResourceHandler<ItemResource> capability = level.getCapability(Capabilities.Item.BLOCK, pos, state, blockEntity, hitResult.getDirection());
+            if (capability != null) {
+                player.displayClientMessage(LangData.INFO_TELEPHONE_BLOCK_CAPABILITY.get(Integer.toString(capability.size())), true);
             }
+            return InteractionResult.CONSUME;
+        }
+        if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
 
             blockEntity.setHasTelephone(false);
             ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
@@ -193,16 +196,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         }
         return InteractionResult.FAIL;
     }
-
-    @Override
-    protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
-            return 0.0f;
-        }
-        return super.getDestroyProgress(state, player, level, pos);
-    }
-
-    @Override
+     @Override
     protected InteractionResult useItemOn(ItemStack stack,
                                               BlockState state,
                                               Level level,
@@ -225,6 +219,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return createTickerHelper(blockEntityType, BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(), TelephoneBlockEntity::tick);
     }
+
 
     @Nullable
     protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
