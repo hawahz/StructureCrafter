@@ -1,13 +1,16 @@
 package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
+import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
-import io.github.hawah.structure_crafter.client.render.outliner.OutlineElement;
+import io.github.hawah.structure_crafter.client.ClientEvents;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
-import io.github.hawah.structure_crafter.data_component.HashItemComponent;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.level.ServerLevel;
@@ -30,6 +33,37 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         super(new Properties().stacksTo(1));
     }
 
+    public static void clientTick() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        TelephoneHandsetComponent handset;
+        if ((handset = player.getMainHandItem().get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) == null) {
+            if (slot != null) {
+                Outliner.getInstance().box(slot)
+                        .fade()
+                        .discard()
+                        .finish();
+                slot = null;
+            }
+            return;
+        }
+        BlockPos pos = handset.pos();
+        if (slot == pos) {
+            return;
+        } else if (slot != null) {
+            Outliner.getInstance().box(slot)
+                    .fade()
+                    .discard()
+                    .finish();
+        }
+        slot = pos;
+        Outliner.getInstance().chaseBox(pos, pos, pos)
+                .setRGBA(0, 1, 0, 1)
+                .finish();
+    }
+
     @Override
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements, ItemStack itemStack) {
         if (itemStack.has(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) {
@@ -49,17 +83,25 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         if (!level.dimension().equals(handsetComponent.dimension())) {
             return;
         }
-        Vec3 directionVec = handsetComponent.pos().getCenter().subtract(player.position());
-        if (directionVec.length() > 32) {
-            float factor = (float) ((directionVec.length() - 32) / 32f);
+        BlockPos pos = handsetComponent.pos();
+        if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
+            return;
+        }
+        Vec3 directionVec = pos.getCenter().subtract(player.position());
+        float maxDistance = 32;
+        boolean shouldPull = directionVec.length() > maxDistance && !telephoneBlockEntity.hasBeacon;
+        if (shouldPull) {
+            float factor = (float) ((directionVec.length() - maxDistance) / 32f);
             player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
         }
-        HashItemComponent hashItemComponent;
-        if (!(level instanceof ServerLevel serverLevel) || !(hashItemComponent = stack.getOrDefault(DataComponentTypeRegistries.HASH_ITEM, HashItemComponent.EMPTY)).dirty()) {
-            return;
-        }
-        if (!(serverLevel.getBlockEntity(handsetComponent.pos()) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
-            return;
+        if (level.isClientSide()) {
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
+                    pos,
+                    pos.getCenter(),
+                    Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
+                    telephoneBlockEntity.hasBeacon,
+                    player.getMainHandItem().equals(stack) || shouldPull
+            );
         }
         //updateChangedDataFromStack(stack, serverLevel, connectorBlockEntity, hashItemComponent);
     }
@@ -168,11 +210,4 @@ public class TelephoneHandset extends Item implements ITooltipItem{
     }
 
     public static Object slot = new Object();
-
-    public static OutlineElement<?> chaseOutline(ItemStack itemStack) {
-        TelephoneHandsetComponent telephoneComponent = itemStack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
-        BlockPos pos = telephoneComponent.pos();
-        return Outliner.getInstance().chaseBox(slot, pos, pos);
-    }
-
 }

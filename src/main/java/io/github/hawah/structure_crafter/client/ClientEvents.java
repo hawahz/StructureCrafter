@@ -7,7 +7,6 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
-import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
@@ -91,20 +90,17 @@ public class ClientEvents {
                 cameraPos,
                 partialTick
         );
-
-        TelephoneWireRenderer.render(
+        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(
                 poseStack,
-                bufferSource.getBuffer(RenderType.entityCutout(Textures.FULL_RED.getResource())),
-                new Vec3(-2, -59, -1),
-                new Vec3(10, -59, -1),
+                bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())),
                 cameraPos,
-                0.1F
+                0.2F,
+                partialTick.getGameTimeDeltaPartialTick(true)
         );
 
         bufferSource.endBatch();
     }
 
-    private static boolean holdTelephone = false;
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
         AnimationTickHolder.tick();
@@ -112,29 +108,10 @@ public class ClientEvents {
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
-        }
-        ItemStack item;
-        if (!(item = player.getMainHandItem()).is(ItemRegistries.TELEPHONE_HANDSET) || !player.isShiftKeyDown()) {
-            if (holdTelephone) {
-                holdTelephone = false;
-                Outliner.getInstance().box(TelephoneHandset.slot)
-                        .fade()
-                        .discard()
-                        .finish();
-                TelephoneHandset.slot = new Object();
-            }
-            return;
-        }
-        if (holdTelephone)
-            return;
-        holdTelephone = true;
-        TelephoneHandset.chaseOutline(item)
-                .setRGBA(0, 1, 0, 1)
-                .finish();
+        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
+        TelephoneHandset.clientTick();
     }
+
     @SubscribeEvent
     public static void onMouseInputScreen(ScreenEvent.MouseButtonPressed.Pre event) {
         int button = event.getButton();
@@ -167,12 +144,6 @@ public class ClientEvents {
         if (KeyBinding.KeyBuffer.onMousePressed(button, pressed)) {
             event.setCanceled(true);
         }
-//        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseInput(button, pressed)) {
-//            event.setCanceled(true);
-//        }
-//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseInput(button, pressed)) {
-//            event.setCanceled(true);
-//        }
     }
 
     private static ItemStack hoveredItem = ItemStack.EMPTY;

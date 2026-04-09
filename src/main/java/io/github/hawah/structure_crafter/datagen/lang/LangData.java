@@ -20,6 +20,7 @@ public enum LangData {
     INFO_CREATE_FILE_SUCCESS("client_message.info_create_file_success","Saved as %1$s",1),
     INFO_CONTAINER_BUILD_CAPABILITY("client_message.info_container_build_capability","Items in the container can build up to %s structures.",1),
     INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY("client_message.info_container_build_capability_with_inventory","Items in the container plus your inventory can build up to %s structures.",1),
+    INFO_TELEPHONE_BLOCK_CAPABILITY("client_message.info_telephone_block_capability","Capacity: %s",1),
 
     SHIFT("tooltip_shift", "-[Shift]-", 0, ChatFormatting.DARK_GRAY , ChatFormatting.ITALIC),
 

@@ -11,7 +11,7 @@ public enum Textures {
     DISCARD_NAMETAG("textures/gui/nametag.png", 111, 96, 17, 16, 2, 111, 112, 111, 128),
     STRUCTURE_WAND("textures/gui/structure_wand.png", 0, 0, 80, 195, 0),
     KEYMAP("textures/gui/buttons.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
-    FULL_RED("textures/gui/full_red.png", 0, 0, 16, 16, 1),
+    TELEPHONE_WIRE("textures/addition/telephone_wire.png", 0, 0, 16, 16, 1),
     ;
     private final ResourceLocation resource;
     private final int startX;

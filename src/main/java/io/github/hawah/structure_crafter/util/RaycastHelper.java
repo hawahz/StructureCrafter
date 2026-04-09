@@ -21,7 +21,7 @@ public class RaycastHelper {
     }
 
     public static BlockHitResult rayTraceRange(Level level, Vec3 start, Vec3 dir, double range) {
-        Vec3 target = start.add(dir.scale(range));
+        Vec3 target = start.add(dir.normalize().scale(range));
         ClipContext context = new ClipContext(start, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
         return level.clip(context);
     }

@@ -24,6 +24,10 @@ public class Networking {
         PacketDistributor.sendToPlayer(player, packet);
     }
 
+    public static void sendToAll(ServerToClientPacket packet) {
+        PacketDistributor.sendToAllPlayers(packet);
+    }
+
 
     @EventBusSubscriber
     public static class Registry {

@@ -21,6 +21,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     MATERIAL_LIST_UPLOAD(MaterialListUploadPacket.class, MaterialListUploadPacket.STREAM_CODEC),
     INVENTORY_REMOVE_ITEM(PlayerInventoryRemoveItemPacket.class, PlayerInventoryRemoveItemPacket.STREAM_CODEC),
     TELEPHONE_CHANGED_TO_SERVER(ServerboundTelephoneChanged.class, ServerboundTelephoneChanged.STREAM_CODEC),
+    TELEPHONE_BEACON_CHANGED_TO_CLIENT(TelephoneBlockEntityBeaconChangedPacket.class, TelephoneBlockEntityBeaconChangedPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

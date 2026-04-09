@@ -1,10 +1,13 @@
 package io.github.hawah.structure_crafter.block;
 
 import com.mojang.serialization.MapCodec;
+import io.github.hawah.structure_crafter.StructureCrafterClient;
+import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -22,7 +25,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -168,31 +174,20 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                                BlockPos pos,
                                                Player player,
                                                BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && blockEntity.hasTelephone() && player.getMainHandItem().isEmpty() && hitResult.getDirection().equals(state.getValue(FACING))) {
-            if (player.isShiftKeyDown()) {
-                IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
-                if (capability != null) {
-                    //TODO Translatable
-                    player.displayClientMessage(Component.literal(String.valueOf(capability.getSlots())), true);
-                }
-                return InteractionResult.CONSUME;
+        if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) || !hitResult.getDirection().equals(state.getValue(FACING)))
+            return InteractionResult.PASS;
+        if (player.isShiftKeyDown() && level.isClientSide()) {
+            IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
+            if (capability != null) {
+                player.displayClientMessage(LangData.INFO_TELEPHONE_BLOCK_CAPABILITY.get(Integer.toString(capability.getSlots())), true);
             }
+            return InteractionResult.CONSUME;
+        }
+        if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
 
             blockEntity.setHasTelephone(false);
             ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
             telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
-//            telephoneHandset.set(
-//                    DataComponentTypeRegistries.HASH_ITEM,
-//                    new HashItemComponent(
-//                            blockEntity.getItems().entrySet().stream().map(entry ->
-//                                    new Tuple<>(
-//                                            entry.getKey(),
-//                                            HashItemComponent.LazySlotWarper.warp(entry.getValue().stream().map(item -> ItemEntry.LazySlot.fromSlot(item, level)).toList())
-//                                    )
-//                            ).collect(Collectors.toMap(Tuple::getA, Tuple::getB)),
-//                            HashItemComponent.LazySlotWarper.EMPTY,
-//                            false
-//                    ));
             player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
             if (level.isClientSide()){
                 Outliner.getInstance().chaseBox(new Object(), pos, pos)
@@ -224,10 +219,24 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         TelephoneHandsetComponent component = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null);
         if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
             blockEntity.setHasTelephone(true);
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
             stack.shrink(1);
             return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return createTickerHelper(blockEntityType, BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(), TelephoneBlockEntity::tick);
+    }
+
+    @Nullable
+    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+            BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker
+    ) {
+        return clientType == serverType ? (BlockEntityTicker<A>)ticker : null;
     }
 
     @SubscribeEvent
@@ -240,6 +249,9 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             if (event.getLevel().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
                 event.setCanceled(true);
             }
+        }
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+            event.setCanceled(true);
         }
     }
 

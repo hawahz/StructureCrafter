@@ -11,6 +11,7 @@
   "structure_crafter.client_message.info_create_file_success": "Saved as %1$s",
   "structure_crafter.client_message.info_no_anchor": "No anchor selected",
   "structure_crafter.client_message.info_no_selection": "No Selection",
+  "structure_crafter.client_message.info_telephone_block_capability": "Capacity: %s",
   "structure_crafter.client_message.info_wand_locked": "You need [Left Click] to unlock your wand",
   "structure_crafter.config.structure_wand_clear_area": "-Clear Area-",
   "structure_crafter.config.structure_wand_keep_area": "-Keep Area-",
