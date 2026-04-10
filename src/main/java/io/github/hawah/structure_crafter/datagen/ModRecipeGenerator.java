@@ -51,6 +51,28 @@ public class ModRecipeGenerator extends RecipeProvider implements IConditionBuil
                 .unlockedBy("has_wand", has(ItemRegistries.STRUCTURE_WAND))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistries.TELEPHONE_BLOCK_ITEM)
+                .pattern("wws")
+                .pattern(" lr")
+                .pattern("wew")
+                .define('w', Items.RED_WOOL)
+                .define('s', Items.AMETHYST_SHARD)
+                .define('l', Items.LEAD)
+                .define('r', Items.REDSTONE)
+                .define('e', Items.ENDER_EYE)
+                .unlockedBy("has_ender_eye", has(Items.ENDER_EYE))
+                .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistries.TELEPHONE_BLOCK_ITEM)
+                .pattern("sww")
+                .pattern("rl ")
+                .pattern("wew")
+                .define('w', Items.RED_WOOL)
+                .define('s', Items.AMETHYST_SHARD)
+                .define('l', Items.LEAD)
+                .define('r', Items.REDSTONE)
+                .define('e', Items.ENDER_EYE)
+                .unlockedBy("has_ender_eye", has(Items.ENDER_EYE))
+                .save(recipeOutput, "telephone_handset_mirrored");
     }
 }

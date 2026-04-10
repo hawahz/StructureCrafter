@@ -11,10 +11,8 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -26,7 +24,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -63,7 +60,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     public static final VoxelShape WEST = VoxelShapeMaker.getByHorizontalDirection(Direction.WEST, NORTH);
 
     public TelephoneBlock() {
-        super(Properties.of());
+        super(Properties.of().strength(2.0F, 3600000.0F));
         this.registerDefaultState(
                 this.stateDefinition.any()
                         .setValue(FACING, Direction.NORTH)
@@ -162,50 +159,63 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) {
-            //TODO Remove Take Over Container Blocks
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
-
-    @Override
     protected InteractionResult useWithoutItem(BlockState state,
                                                Level level,
                                                BlockPos pos,
                                                Player player,
                                                BlockHitResult hitResult) {
-        if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) || !hitResult.getDirection().equals(state.getValue(FACING)))
+        if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity))
             return InteractionResult.PASS;
-        if (player.isShiftKeyDown() && level.isClientSide()) {
-            IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, hitResult.getDirection());
-            if (capability != null) {
-                player.displayClientMessage(LangData.INFO_TELEPHONE_BLOCK_CAPABILITY.get(Integer.toString(capability.getSlots())), true);
+        if (player.isShiftKeyDown() && blockEntity.hasTelephone()) {
+            level.destroyBlock(pos, false);
+            if (!player.isCreative()) {
+                player.addItem(ItemRegistries.TELEPHONE_BLOCK_ITEM.toStack());
             }
+            player.swing(InteractionHand.MAIN_HAND);
             return InteractionResult.CONSUME;
         }
+        if (!hitResult.getDirection().equals(state.getValue(FACING))) {
+            return InteractionResult.PASS;
+        }
         if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
-            blockEntity.setHasTelephone(false);
-            ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
-            telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
-            player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
-            if (level.isClientSide()){
-                Outliner.getInstance().chaseBox(new Object(), pos, pos)
-                        .setRGBA(0, 1, 0, 1)
-                        .lazyDiscard(50)
-                        .finish();
-            }
+            playerPickUpTelephone(level, pos, player, blockEntity);
             return InteractionResult.SUCCESS;
-        } else if (!blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
-            ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
-            telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
-            int slotMatchingItem = player.getInventory().findSlotMatchingItem(telephoneHandset);
-            if (slotMatchingItem != -1) {
-                player.getInventory().setItem(slotMatchingItem, ItemStack.EMPTY);
-                player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
-            }
+        } else if (!blockEntity.hasTelephone() && player.getMainHandItem().isEmpty() && !player.isShiftKeyDown()) {
+            playerAutoPickRightTelephone(level, pos, player);
         }
         return InteractionResult.FAIL;
+    }
+
+    private static void playerAutoPickRightTelephone(Level level, BlockPos pos, Player player) {
+        ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
+        telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
+        int slotMatchingItem = player.getInventory().findSlotMatchingItem(telephoneHandset);
+        if (slotMatchingItem != -1) {
+            player.getInventory().setItem(slotMatchingItem, ItemStack.EMPTY);
+            player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
+        }
+    }
+
+    private static void playerPickUpTelephone(Level level, BlockPos pos, Player player, TelephoneBlockEntity blockEntity) {
+        blockEntity.setHasTelephone(false);
+        ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
+        telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
+        player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
+        if (level.isClientSide()){
+            Outliner.getInstance().chaseBox(new Object(), pos, pos)
+                    .setRGBA(0, 1, 0, 1)
+                    .lazyDiscard(50)
+                    .finish();
+        }
+    }
+
+    private static void displayCapacityMessage(Level level, Player player, BlockPos pos, Direction direction, TelephoneBlockEntity blockEntity) {
+        if (level.isClientSide())
+            return;
+        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null, blockEntity, direction);
+        if (capability != null) {
+            player.displayClientMessage(LangData.INFO_TELEPHONE_BLOCK_CAPABILITY.get(Integer.toString(capability.getSlots())), true);
+        }
     }
 
     @Override
@@ -224,7 +234,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                               Player player,
                                               InteractionHand hand,
                                               BlockHitResult hitResult) {
-        TelephoneHandsetComponent component = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null);
+        TelephoneHandsetComponent component = stack.get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE);
         if (
                 component != null &&
                         pos.equals(component.pos()) &&
@@ -247,6 +257,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         return createTickerHelper(blockEntityType, BlockEntityRegistry.TELEPHONE_BLOCK_ENTITY.get(), TelephoneBlockEntity::tick);
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker
@@ -272,11 +283,15 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
 
     @SubscribeEvent
     public static void onPlayerAttackBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof TelephoneBlockEntity blockEntity) {
             Player player = event.getEntity();
-            if (!player.isShiftKeyDown()) {
+            if (!player.isShiftKeyDown() && !blockEntity.hasTelephone()) {
                 event.setCanceled(true);
             }
+            if (event.getFace() == null) {
+                return;
+            }
+            displayCapacityMessage(event.getLevel(), player, event.getPos(), event.getFace(), blockEntity);
         }
     }
 

@@ -35,17 +35,19 @@ public class StructureCrafter {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
+    @SuppressWarnings("unused")
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> STAMP_WEAVER_TAB = CREATIVE_MODE_TABS.register(
             "stamp_weaver_tab",
             () ->
                     CreativeModeTab.builder()
                             .title(Component.translatable("itemGroup.structure_crafter"))
                             .withTabsBefore(CreativeModeTabs.COMBAT)
-                            .icon(() -> ItemRegistries.STRUCTURE_WAND.get().getDefaultInstance())
+                            .icon(() -> ItemRegistries.TELEPHONE_HANDSET.get().getDefaultInstance())
                             .displayItems((parameters, output) -> {
                                 output.accept(ItemRegistries.STRUCTURE_WAND.get());
                                 output.accept(ItemRegistries.BLACKBOARD.get());
                                 output.accept(ItemRegistries.MATERIAL_LIST.get());
+                                output.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM.get());
                             })
                             .build()
     );
@@ -60,7 +62,7 @@ public class StructureCrafter {
 
         DataComponentTypeRegistries.register(modEventBus);
 
-        //CREATIVE_MODE_TABS.register(modEventBus);
+        CREATIVE_MODE_TABS.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 

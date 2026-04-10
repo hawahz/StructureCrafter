@@ -1,17 +1,16 @@
 package io.github.hawah.structure_crafter.client.render.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.ClientDataHolder;
-import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.Models;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,6 +25,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<TelephoneBlockEntity> {
 
     public static boolean canRender(TelephoneBlockEntity blockEntity) {
@@ -60,8 +60,8 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
                     default -> 0;
         }));
         poseStack.translate(-0.5, -0.5, -0.5);
-        float lerpAlpha = Mth.lerp(1-EaseHelper.easeInPow(1-pingPong((AnimationTickHolder.getTicks() + partialTick) / 20F), 2), 0.6F, 0.8F);
-        float aChannel = blockEntity.hasTelephone()? 1 : lerpAlpha;
+        float alpha = Mth.lerp(pingPong((AnimationTickHolder.getTicks() + partialTick) / 20F), 0.6F, 0.8F);
+        float aChannel = blockEntity.hasTelephone()? 1 : alpha;
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());
         VertexConsumer warped = new VertexConsumer() {
             @Override

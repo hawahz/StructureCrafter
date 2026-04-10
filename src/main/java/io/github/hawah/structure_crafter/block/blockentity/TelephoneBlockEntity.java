@@ -2,14 +2,9 @@ package io.github.hawah.structure_crafter.block.blockentity;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
-import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
-import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -28,15 +23,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -67,9 +57,6 @@ public class TelephoneBlockEntity extends BlockEntity {
 
     private boolean hasTelephone = true;
     private boolean dirty = true;
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean playerLookingAt = false;
 
     public void setDirty() {
         dirty = true;
@@ -120,18 +107,15 @@ public class TelephoneBlockEntity extends BlockEntity {
             }
         }
 
-        // 将检查逻辑提取为独立方法
         private void checkAndAddHandler(BlockPos pos, Queue<BlockPos> queue) {
+            if (level == null)
+                return;
             IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, facing);
             if (handler != null) {
                 BlockEntity be = level.getBlockEntity(pos);
-                // 核心修复：如果是另一个连接器，则只导通路径，不将其作为目标容器添加
-                if (be instanceof TelephoneBlockEntity) {
-                    //queue.add(pos);
-                } else {
-                    // 是普通的容器（如箱子、熔炉等）
+                if (!(be instanceof TelephoneBlockEntity)) {
                     handlers.add(handler);
-                    queue.add(pos); // 如果你需要穿透箱子继续寻找，保留这行；如果只靠连接器相连，移除这行
+                    queue.add(pos);
                 }
             }
         }
@@ -259,13 +243,6 @@ public class TelephoneBlockEntity extends BlockEntity {
         tag.putBoolean("hasTelephone", hasTelephone);
         tag.putBoolean("hasBeacon", hasBeacon);
     }
-
-    private List<IItemHandler> getAttachedContainer(Level level, BlockPos pos) {
-        IItemHandler cap;
-        return (cap = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, facing)) == null? List.of(): List.of(cap);
-    }
-
-
     @SubscribeEvent
     public static void onOpenBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockHitResult hitVec = event.getHitVec();
@@ -292,7 +269,7 @@ public class TelephoneBlockEntity extends BlockEntity {
     }
 
     public boolean hasBeacon = false;
-    public static void tick(Level level, BlockPos pos, BlockState state, TelephoneBlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos ignoredPos, BlockState ignoredState, TelephoneBlockEntity blockEntity) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -307,7 +284,7 @@ public class TelephoneBlockEntity extends BlockEntity {
         for (LevelChunk chunk : nearChunks){
             Map<BlockPos, BlockEntity> blockEntities = chunk.getBlockEntities();
             for (BlockEntity be : blockEntities.values()) {
-                if (be instanceof BeaconBlockEntity) {
+                if (be instanceof BeaconBlockEntity beaconBlockEntity && !beaconBlockEntity.getBeamSections().isEmpty()) {
                     if (blockEntity.hasBeacon()) {
                         return;
                     }

@@ -3,11 +3,11 @@ package io.github.hawah.structure_crafter.item;
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
-import io.github.hawah.structure_crafter.client.ClientEvents;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -34,6 +34,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 @ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 @EventBusSubscriber
 public class TelephoneHandset extends Item implements ITooltipItem{
     public TelephoneHandset() {
@@ -104,7 +105,9 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
         }
         if (level.isClientSide()) {
-            Vec3 center = pos.getCenter().add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getNormal()).multiply(0.5, 0.5, 0.5));
+            Vec3 center = pos.getCenter()
+                    .add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getNormal()).multiply(0.5, 0.5, 0.5))
+                    .add(new Vec3(0, -0.25, 0));
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
                     pos,
                     center,

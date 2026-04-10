@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "l": {
+      "item": "minecraft:lead"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "s": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "w": {
+      "item": "minecraft:red_wool"
+    }
+  },
+  "pattern": [
+    "sww",
+    "rl ",
+    "wew"
+  ],
+  "result": {
+    "count": 1,
+    "id": "structure_crafter:phone_booth"
+  }
+}
