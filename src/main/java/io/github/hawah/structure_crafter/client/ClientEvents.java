@@ -110,6 +110,7 @@ public class ClientEvents {
         Outliner.tick();
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
         TelephoneHandset.clientTick();
+        ClientDataHolder.tick();
     }
 
     @SubscribeEvent

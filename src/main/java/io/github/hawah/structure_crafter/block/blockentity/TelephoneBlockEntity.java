@@ -3,10 +3,13 @@ package io.github.hawah.structure_crafter.block.blockentity;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
 import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
+import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -25,9 +28,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -60,6 +67,9 @@ public class TelephoneBlockEntity extends BlockEntity {
 
     private boolean hasTelephone = true;
     private boolean dirty = true;
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean playerLookingAt = false;
 
     public void setDirty() {
         dirty = true;

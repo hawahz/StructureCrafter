@@ -104,9 +104,10 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
         }
         if (level.isClientSide()) {
+            Vec3 center = pos.getCenter().add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getNormal()).multiply(0.5, 0.5, 0.5));
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
                     pos,
-                    pos.getCenter(),
+                    center,
                     Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
                     telephoneBlockEntity.hasBeacon,
                     player.getMainHandItem().equals(stack) || shouldPull

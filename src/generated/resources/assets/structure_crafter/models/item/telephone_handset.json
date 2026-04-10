@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "structure_crafter:item/telephone_handset"
-  }
-}
