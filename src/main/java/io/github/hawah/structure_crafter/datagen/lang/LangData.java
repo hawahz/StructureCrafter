@@ -33,6 +33,7 @@ public enum LangData {
     TOOLTIP_WAND_6("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "6", "[Alt + Scroll]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_WAND_7("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "7", "Switch Structure", 0),
     TOOLTIP_WAND_8("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "8", "[Shift + Left Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_BLACKBOARD_8_1("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "8_1", "Blackboard in Offhand and Ink Sac in Main Hand", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_WAND_9("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "9", "Clear Selection", 0),
     TOOLTIP_WAND_10("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "10", "[Shift + Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_WAND_11("tooltip." + ItemRegistries.STRUCTURE_WAND.getRegisteredName() + "11", "Open Settings", 0),
@@ -50,6 +51,11 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_9("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "9", "Save Structure", 0),
     TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear Selection", 0),
+
+    TOOLTIP_MATERIAL_LIST_0("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "0", "[On Offhand]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_MATERIAL_LIST_1("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "1", "Copy the consumption from the chosen structure", 0),
+    TOOLTIP_MATERIAL_LIST_2("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "2", "[Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_MATERIAL_LIST_3("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "3", "Open Statistics Menu", 0),
 
     TOOLTIP_TELEPHONE_HANDSET("tooltip." + ItemRegistries.TELEPHONE_HANDSET.getRegisteredName() + "0", "Binding (%s, %s, %s)", 3, ChatFormatting.GRAY, ChatFormatting.BOLD),
 
