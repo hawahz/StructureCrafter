@@ -10,6 +10,8 @@ import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -139,11 +141,11 @@ public class BlackboardCheckScreen extends BaseScreen {
     }
 
     @Override
-    public boolean keyPressed(int key, int p_96553_, int p_96554_) {
-        if (key == GLFW.GLFW_KEY_ENTER) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == GLFW.GLFW_KEY_ENTER) {
             confirm.onClick(0, 0, 0);
         }
-        return super.keyPressed(key, p_96553_, p_96554_);
+        return super.keyPressed(event);
     }
 
     private Iterable<? extends Renderable> getRenderables() {
@@ -152,19 +154,22 @@ public class BlackboardCheckScreen extends BaseScreen {
 
     @Override
     protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        graphics.blit(
+        //TODO review
+        blit(
+                graphics,
                 BACKGROUND.getResource(),
                 guiLeft,
                 guiTop,
                 BACKGROUND.getStartX(),
                 BACKGROUND.getStartY(),
                 textureWidth,
-                textureHeight
+                textureHeight,
+                0xFFFFFFFF
         );
-        graphics.pose().pushPose();
-        graphics.pose().scale(2, 2, 2);
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(2, 2);
         graphics.renderFakeItem(ItemRegistries.BLACKBOARD.toStack(), (guiLeft - 40)/2, guiTop/2 - 4);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
         graphics.drawCenteredString(
                 font,

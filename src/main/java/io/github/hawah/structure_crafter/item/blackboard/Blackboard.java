@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.item.blackboard;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
@@ -10,14 +11,12 @@ import io.github.hawah.structure_crafter.data_component.Empty;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,14 +36,14 @@ public class Blackboard extends Item implements ITooltipItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand interactionHand) {
         if (interactionHand.equals(InteractionHand.MAIN_HAND)) {
             return super.use(level, player, interactionHand);
         }
         ItemStack itemStack = player.getOffhandItem();
         if (itemStack.has(DataComponentTypeRegistries.BLACKBOARD_WRITING)) {
             player.startUsingItem(interactionHand);
-            return new InteractionResultHolder<>(InteractionResult.PASS, itemStack);
+            return InteractionResult.PASS;
         }
         ItemStack mainHandItem = player.getMainHandItem();
         if (mainHandItem.isEmpty()) {
@@ -54,19 +53,20 @@ public class Blackboard extends Item implements ITooltipItem {
         if (mainHandItem.is(Items.INK_SAC)) {
             itemStack.set(DataComponentTypeRegistries.BLACKBOARD_WRITING, new Empty());
             player.startUsingItem(interactionHand);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
+            return InteractionResult.SUCCESS;
         }
 
         return super.use(level, player, interactionHand);
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+    public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
         if (!(entityLiving instanceof Player))
-            return;
+            return false;
         if (stack.has(DataComponentTypeRegistries.BLACKBOARD_WRITING)) {
             stack.remove(DataComponentTypeRegistries.BLACKBOARD_WRITING);
         }
+        return false;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class Blackboard extends Item implements ITooltipItem {
         if (!(livingEntity instanceof Player player))
             return stack;
 
-        player.getCooldowns().addCooldown(stack.getItem(), 20);
+        player.getCooldowns().addCooldown(stack, 20);
 
         if (stack.has(DataComponentTypeRegistries.BLACKBOARD_WRITING)) {
             stack.remove(DataComponentTypeRegistries.BLACKBOARD_WRITING);
@@ -112,16 +112,16 @@ public class Blackboard extends Item implements ITooltipItem {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return (Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE) && Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT))?
-                UseAnim.NONE :
-                UseAnim.EAT;
+                ItemUseAnimation.NONE :
+                ItemUseAnimation.EAT;
     }
 
     @Override
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
         int t = 1;
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_0.get()));

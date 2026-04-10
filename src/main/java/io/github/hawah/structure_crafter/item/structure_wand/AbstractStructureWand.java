@@ -96,11 +96,11 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
             t.load(level.holderLookup(Registries.BLOCK), nbt);
             if (nbt.contains("center")) {
-                ListTag center = nbt.getList("center", CompoundTag.TAG_INT);
+                ListTag center = nbt.getList("center").orElseThrow();
                 pos = new BlockPos(
-                        center.getInt(0),
-                        center.getInt(1),
-                        center.getInt(2)
+                        center.getInt(0).orElseThrow(),
+                        center.getInt(1).orElseThrow(),
+                        center.getInt(2).orElseThrow()
                 );
             } else {
                 pos = BlockPos.ZERO;
@@ -116,7 +116,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
     @Override
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
         int t = 1;
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
@@ -222,7 +222,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                 Comparator.comparingInt(e -> -e.getValue())
         );
         List<String> lines = consumedItems
-                .map(e -> e.getKey().getDescription().getString() + " x" + e.getValue())
+                .map(e -> e.getKey().getName().getString() + " x" + e.getValue())
                 .toList();
         List<String> pages = new ArrayList<>();
         StringBuilder page = new StringBuilder();

@@ -10,11 +10,14 @@ import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -31,7 +34,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -83,8 +86,8 @@ public class StructureRenderer {
                 anchorPos
         ));
 
-        Frustum frustum = Minecraft.getInstance().levelRenderer.getFrustum();
-        if (!frustum.isVisible(boundingBox)) {
+        Frustum frustum = Minecraft.getInstance().levelRenderer.getCapturedFrustum();
+        if (frustum == null || !frustum.isVisible(boundingBox)) {
             return;
         }
 
@@ -154,7 +157,7 @@ public class StructureRenderer {
                 poseStack.pushPose();
                 BlockEntity be = getOrCreateBlockEntity(level, localPos, worldPos, state, info.nbt());
                 if (be != null) {
-                    renderBlockEntity(be, poseStack, buffer, beDispatcher, level, worldPos);
+                    renderBlockEntity(be, poseStack, buffer, beDispatcher, level, worldPos, camera);
                 }
                 poseStack.popPose();
             }
@@ -207,24 +210,18 @@ public class StructureRenderer {
         }
         if (modelData == null) modelData = ModelData.EMPTY;
 
-        BakedModel bakedModel = mc.getBlockRenderer().getBlockModel(state);
+        BlockStateModel bakedModel = mc.getBlockRenderer().getBlockModel(state);
 
-        var renderTypes = bakedModel.getRenderTypes(state, randomSource, modelData);
-
-        for (RenderType type : renderTypes) {
-            VertexConsumer consumer = buffer.getBuffer(type);
-            mc.getBlockRenderer().renderBatched(
-                    state,
-                    worldPos,
-                    blockGetter,
-                    ms,
-                    consumer,
-                    true, // 剔除遮挡面
-                    randomSource,
-                    modelData,
-                    type
-            );
-        }
+        VertexConsumer consumer = buffer.getBuffer(RenderTypes.solidMovingBlock());
+        mc.getBlockRenderer().renderBatched(
+                state,
+                worldPos,
+                blockGetter,
+                ms,
+                (t) -> consumer,
+                true, // 剔除遮挡面
+                bakedModel.collectParts(blockGetter, worldPos, state, blockGetter.getRandom())
+        );
     }
 
     private void renderBlockEntity(BlockEntity blockEntity,
@@ -232,18 +229,21 @@ public class StructureRenderer {
                                    MultiBufferSource buffer,
                                    BlockEntityRenderDispatcher dispatcher,
                                    Level level,
-                                   BlockPos worldPos) {
+                                   BlockPos worldPos,
+                                   Vec3 camera) {
         // 确保 BER 存在且应该被渲染
-        BlockEntityRenderer<BlockEntity> renderer = dispatcher.getRenderer(blockEntity);
+        BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = dispatcher.getRenderer(blockEntity);
         if (renderer != null) {
             float partialTick = AnimationTickHolder.getPartialTicks();
 
             // 组合光照值
             int packedLight = LevelRenderer.getLightColor(level, worldPos);
             int packedOverlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
+            BlockEntityRenderState renderState = renderer.createRenderState();
+            renderer.extractRenderState(blockEntity, renderState, partialTick, camera, new ModelFeatureRenderer.CrumblingOverlay(0, ms.last()));
 
             // 调用渲染器
-            renderer.render(blockEntity, partialTick, ms, buffer, packedLight, packedOverlay);
+//            renderer.submit(renderState, ms, buffer, packedLight, packedOverlay);
         }
     }
 

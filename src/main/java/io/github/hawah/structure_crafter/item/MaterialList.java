@@ -64,9 +64,9 @@ public class MaterialList extends Item {
 
             CompletableFuture
                     .supplyAsync(() -> {
-                        NonNullList<ItemResource> inventoryItems = player.isShiftKeyDown()? NonNullList.create() : StructureHandler.getInventoryItems(player);
+                        NonNullList<ItemStack> inventoryItems = player.isShiftKeyDown()? NonNullList.create() : StructureHandler.getInventoryItems(player);
                         for (int i = 0; i < iItemHandler.size(); i++) {
-                            inventoryItems.add(iItemHandler.getResource(i));
+                            inventoryItems.add(iItemHandler.getResource(i).toStack());
                         }
                         List<ItemEntry> inventory = ItemEntry.flat(ItemEntry.fromStacks(inventoryItems));
 

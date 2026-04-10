@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.data_component;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -27,7 +28,7 @@ public class DataComponentTypeRegistries {
     public static DeferredHolder<DataComponentType<?>, DataComponentType<Empty>> BLACKBOARD_WRITING = DATA_COMPONENT.registerComponentType(
             "blackboard_writing",
             builder -> builder
-                    .persistent(Codec.unit(Empty::new))
+                    .persistent(MapCodec.unitCodec(Empty::new))
     );
 
     public static final DataComponentType<String> STRUCTURE_FILE = register(

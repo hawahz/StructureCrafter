@@ -2,15 +2,20 @@ package io.github.hawah.structure_crafter.client.gui.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.hawah.structure_crafter.client.gui.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.Identifier;
+import org.joml.Matrix3x2fStack;
 
 import java.util.List;
 
@@ -126,45 +131,49 @@ public class TextureToggleButton extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        guiGraphics.blit(
+//        guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+//        RenderSystem.enableBlend();
+//        RenderSystem.enableDepthTest();
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 this.getX(),
                 this.getY(),
-                this.toggled?
+                (this.toggled?
                         this.isHovered()?
                                 toggleHoverStartX :
                                 toggleStartX :
                         this.isHovered()?
                                 hoverStartX:
-                                originStartX,
-                this.toggled?
+                                originStartX),
+                (this.toggled?
                         this.isHovered()?
                                 toggleHoverStartY :
                                 toggleStartY :
                         this.isHovered()?
                                 hoverStartY:
-                                originStartY,
+                                originStartY),
                 this.getWidth(),
-                this.getHeight()
+                this.getHeight(),
+                0xFFFFFF << 4 | (int) (this.alpha*255)
         );
 
         if (this.getMessage().getString().isEmpty() || !this.isHovered())
             return;
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.translate(-mouseX, -mouseY, 0);
-        pose.scale(1, 1, 1);
-        pose.translate(mouseX, mouseY, 0);
-        guiGraphics.renderComponentTooltip(
+        Matrix3x2fStack pose = guiGraphics.pose();
+        pose.pushMatrix();
+        pose.translate(-mouseX, -mouseY);
+        pose.scale(1, 1);
+        pose.translate(mouseX, mouseY);
+        guiGraphics.renderTooltip(
                 Minecraft.getInstance().font,
-                List.of(isToggled()?this.messageToggled: this.getMessage()),
+                List.of((ClientTooltipComponent) (isToggled()?this.messageToggled: this.getMessage())),
                 mouseX,
-                mouseY
+                mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
         );
-        pose.popPose();
+        pose.popMatrix();
 
     }
 

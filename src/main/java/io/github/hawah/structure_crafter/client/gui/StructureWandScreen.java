@@ -1,7 +1,6 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
@@ -16,7 +15,6 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,11 +22,13 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3x2fStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +36,10 @@ import java.util.List;
 @SuppressWarnings("FieldCanBeLocal")
 public class StructureWandScreen extends BaseScreen {
 
-    private final ResourceLocation texture =
-            ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "wand_settings" + ".png");
-    private final ResourceLocation textureDecoration =
-            ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "wand_settings_decoration" + ".png");
+    private final Identifier texture =
+            Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "wand_settings" + ".png");
+    private final Identifier textureDecoration =
+            Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "wand_settings_decoration" + ".png");
     public StructureWandScreen() {
         super(Component.literal("structure_wand"));
     }
@@ -383,7 +383,8 @@ public class StructureWandScreen extends BaseScreen {
     @Override
     protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         // Background
-        graphics.blit(
+        BaseScreen.blit(
+                graphics,
                 texture,
                 guiLeft,
                 guiTop,
@@ -392,39 +393,39 @@ public class StructureWandScreen extends BaseScreen {
                 textureWidth,
                 textureHeight
         );
-        PoseStack pose = graphics.pose();
+        Matrix3x2fStack pose = graphics.pose();
         float delta = handTick >= 10f? 1 : (handTick + partialTicks) / 10f;
         float ease = 1-EaseHelper.easeInPow(Mth.clamp(1-delta, 0, 1), 3);
 
         // Wand Shade
-        pose.pushPose();
+        pose.pushMatrix();
         // 122, 33
         float y = (ease * 200) - 200;
         float shadeOffsetY = - 33 - y * 1.25F;
         float clip = Mth.clamp(138 - shadeOffsetY, 0, 100000);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(0.455f, 0.267f, 0.267f, 0.5f);
+
+//        RenderSystem.setShaderColor(0.455f, 0.267f, 0.267f, 0.5f);
         int handX = guiLeft + 121;
         if (shadeOffsetY < 138) {
-            graphics.blit(
+            BaseScreen.blit(
+                    graphics,
                     textureDecoration,
                     handX - 4,
                     (int)(guiTop + Mth.clamp(shadeOffsetY, 15, 138)),
                     80,
                     shadeOffsetY > 15? 0 : (int) (15 - shadeOffsetY),
                     80,
-                    (int) Mth.lerp(Mth.clamp(clip/124, 0, 1), 0, 120)
+                    (int) Mth.lerp(Mth.clamp(clip/124, 0, 1), 0, 120),
+                    0.455f, 0.267f, 0.267f, 0.5f
             );
 
         }
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.disableBlend();
-        pose.popPose();
+        pose.popMatrix();
 
         // Wand
-        pose.pushPose();
-        graphics.blit(
+        pose.pushMatrix();
+        BaseScreen.blit(
+                graphics,
                 textureDecoration,
                 handX,
                 (int) (guiTop - 33 - y),
@@ -433,7 +434,7 @@ public class StructureWandScreen extends BaseScreen {
                 80,
                 195
         );
-        pose.popPose();
+        pose.popMatrix();
 
         // Page Indicator
         graphics.drawCenteredString(
@@ -458,7 +459,8 @@ public class StructureWandScreen extends BaseScreen {
     protected void renderWindowPost(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         prevPage = Mth.lerp(StructureCrafterClient.ANI_DELTAF/3, prevPage, currentPage);
         float tagY = Mth.lerp(Mth.clamp(prevPage / Math.max(1, pages - 1f), 0, 1), 15, 120);
-        guiGraphics.blit(
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 guiLeft + 102,
                 (int) (guiTop + tagY),

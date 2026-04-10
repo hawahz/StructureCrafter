@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 
@@ -45,7 +46,8 @@ public class KeyTipHUD extends Screen implements GuiLayer {
                 }
                 Textures.Builder builder = Textures.KEYMAP.builder();
                 builder.variant(key.ordinal());
-                guiGraphics.blit(
+                BaseScreen.blit(
+                        guiGraphics,
                         builder.getResource(),
                         startX,
                         startY,

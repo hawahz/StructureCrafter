@@ -3,13 +3,11 @@ package io.github.hawah.structure_crafter.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
@@ -28,6 +26,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -36,7 +38,8 @@ import static io.github.hawah.structure_crafter.StructureCrafter.LOGGER;
 
 public final class ItemEntry implements DataComponentHolder {
     public static final ItemEntry EMPTY = new ItemEntry(0, 0);
-//    public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntry> STREAM_CODEC = StreamCodec.composite(
+
+    //    public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntry> STREAM_CODEC = StreamCodec.composite(
 //            ByteBufCodecs.INT, ItemEntry::id,
 //            ByteBufCodecs.INT, ItemEntry::count,
 //            ItemEntry::new
@@ -211,19 +214,19 @@ public final class ItemEntry implements DataComponentHolder {
                 "count=" + count + ']';
     }
 
-    public Tag save(HolderLookup.Provider levelRegistryAccess, Tag outputTag) {
-        if (this.isEmpty()) {
-            throw new IllegalStateException("Cannot encode empty ItemStack");
-        } else {
-            // Neo: Logs extra information about this ItemStack on error
-            return net.neoforged.neoforge.common.util.DataComponentUtil.wrapEncodingExceptions(this, CODEC, levelRegistryAccess, outputTag);
-        }
-    }
-
-    public static Optional<ItemEntry> parse(HolderLookup.Provider lookupProvider, Tag tag) {
-        return CODEC.parse(lookupProvider.createSerializationContext(NbtOps.INSTANCE), tag)
-                .resultOrPartial(s -> LOGGER.error("Tried to load invalid item: '{}'", s));
-    }
+//    public Tag save(HolderLookup.Provider levelRegistryAccess, Tag outputTag) {
+//        if (this.isEmpty()) {
+//            throw new IllegalStateException("Cannot encode empty ItemStack");
+//        } else {
+//            // Neo: Logs extra information about this ItemStack on error
+//            return net.neoforged.neoforge.common.util.DataComponentUtil.wrapEncodingExceptions(this, CODEC, levelRegistryAccess, outputTag);
+//        }
+//    }
+//
+//    public static Optional<ItemEntry> parse(HolderLookup.Provider lookupProvider, Tag tag) {
+//        return CODEC.parse(lookupProvider.createSerializationContext(NbtOps.INSTANCE), tag)
+//                .resultOrPartial(s -> LOGGER.error("Tried to load invalid item: '{}'", s));
+//    }
 
     @Override
     public DataComponentMap getComponents() {
@@ -358,13 +361,23 @@ public final class ItemEntry implements DataComponentHolder {
             this.counts = counts;
             if (level == null || level.isClientSide() || delta == 0)
                 return;
-            IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.NORTH);
+            ResourceHandler<ItemResource> capability = level.getCapability(Capabilities.Item.BLOCK, pos, Direction.NORTH);
             if (capability == null)
                 return;
             if (delta < 0) {
-                capability.extractItem(slot, -delta, false);
+                //TODO check
+                capability.extract(
+                        ItemResource.of(capability.getResource(slot).toStack().copy()),
+                        -delta,
+                        Transaction.openRoot()
+                );
             } else {
-                capability.insertItem(slot, ItemStack.EMPTY.copy(), false);
+                capability.insert(
+                        slot,
+                        ItemResource.of(ItemStack.EMPTY.copy()),
+                        delta,
+                        Transaction.openRoot()
+                );
             }
         }
 

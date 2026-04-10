@@ -1,12 +1,19 @@
 package io.github.hawah.structure_crafter.client.gui.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.hawah.structure_crafter.client.gui.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -49,6 +56,10 @@ public class TextureButton extends AbstractWidget {
         this.inactiveStartY = inactiveStartY;
     }
 
+    public void onClick(double mouseX, double mouseY, int button) {
+        this.onClick(new MouseButtonEvent(mouseX, mouseY, new MouseButtonInfo(button, 0)), false);
+    }
+
     @Override
     public void onClick(MouseButtonEvent event, boolean isDoubleClick) {
         this.onPress.run();
@@ -57,34 +68,38 @@ public class TextureButton extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        guiGraphics.blit(
+//        guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+//        RenderSystem.enableBlend();
+//        RenderSystem.enableDepthTest();
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 this.getX(),
                 this.getY(),
-                this.isActive()?
+                (this.isActive()?
                         this.isHovered()?
                                 hoverStartX :
                                 normalStartX :
-                        inactiveStartX,
-                this.isActive()?
+                        inactiveStartX),
+                (this.isActive()?
                         this.isHovered()?
                                 hoverStartY :
                                 normalStartY:
-                        inactiveStartY,
+                        inactiveStartY),
                 this.getWidth(),
-                this.getHeight()
+                this.getHeight(),
+                0xFFFFFF << 4 | (int) (this.alpha*255)
         );
 
         if (this.getMessage().getString().isEmpty() || !this.isHovered())
             return;
-        guiGraphics.renderComponentTooltip(
+        guiGraphics.renderTooltip(
                 Minecraft.getInstance().font,
-                List.of(this.getMessage()),
+                List.of((ClientTooltipComponent) this.getMessage()),
                 mouseX,
-                mouseY
+                mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
         );
 
     }

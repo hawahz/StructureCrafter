@@ -17,9 +17,12 @@ import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -28,6 +31,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec2;
+import org.joml.Matrix3x2fStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -298,8 +302,8 @@ public class MaterialListScreen extends BaseScreen{
     @Override
     protected void renderWindowPre(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
+        Matrix3x2fStack pose = guiGraphics.pose();
+        pose.pushMatrix();
         applyScaleTransform(pose);
 
 
@@ -314,7 +318,8 @@ public class MaterialListScreen extends BaseScreen{
 
         if (scattered) {
             // Clip Bottom
-            guiGraphics.blit(
+            BaseScreen.blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 42,
                     guiTop,
@@ -326,19 +331,21 @@ public class MaterialListScreen extends BaseScreen{
         }
 
         // Bottom Paper
-        guiGraphics.blit(
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 guiLeft,
                 scattered? (int) (guiTop + 9 + backY) : guiTop,
-                scattered? 98: 0,
-                scattered? 126: 21,
+                (scattered? 98: 0),
+                (scattered? 126: 21),
                 textureWidth,
                 scattered? 128: textureHeight
         );
         if (scattered) {
 
             // Front Paper
-            guiGraphics.blit(
+            BaseScreen.blit(
+                    guiGraphics,
                     texture,
                     guiLeft,
                     (int) (guiTop + 10 + frontY),
@@ -349,7 +356,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Red Tip
-            guiGraphics.blit(
+            BaseScreen.blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 11,
                     (int) (guiTop - 4 + (materialToggleButton.isToggled()? frontY : backY)),
@@ -360,7 +368,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Blue Tip
-            guiGraphics.blit(
+            BaseScreen.blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 27,
                     (int) (guiTop - 4 + (previewToggleButton.isToggled()? frontY : backY)),
@@ -371,7 +380,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Clip Top
-            guiGraphics.blit(
+            BaseScreen.blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 42,
                     guiTop,
@@ -392,7 +402,7 @@ public class MaterialListScreen extends BaseScreen{
         );
 
         if (materialTextPages.isEmpty()) {
-            pose.popPose();
+            pose.popMatrix();
             return;
         }
 
@@ -403,21 +413,21 @@ public class MaterialListScreen extends BaseScreen{
             itemPageFirst = materialToggleButton.isToggled()? materialPage.get(currentPage): List.of();
         } catch (Exception e) {
             StructureCrafter.LOGGER.error("Error occurred when turning pages. Page {}, Total {}", pages, currentPage, e);
-            pose.popPose();
+            pose.popMatrix();
             return;
         }
 
         int i = 0;
 
-        pose.popPose();
+        pose.popMatrix();
 
-        pose.pushPose();
+        pose.pushMatrix();
         float sc = 0.5F;
         int left = guiLeft + 40 - 20;
         int top = guiTop -30;
-        pose.translate(guiLeft + 26, guiTop + 19 - font.lineHeight/2F + 55, 0);
-        pose.scale(sc,sc,sc);
-        pose.translate(-(guiLeft + 26), -(guiTop + 19 - font.lineHeight/2F + 55), 0);
+        pose.translate(guiLeft + 26, guiTop + 19 - font.lineHeight/2F + 55);
+        pose.scale(sc,sc);
+        pose.translate(-(guiLeft + 26), -(guiTop + 19 - font.lineHeight/2F + 55));
         applyScaleTransform(pose);
 
 
@@ -426,7 +436,7 @@ public class MaterialListScreen extends BaseScreen{
             guiGraphics.drawString(
                     font,
                     Component.literal(line).withStyle(style ->
-                                    style.withFont(Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "boutique"))),
+                                    style.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "boutique")))),
                     itemPageFirst.isEmpty() || itemPageFirst.get(i).count() <= 0? left - 26: left,
                     (int) (top + 8 - font.lineHeight/2F + i * 11*2 + frontY / sc),
                     0x000000,
@@ -446,24 +456,27 @@ public class MaterialListScreen extends BaseScreen{
             i++;
         }
 
-        pose.popPose();
-        pose.pushPose();
+        pose.popMatrix();
+        pose.pushMatrix();
 
         Vec2 originalMousePos = getOriginalMousePos(mouseX, mouseY);
         mouseX = (int) originalMousePos.x;
         mouseY = (int) originalMousePos.y;
         left = (int) ((left - width/2F)*getScale() + width/2F);
 
-        if ((mouseY - top) % 22 > 0 && (mouseY - top) / 22 < itemPageFirst.size() && mouseX > left - 26/getScale() && mouseX < left + 26/getScale() && !scattered) {
-            guiGraphics.renderTooltip(
-                    font,
-                    itemPageFirst.get((mouseY - top) / 22).getDefaultStack(),
-                    mouseX,
-                    mouseY
-            );
-        }
+        //FIXME
+//        if ((mouseY - top) % 22 > 0 && (mouseY - top) / 22 < itemPageFirst.size() && mouseX > left - 26/getScale() && mouseX < left + 26/getScale() && !scattered) {
+//            guiGraphics.renderTooltip(
+//                    font,
+//                    itemPageFirst.get((mouseY - top) / 22).getDefaultStack(),
+//                    mouseX,
+//                    mouseY,
+//                    DefaultTooltipPositioner.INSTANCE,
+//                    null
+//            );
+//        }
 
-        pose.popPose();
+        pose.popMatrix();
 
     }
 

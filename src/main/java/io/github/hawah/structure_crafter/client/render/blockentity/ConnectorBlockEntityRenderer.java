@@ -24,6 +24,7 @@ import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -77,7 +78,7 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
                     default -> 0;
         }));
         poseStack.translate(-0.5, -0.5, -0.5);
-        float lerpAlpha = Mth.lerp(1-EaseHelper.easeInPow(1-pingPong((AnimationTickHolder.getTicks() + partialTick) / 20F), 2), 0.6F, 0.8F);
+        float lerpAlpha = Mth.lerp(1-EaseHelper.easeInPow(1-pingPong((AnimationTickHolder.getTicks() + AnimationTickHolder.getPartialTicks()) / 20F), 2), 0.6F, 0.8F);
         float aChannel = renderState.hasTelephone()? 1 : lerpAlpha;
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.translucentMovingBlock());
@@ -133,6 +134,7 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
 //                ModelData.EMPTY,
 //                RenderType.solid()
 //        );
+        StandaloneModelLoader.BakedModels
 
         nodeCollector.submitModel(
                 bakedModel,

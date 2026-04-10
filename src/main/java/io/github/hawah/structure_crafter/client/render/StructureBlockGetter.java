@@ -1,27 +1,32 @@
 package io.github.hawah.structure_crafter.client.render;
 
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ExplosionParticleInfo;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.TickRateManager;
+import net.minecraft.world.attribute.EnvironmentAttributeSystem;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -31,14 +36,17 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.neoforged.neoforge.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +64,6 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
                 realLevel.dimension(),
                 realLevel.registryAccess(),
                 realLevel.dimensionTypeRegistration(),
-                realLevel.getProfilerSupplier(),
                 realLevel.isClientSide(),
                 realLevel.isDebug(),
                 0,
@@ -82,13 +89,11 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
     }
 
     @Override
-    public void playSeededSound(@Nullable Player p_262953_, double p_263004_, double p_263398_, double p_263376_, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_, long p_262991_) {
-
+    public void playSeededSound(@org.jspecify.annotations.Nullable Entity entity, double x, double y, double z, Holder<SoundEvent> sound, SoundSource source, float volume, float pitch, long seed) {
     }
 
     @Override
-    public void playSeededSound(@Nullable Player p_220372_, Entity p_220373_, Holder<SoundEvent> p_263500_, SoundSource p_220375_, float p_220376_, float p_220377_, long p_220378_) {
-
+    public void playSeededSound(@org.jspecify.annotations.Nullable Entity entity, Entity sourceEntity, Holder<SoundEvent> sound, SoundSource source, float volume, float pitch, long seed) {
     }
 
     @Override
@@ -144,15 +149,6 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         return super.getModelData(pos);
     }
 
-    @Override
-    public void setMapData(MapId p_324009_, MapItemSavedData p_151534_) {
-
-    }
-
-    @Override
-    public MapId getFreeMapId() {
-        return null;
-    }
 
     @Override
     public void destroyBlockProgress(int breakerId, BlockPos pos, int progress) {
@@ -164,10 +160,6 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         return null;
     }
 
-    @Override
-    public RecipeManager getRecipeManager() {
-        return null;
-    }
 
     @Override
     protected LevelEntityGetter<Entity> getEntities() {
@@ -215,7 +207,6 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         return realLevel.enabledFeatures();
     }
 
-    @Override public int getMinBuildHeight() { return realLevel.getMinBuildHeight(); }
 
     @Override
     public LevelTickAccess<Block> getBlockTicks() {
@@ -232,9 +223,6 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         return realLevel.getChunkSource();
     }
 
-    @Override
-    public void levelEvent(@Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_) {
-    }
 
     @Override
     public void gameEvent(Holder<GameEvent> gameEvent, Vec3 pos, GameEvent.Context context) {
@@ -243,5 +231,53 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
     @Override
     public List<? extends Player> players() {
         return List.of();
+    }
+
+    @Override
+    public void explode(@org.jspecify.annotations.Nullable Entity source, @org.jspecify.annotations.Nullable DamageSource damageSource, @org.jspecify.annotations.Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius, boolean fire, ExplosionInteraction explosionInteraction, ParticleOptions smallExplosionParticles, ParticleOptions largeExplosionParticles, WeightedList<ExplosionParticleInfo> blockParticles, Holder<SoundEvent> explosionSound) {
+    }
+
+    @Override
+    public void setRespawnData(LevelData.RespawnData respawnData) {
+    }
+
+    @Override
+    public LevelData.RespawnData getRespawnData() {
+        return realLevel.getRespawnData();
+    }
+
+    @Override
+    public Collection<? extends PartEntity<?>> dragonParts() {
+        return List.of();
+    }
+
+    @Override
+    public RecipeAccess recipeAccess() {
+        return realLevel.recipeAccess();
+    }
+
+    @Override
+    public EnvironmentAttributeSystem environmentAttributes() {
+        return realLevel.environmentAttributes();
+    }
+
+    @Override
+    public FuelValues fuelValues() {
+        return realLevel.fuelValues();
+    }
+
+    @Override
+    public void levelEvent(@org.jspecify.annotations.Nullable Entity entity, int type, BlockPos pos, int data) {
+
+    }
+
+    @Override
+    public WorldBorder getWorldBorder() {
+        return realLevel.getWorldBorder();
+    }
+
+    @Override
+    public int getSeaLevel() {
+        return 0;
     }
 }

@@ -1,27 +1,20 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import org.joml.Matrix3x2fStack;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Stream;
 
 @SuppressWarnings("SameParameterValue")
 public class StructureWandHUD extends Screen {
@@ -30,8 +23,8 @@ public class StructureWandHUD extends Screen {
     private final float MAX_OFFSET = 15;
     private final float SPLIT_RATE = 1/3.5F;
 
-    private final ResourceLocation texture =
-            ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "nametag" + ".png");
+    private final Identifier texture =
+            Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "nametag" + ".png");
     private int currentStructure;
     private int oTicker;
     private int ticker = 0;
@@ -55,7 +48,7 @@ public class StructureWandHUD extends Screen {
         currentStructure = Mth.clamp(currentStructure, 0, allStructures.size());
     }
     public void render(GuiGraphics guiGraphics, float partialTicks) {
-        PoseStack poseStack = guiGraphics.pose();
+        Matrix3x2fStack poseStack = guiGraphics.pose();
         Window mainWindow = Minecraft.getInstance().getWindow();
 
         if (Minecraft.getInstance().screen != null) {
@@ -63,7 +56,7 @@ public class StructureWandHUD extends Screen {
         }
 
         if (!initialized) {
-            init(Minecraft.getInstance(), mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
+            init(mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
         }
 
         if (allStructures.isEmpty()) {
@@ -73,9 +66,7 @@ public class StructureWandHUD extends Screen {
         int x = Math.max(mainWindow.getGuiScaledWidth()  / 2 - 182 / 2 - 12 - 109, 0);
         int y = mainWindow.getGuiScaledHeight() - 36;
         animateTicker = Mth.lerpInt(partialTicks, oTicker * 20, ticker * 20);
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        
 
         switch ( state) {
             case IDLE -> renderIdle(guiGraphics, poseStack, x, y);
@@ -116,18 +107,16 @@ public class StructureWandHUD extends Screen {
 
     }
 
-    private void renderIdle(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y) {
+    private void renderIdle(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y) {
         int delta = 1;
         float alpha = 1;
         if (animateTicker > 400) {
             delta = animateTicker - 400;
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
 
             // 设置透明度
             alpha = 1- delta/200f;
 
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+//            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         }
 
         if (alpha >= 0) {
@@ -138,25 +127,21 @@ public class StructureWandHUD extends Screen {
                     y,
                     0,
                     1,
-                    allStructures.get(currentStructure)
+                    allStructures.get(currentStructure),
+                    alpha
             );
         }
-
-        if (animateTicker > 400) {
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.disableBlend();
-        }
     }
 
-    private void renderScrollUp(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y) {
+    private void renderScrollUp(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y) {
         renderScroll(guiGraphics, poseStack, x, y, MAX_T * 20);
     }
 
-    private void renderScrollDown(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y) {
+    private void renderScrollDown(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y) {
         renderScroll(guiGraphics, poseStack, x, y, MAX_T * 20);
     }
 
-    private void renderShowUp(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, int M_T) {
+    private void renderShowUp(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y, int M_T) {
         float offset;
 
         if (allStructures.size() > 1) {
@@ -195,7 +180,7 @@ public class StructureWandHUD extends Screen {
         );
     }
 
-    private void renderScroll(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, int M_T) {
+    private void renderScroll(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y, int M_T) {
         float offset;
         int flag = state.equals(State.SCROLLING_DOWN) ? 1 : -1;
 
@@ -285,9 +270,9 @@ public class StructureWandHUD extends Screen {
             case SCROLLING_DOWN, SHOWUP, IDLE -> ticker+=speedMultiplier+1;
         }
 
-        if (Screen.hasAltDown() && (state.equals(State.IDLE) || state.equals(State.SHOWUP))) {
+        if (Minecraft.getInstance().hasAltDown() && (state.equals(State.IDLE) || state.equals(State.SHOWUP))) {
             turnState(State.SHOWUP);
-        } else if (!Screen.hasAltDown() && state.equals(State.SHOWUP)) {
+        } else if (!Minecraft.getInstance().hasAltDown() && state.equals(State.SHOWUP)) {
             turnState(State.IDLE);
         } else if (Math.abs(ticker) > MAX_T || this.state.equals(State.REPEATER)) {
             turnState(State.valueOf(this.state.fallback));
@@ -320,23 +305,31 @@ public class StructureWandHUD extends Screen {
         return Mth.lerp(Mth.sin(v/2), 1.0F, FINAL_SCALE);
     }
 
-    public void renderSingleLabel(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, float offset, float scale) {
-        renderSingleLabel(guiGraphics, poseStack, x, y, offset, scale, Component.empty());
+    public void renderSingleLabel(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y, float offset, float scale) {
+        renderSingleLabel(guiGraphics, poseStack, x, y, offset, scale, Component.empty(), 1);
     }
-    public void renderSingleLabel(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, float offset, float scale, Component component) {
-        poseStack.pushPose();
-        poseStack.translate(x + 54.5, y + 8.5, 0);
-        poseStack.scale(scale, scale, scale);
+    public void renderSingleLabel(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y, float offset, float scale, Component component) {
+        renderSingleLabel(guiGraphics, poseStack, x, y, offset, scale, component, 1);
+    }
+    public void renderSingleLabel(GuiGraphics guiGraphics, Matrix3x2fStack poseStack, int x, int y, float offset, float scale, Component component, float alpha) {
+        poseStack.pushMatrix();
+        poseStack.translate(x + 54.5F, y + 8.5F);
+        poseStack.scale(scale, scale);
 //        poseStack.mulPose(Axis.ZN.rotationDegrees(offset));
-        poseStack.translate(-x - 54.5, -y - 8.5 + offset, 0);
-        guiGraphics.blit(
+        poseStack.translate(-x - 54.5F, -y - 8.5F + offset);
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 x,
                 y,
                 69,
                 213,
                 109,
-                17
+                17,
+                1,
+                1,
+                1,
+                alpha
         );
         guiGraphics.drawString(
                 Minecraft.getInstance().font,
@@ -345,7 +338,7 @@ public class StructureWandHUD extends Screen {
                 y + 4,
                 0xe3d1bc
         );
-        poseStack.popPose();
+        poseStack.popMatrix();
     }
 
     public void setCurrentStructure(String currentStructure) {
