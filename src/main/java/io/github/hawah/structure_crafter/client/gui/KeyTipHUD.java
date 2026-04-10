@@ -7,14 +7,14 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.client.gui.GuiLayer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
+public class KeyTipHUD extends Screen implements GuiLayer {
 
     private boolean initialized = false;
 
@@ -27,7 +27,7 @@ public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
 
         Window mainWindow = Minecraft.getInstance().getWindow();
         if (!initialized) {
-            init(Minecraft.getInstance(), mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
+            init(mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
             initialized = true;
         }
 

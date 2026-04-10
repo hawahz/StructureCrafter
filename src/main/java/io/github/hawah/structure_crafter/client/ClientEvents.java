@@ -8,6 +8,7 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
+import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -99,6 +100,7 @@ public class ClientEvents {
         Outliner.tick();
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
         TelephoneHandset.clientTick();
+        ClientDataHolder.tick();
     }
 
     @SubscribeEvent
@@ -198,7 +200,7 @@ public class ClientEvents {
     public static void registerRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(
                 Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "Blackboard"),
-
+                new BlackboardRenderer()
                 );
     }
 
@@ -212,7 +214,7 @@ public class ClientEvents {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void onRegisterModel(ModelEvent.RegisterLoaders event) {
+    public static void onRegisterModel(ModelEvent.RegisterStandalone event) {
         Models.register(event);
     }
 

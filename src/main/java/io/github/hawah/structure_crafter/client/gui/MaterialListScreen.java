@@ -21,7 +21,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.Item;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 @ParametersAreNonnullByDefault
 public class MaterialListScreen extends BaseScreen{
     private static final int MAX_SLOTS = 9;
-    private final ResourceLocation texture =
-            ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "material_list" + ".png");
+    private final Identifier texture =
+            Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "material_list" + ".png");
     private TextureToggleButton materialToggleButton;
     private TextureToggleButton previewToggleButton;
     private ButtonGroup buttonGroup;
@@ -426,7 +426,7 @@ public class MaterialListScreen extends BaseScreen{
             guiGraphics.drawString(
                     font,
                     Component.literal(line).withStyle(style ->
-                                    style.withFont(ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "boutique"))),
+                                    style.withFont(Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "boutique"))),
                     itemPageFirst.isEmpty() || itemPageFirst.get(i).count() <= 0? left - 26: left,
                     (int) (top + 8 - font.lineHeight/2F + i * 11*2 + frontY / sc),
                     0x000000,

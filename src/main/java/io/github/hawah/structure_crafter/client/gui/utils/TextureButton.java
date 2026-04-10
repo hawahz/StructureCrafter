@@ -6,15 +6,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 public class TextureButton extends AbstractWidget {
 
     private final Runnable onPress;
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int normalStartX;
     private final int hoverStartX;
     private final int inactiveStartX;
@@ -28,7 +29,7 @@ public class TextureButton extends AbstractWidget {
             int width,
             int height,
             Component message,
-            ResourceLocation texture,
+            Identifier texture,
             int normalStartX,
             int normalStartY,
             int hoverStartX,
@@ -49,8 +50,9 @@ public class TextureButton extends AbstractWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
+    public void onClick(MouseButtonEvent event, boolean isDoubleClick) {
         this.onPress.run();
+        super.onClick(event, isDoubleClick);
     }
 
     @Override

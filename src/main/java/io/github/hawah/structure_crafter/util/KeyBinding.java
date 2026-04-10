@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -191,9 +192,9 @@ public enum KeyBinding {
     }
 
     public enum KeyNode {
-        CTRL((mouseButton, pressed, scroll)->Screen.hasControlDown(), false, 1, 4, 4, 5),
-        ALT((mouseButton, pressed, scroll) -> Screen.hasAltDown(), false, 0, 3, 4, 5),
-        SHIFT((mouseButton, pressed, scroll) -> Screen.hasShiftDown(), false, 3, 4, 5),
+        CTRL((mouseButton, pressed, scroll)-> Minecraft.getInstance().hasControlDown(), false, 1, 4, 4, 5),
+        ALT((mouseButton, pressed, scroll) -> Minecraft.getInstance().hasAltDown(), false, 0, 3, 4, 5),
+        SHIFT((mouseButton, pressed, scroll) -> Minecraft.getInstance().hasShiftDown(), false, 3, 4, 5),
         LEFT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_LEFT && pressed, true),
         RIGHT((mouseButton, pressed, scroll) -> mouseButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT && pressed, true),
         SCROLL((mouseButton, pressed, scroll) -> scroll != 0, true),

@@ -7,8 +7,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class TextureToggleButton extends AbstractWidget {
 
     private final boolean enableToggleUp;
     public Runnable onPress;
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final int toggleStartX;
     private final int originStartX;
     private final int hoverStartX;
@@ -45,7 +47,7 @@ public class TextureToggleButton extends AbstractWidget {
             int height,
             Component message,
             Component messageToggled,
-            ResourceLocation texture,
+            Identifier texture,
             int originStartX,
             int originStartY,
             int hoverStartX,
@@ -84,7 +86,7 @@ public class TextureToggleButton extends AbstractWidget {
             int height,
             Component message,
             Component messageToggled,
-            ResourceLocation texture,
+            Identifier texture,
             int originStartX,
             int originStartY,
             int hoverStartX,
@@ -112,7 +114,7 @@ public class TextureToggleButton extends AbstractWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
+    public void onClick(MouseButtonEvent event, boolean isDoubleClick) {
         if (toggled && !enableToggleUp) {
             setFocused(false);
             return;

@@ -8,26 +8,25 @@ import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistr
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.ItemEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@MethodsReturnNonnullByDefault
+
 @ParametersAreNonnullByDefault
 public class MaterialList extends Item {
     public MaterialList() {
@@ -35,7 +34,7 @@ public class MaterialList extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
 
         ItemStack itemStack = player.getItemInHand(usedHand);
         MaterialListComponent component = itemStack.getOrDefault(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY);
@@ -44,7 +43,7 @@ public class MaterialList extends Item {
             return super.use(level, player, usedHand);
         }
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             ScreenOpener.open(new MaterialListScreen());
         }
         return super.use(level, player, usedHand);
@@ -55,19 +54,19 @@ public class MaterialList extends Item {
         ItemStack itemInHand = context.getItemInHand();
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
-        IItemHandler iItemHandler;
+        ResourceHandler<ItemResource> iItemHandler;
         List<ItemEntry> consumes = itemInHand.getOrDefault(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY).itemWithCounts();
 
 
         Player player = context.getPlayer();
         // TODO
-        if (level.isClientSide() && player != null && !consumes.isEmpty() && (iItemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, context.getClickedFace())) != null) {
+        if (level.isClientSide() && player != null && !consumes.isEmpty() && (iItemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, context.getClickedFace())) != null) {
 
             CompletableFuture
                     .supplyAsync(() -> {
-                        NonNullList<ItemStack> inventoryItems = player.isShiftKeyDown()? NonNullList.create() : StructureHandler.getInventoryItems(player);
-                        for (int i = 0; i < iItemHandler.getSlots(); i++) {
-                            inventoryItems.add(iItemHandler.getStackInSlot(i));
+                        NonNullList<ItemResource> inventoryItems = player.isShiftKeyDown()? NonNullList.create() : StructureHandler.getInventoryItems(player);
+                        for (int i = 0; i < iItemHandler.size(); i++) {
+                            inventoryItems.add(iItemHandler.getResource(i));
                         }
                         List<ItemEntry> inventory = ItemEntry.flat(ItemEntry.fromStacks(inventoryItems));
 

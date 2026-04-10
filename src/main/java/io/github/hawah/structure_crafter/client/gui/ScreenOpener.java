@@ -32,7 +32,7 @@ public class ScreenOpener {
 
     private static void openScreen(@Nullable Screen screen) {
         Minecraft.getInstance()
-                .tell(() -> Minecraft.getInstance()
+                .execute(() -> Minecraft.getInstance()
                         .setScreen(screen));
     }
 

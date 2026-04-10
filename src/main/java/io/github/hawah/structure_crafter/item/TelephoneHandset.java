@@ -13,21 +13,29 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 @ParametersAreNonnullByDefault
+@EventBusSubscriber
 public class TelephoneHandset extends Item implements ITooltipItem{
     public TelephoneHandset() {
         super(new Properties().stacksTo(1));
@@ -85,7 +93,26 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         }
         BlockPos pos = handsetComponent.pos();
         if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
+            stack.shrink(1);
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
             return;
+        }
+        Vec3 directionVec = pos.getCenter().subtract(player.position());
+        float maxDistance = 32;
+        boolean shouldPull = directionVec.length() > maxDistance && !telephoneBlockEntity.hasBeacon;
+        if (shouldPull) {
+            float factor = (float) ((directionVec.length() - maxDistance) / 32f);
+            player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
+        }
+        if (level.isClientSide()) {
+            Vec3 center = pos.getCenter().add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getUnitVec3i()).multiply(0.5, 0.5, 0.5));
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
+                    pos,
+                    center,
+                    Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
+                    telephoneBlockEntity.hasBeacon,
+                    player.getMainHandItem().equals(stack) || shouldPull
+            );
         }
         //updateChangedDataFromStack(stack, serverLevel, connectorBlockEntity, hashItemComponent);
     }
@@ -121,4 +148,38 @@ public class TelephoneHandset extends Item implements ITooltipItem{
     }
 
     public static Object slot = new Object();
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack stack = player.getItemInHand(usedHand);
+        TelephoneHandsetComponent handsetComponent = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
+        if (!level.dimension().equals(handsetComponent.dimension())) {
+            if (level.isClientSide()) {
+                player.displayClientMessage(LangData.MESSAGE_TELEPHONE_CHANNEL_NOT_FOUND.get(), true);
+            }
+            return InteractionResult.PASS;
+        }
+        return super.use(level, player, usedHand);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTossHandset(ItemTossEvent event) {
+        ItemEntity entity = event.getEntity();
+        ItemStack item = entity.getItem();
+        if (!(item.getItem() instanceof TelephoneHandset)) {
+            return;
+        }
+        event.setCanceled(true);
+        TelephoneHandsetComponent component;
+        if ((component = item.get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) == null)
+            return;
+        BlockPos pos = component.pos();
+        Player player = event.getPlayer();
+        if (player.level().isClientSide()) {
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
+        }
+        if (player.level().getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity) {
+            blockEntity.setHasTelephone(true);
+        }
+    }
 }

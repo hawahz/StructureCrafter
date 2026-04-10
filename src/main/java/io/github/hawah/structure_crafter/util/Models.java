@@ -2,33 +2,38 @@ package io.github.hawah.structure_crafter.util;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.model.CompositeUnbakedModel;
-import net.neoforged.neoforge.client.model.UnbakedModelLoader;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
+import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
 public enum Models {
     BLACKBOARD("addition/blackboard_raw"),
     PHONE("addition/phone"),
     ;
-    private final Identifier modelResource;
+    private final StandaloneModelKey<QuadCollection> modelResource;
+    private final Identifier modelPath;
     Models(String path) {
-        this.modelResource = Identifier.fromNamespaceAndPath(StructureCrafter.MODID, path);
+        this.modelResource = new StandaloneModelKey<>(
+                () -> StructureCrafter.MODID + ":" + path
+        );
+        this.modelPath = Identifier.fromNamespaceAndPath(StructureCrafter.MODID, path);
     }
 
-    public static void register(ModelEvent.RegisterLoaders event) {
+    public static void register(ModelEvent.RegisterStandalone event) {
         for (Models model : values()) {
-            event.register(model.modelResource, CompositeUnbakedModel.Loader.INSTANCE);
+            event.register(
+                    model.modelResource,
+                    SimpleUnbakedStandaloneModel.quadCollection(
+                           model.modelPath
+                    )
+            );
         }
     }
 
-    public StandaloneModelLoader.BakedModels getBakedModel() {
-        return Minecraft.getInstance().getModelManager().getModel(this.modelResource);
+    public QuadCollection getBakedModel() {
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(this.modelResource);
     }
 
 }

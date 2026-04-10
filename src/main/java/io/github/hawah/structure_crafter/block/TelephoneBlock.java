@@ -205,7 +205,14 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                                               InteractionHand hand,
                                               BlockHitResult hitResult) {
         TelephoneHandsetComponent component = stack.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, null);
-        if (component != null && pos.equals(component.pos()) && level.dimension().equals(component.dimension()) && level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity && !blockEntity.hasTelephone()) {
+        if (
+                component != null &&
+                        pos.equals(component.pos()) &&
+                        level.dimension().equals(component.dimension()) &&
+                        level.getBlockEntity(pos) instanceof TelephoneBlockEntity blockEntity &&
+                        !blockEntity.hasTelephone() &&
+                        hitResult.getDirection().equals(state.getValue(FACING))
+        ) {
             blockEntity.setHasTelephone(true);
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
             stack.shrink(1);

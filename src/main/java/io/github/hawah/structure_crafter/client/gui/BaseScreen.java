@@ -6,6 +6,7 @@ import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 
@@ -95,7 +96,8 @@ public abstract class BaseScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+        event.x();
         mouseX = (int) ((mouseX - width/2F) / scale + width/2F);
         mouseY = (int) ((mouseY - height/2F) / scale + height/2F);
         return super.mouseClicked(mouseX, mouseY, button);

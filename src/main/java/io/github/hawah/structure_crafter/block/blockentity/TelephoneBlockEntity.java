@@ -4,9 +4,13 @@ import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
 import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
+import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -25,9 +29,14 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -43,7 +52,7 @@ import java.util.*;
 @EventBusSubscriber
 public class TelephoneBlockEntity extends BlockEntity {
 
-    private final Direction facing;
+    public final Direction facing;
 
 
     // Server only
@@ -60,6 +69,9 @@ public class TelephoneBlockEntity extends BlockEntity {
 
     private boolean hasTelephone = true;
     private boolean dirty = true;
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean playerLookingAt = false;
 
     public void setDirty() {
         dirty = true;
@@ -316,7 +328,11 @@ public class TelephoneBlockEntity extends BlockEntity {
         }
         Networking.sendToAll(new TelephoneBlockEntityBeaconChangedPacket(blockEntity.getBlockPos(), false));
         blockEntity.setHasBeacon(false);
-        serverLevel.setChunkForced(chunkPos.x, chunkPos.z, false);
+        for (int x = chunkPos.x - 1; x <= chunkPos.x + 1; x++) {
+            for (int z = chunkPos.z - 1; z <= chunkPos.z + 1; z++) {
+                serverLevel.setChunkForced(x, z, false);
+            }
+        }
     }
 
     @Override
@@ -325,8 +341,14 @@ public class TelephoneBlockEntity extends BlockEntity {
 
         if (!(level instanceof ServerLevel serverLevel))
             return;
+        if (!hasBeacon)
+            return;
+        ChunkPos chunkPos = new ChunkPos(getBlockPos());
+        for (int x = chunkPos.x - 1; x <= chunkPos.x + 1; x++) {
+            for (int z = chunkPos.z - 1; z <= chunkPos.z + 1; z++) {
+                serverLevel.setChunkForced(x, z, false);
+            }
+        }
 
-        ChunkPos pos = new ChunkPos(worldPosition);
-        serverLevel.setChunkForced(pos.x, pos.z, false);
     }
 }
