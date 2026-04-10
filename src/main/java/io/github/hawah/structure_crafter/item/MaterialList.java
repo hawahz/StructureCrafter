@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.item;
 
+import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
@@ -10,12 +11,15 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -29,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class MaterialList extends Item {
+public class MaterialList extends Item implements ITooltipItem{
     public MaterialList() {
         super(new Properties().component(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY));
     }
@@ -90,16 +94,12 @@ public class MaterialList extends Item {
                         batched.sort(Comparator.comparingInt(ItemEntry::count));
                         return batched.isEmpty()?0 : batched.getFirst().count();
                     })
-                    .thenAccept((count) -> {
-                        Minecraft.getInstance().execute(()->{
-                            player.displayClientMessage(
-                                    player.isShiftKeyDown()?
-                                            LangData.INFO_CONTAINER_BUILD_CAPABILITY.get(count):
-                                            LangData.INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY.get(count),
-                                    true
-                            );
-                        });
-                    })
+                    .thenAccept((count) -> Minecraft.getInstance().execute(()-> player.displayClientMessage(
+                            player.isShiftKeyDown()?
+                                    LangData.INFO_CONTAINER_BUILD_CAPABILITY.get(count):
+                                    LangData.INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY.get(count),
+                            true
+                    )))
                     .exceptionally(e-> {
                         StructureCrafter.LOGGER.error("Error Occurred when calculate Container items.", e);
                         return null;
@@ -107,6 +107,18 @@ public class MaterialList extends Item {
             return InteractionResult.CONSUME;
         }
         return super.useOn(context);
+    }
+
+    public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
+        int t = 1;
+        if (!Screen.hasShiftDown()) {
+            tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
+        } else {
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_MATERIAL_LIST_0.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_MATERIAL_LIST_1.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_MATERIAL_LIST_2.get()));
+            tooltipElements.add(t, Either.left(LangData.TOOLTIP_MATERIAL_LIST_3.get()));
+        }
     }
 
 }

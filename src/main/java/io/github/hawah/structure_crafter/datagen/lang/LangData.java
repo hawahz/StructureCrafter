@@ -46,10 +46,16 @@ public enum LangData {
     TOOLTIP_BLACKBOARD_5("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "5", "Select Position in Air", 0),
     TOOLTIP_BLACKBOARD_6("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "6", "[Ctrl + Scroll]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_7("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "7", "Adjust Air Selection Range", 0),
-    TOOLTIP_BLACKBOARD_8("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "8", "[Right Click] with \nBlackboard in Offhand and Ink Sac in Main Hand", 0, ChatFormatting.AQUA, ChatFormatting.ITALIC),
+    TOOLTIP_BLACKBOARD_8("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "8", "[Right Click] with", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_BLACKBOARD_8_1("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "8_1", "Blackboard in Offhand and Ink Sac in Main Hand", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_9("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "9", "Save Structure", 0),
     TOOLTIP_BLACKBOARD_10("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "10", "[Shift + Left Click] ", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
     TOOLTIP_BLACKBOARD_11("tooltip." + ItemRegistries.BLACKBOARD.getRegisteredName() + "11", "Clear Selection", 0),
+
+    TOOLTIP_MATERIAL_LIST_0("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "0", "[On Offhand]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_MATERIAL_LIST_1("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "1", "Copy the consumption from the chosen structure", 0),
+    TOOLTIP_MATERIAL_LIST_2("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "2", "[Right Click]", 0, ChatFormatting.AQUA, ChatFormatting.BOLD),
+    TOOLTIP_MATERIAL_LIST_3("tooltip." + ItemRegistries.MATERIAL_LIST.getRegisteredName() + "3", "Open Statistics Menu", 0),
 
     TOOLTIP_TELEPHONE_HANDSET("tooltip." + ItemRegistries.TELEPHONE_HANDSET.getRegisteredName() + "0", "Binding (%s, %s, %s)", 3, ChatFormatting.GRAY, ChatFormatting.BOLD),
 

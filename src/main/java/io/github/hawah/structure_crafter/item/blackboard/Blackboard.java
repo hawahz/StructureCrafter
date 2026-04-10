@@ -133,6 +133,7 @@ public class Blackboard extends Item implements ITooltipItem {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_6.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_7.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_8.get()));
+            tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_8_1.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_9.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_10.get()));
             tooltipElements.add(t, Either.left(LangData.TOOLTIP_BLACKBOARD_11.get()));
