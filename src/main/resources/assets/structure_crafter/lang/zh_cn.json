@@ -3,7 +3,7 @@
   "item.structure_crafter.blackboard": "黑板",
   "item.structure_crafter.material_list": "材料清单",
   "item.structure_crafter.structure_wand": "构印杖",
-  "item.structure_crafter.telephone_handset": "手持电话机",
+  "item.structure_crafter.telephone_handset": "手持听筒",
   "itemGroup.structure_crafter": "构印师匠",
   "structure_crafter.client_message.info_alarm_no_name": "必须为结构命名！",
   "structure_crafter.client_message.info_container_build_capability": "此容器内的材料最多建造 %s 个结构.",
