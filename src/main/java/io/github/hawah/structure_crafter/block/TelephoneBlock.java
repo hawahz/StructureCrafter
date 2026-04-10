@@ -288,6 +288,9 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             if (!player.isShiftKeyDown() && !blockEntity.hasTelephone()) {
                 event.setCanceled(true);
             }
+            if (blockEntity.facing.getOpposite().equals(event.getFace()) && player.isCreative()) {
+                event.setCanceled(true);
+            }
             if (event.getFace() == null) {
                 return;
             }

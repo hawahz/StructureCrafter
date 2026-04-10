@@ -80,10 +80,10 @@ public class StructureCrafter {
         @SubscribeEvent
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
             if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-                event.accept(ItemRegistries.STRUCTURE_WAND.get());
-                event.accept(ItemRegistries.BLACKBOARD.get());
-                event.accept(ItemRegistries.MATERIAL_LIST.get());
-                event.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM.get());
+//                event.accept(ItemRegistries.STRUCTURE_WAND.get());
+//                event.accept(ItemRegistries.BLACKBOARD.get());
+//                event.accept(ItemRegistries.MATERIAL_LIST.get());
+//                event.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM.get());
             }
         }
     }
