@@ -4,6 +4,7 @@ import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
+import io.github.hawah.structure_crafter.util.CompressedTag;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -15,10 +16,10 @@ import net.minecraft.network.codec.StreamCodec;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.CompletableFuture;
 import java.util.zip.GZIPInputStream;
 
 public record ClientboundUploadStructureToServerPacket(String playerName, String structureName) implements ServerToClientPacket {
@@ -30,7 +31,8 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
     );
 
     @Override
-    public void handle(LocalPlayer player) {
+    public void handleData() {
+        ServerToClientPacket.super.handleData();
         if (playerName == null || !structureName.endsWith(".nbt"))
             return;
 
@@ -45,12 +47,24 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
                 new GZIPInputStream(Files.newInputStream(path, StandardOpenOption.READ))))) {
             CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
             if (nbt.sizeInBytes() > 2097152) {
-                // TODO Split File To Fragments
-                throw new FileSystemException("Structure is too big");
+                CompletableFuture
+                        .supplyAsync(() -> CompressedTag.split(nbt, true))
+                        .thenAccept(split -> {
+                            for (CompressedTag tag : split) {
+                                Networking.sendToServer(
+                                        new ServerboundReceiveSplitStructureDataPacket(tag, structureName, playerName)
+                                );
+                            }
+                        });
+            } else {
+                Networking.sendToServer(new ServerboundReceiveStructureDataPacket(nbt, playerName, structureName));
             }
-            Networking.sendToServer(new ServerboundReceiveStructureDataPacket(nbt, playerName, structureName));
         } catch (IOException ignored) {
         }
+    }
+
+    @Override
+    public void handle(LocalPlayer player) {
     }
 
     @Override

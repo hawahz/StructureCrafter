@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 public sealed interface BasePacketPayload extends CustomPacketPayload permits ClientToServerPacket, ServerToClientPacket {
     BasePacketPayload.PacketTypeProvider getTypeProvider();
+    default void handleData() {
+    }
 
     @Override
     @ApiStatus.NonExtendable

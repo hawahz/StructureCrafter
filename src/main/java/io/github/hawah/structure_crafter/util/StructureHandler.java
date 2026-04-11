@@ -425,7 +425,7 @@ public class StructureHandler {
         if (schematic == null || !schematic.endsWith(".nbt"))
             return;
 
-        Path dir = Paths.STRUCTURE_DIR;
+        Path dir = Paths.UPLOAD_STRUCTURE_DIR;
         Path file = java.nio.file.Paths.get(owner, schematic);
 
         Path path = dir.resolve(file).normalize();

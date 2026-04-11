@@ -18,12 +18,6 @@ public class DataComponentTypeRegistries {
             StructureCrafter.MODID
     );
 
-    public static DeferredHolder<DataComponentType<?>, DataComponentType<StructureSelectorComponent>> STRUCTURE_SELECTOR = DATA_COMPONENT.registerComponentType(
-            "structure_selector",
-            builder -> builder
-                    .networkSynchronized(StructureSelectorComponent.STREAM_CODEC)
-    );
-
     public static DeferredHolder<DataComponentType<?>, DataComponentType<Empty>> BLACKBOARD_WRITING = DATA_COMPONENT.registerComponentType(
             "blackboard_writing",
             builder -> builder
@@ -55,11 +49,6 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Integer> STRUCTURE_WAND_SETTINGS = register(
             "structure_wand_settings",
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
-    );
-
-    public static final DataComponentType<HashItemComponent> HASH_ITEM = register(
-            "hash_item",
-            builder -> builder.persistent(HashItemComponent.CODEC).networkSynchronized(HashItemComponent.STREAM_CODEC)
     );
 
     public static void register(IEventBus eventBus) {
