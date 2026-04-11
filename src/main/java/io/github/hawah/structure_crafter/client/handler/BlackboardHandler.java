@@ -325,7 +325,7 @@ public class BlackboardHandler {
                             (isOversizeX()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
                             (isOversizeY()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
                             (isOversizeZ()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
-                            (volume > Config.MAX_VOLUME.get()? "§c" : "") + volume
+                            (volume > Config.CommonConfig.MAX_VOLUME.get()? "§c" : "") + volume
                     ),
                     true
             );
@@ -373,22 +373,22 @@ public class BlackboardHandler {
 
     public boolean isValidSize() {
         double size = cachedBoundingBox.getMaxPosition().subtract(cachedBoundingBox.getMinPosition()).lengthSqr();
-        return !(size > Config.MAX_VOLUME.get() ||
+        return !(size > Config.CommonConfig.MAX_VOLUME.get() ||
                 isOversizeX() ||
                 isOversizeY() ||
                 isOversizeZ());
     }
 
     private boolean isOversizeZ() {
-        return cachedBoundingBox.getZsize() > Config.MAX_SIZE_Z.get() && Config.MAX_SIZE_Z.get() != -1;
+        return cachedBoundingBox.getZsize() > Config.CommonConfig.MAX_SIZE_Z.get() && Config.CommonConfig.MAX_SIZE_Z.get() != -1;
     }
 
     private boolean isOversizeY() {
-        return cachedBoundingBox.getYsize() > Config.MAX_SIZE_Y.get() && Config.MAX_SIZE_Y.get() != -1;
+        return cachedBoundingBox.getYsize() > Config.CommonConfig.MAX_SIZE_Y.get() && Config.CommonConfig.MAX_SIZE_Y.get() != -1;
     }
 
     private boolean isOversizeX() {
-        return cachedBoundingBox.getXsize() > Config.MAX_SIZE_X.get() && Config.MAX_SIZE_X.get() != -1;
+        return cachedBoundingBox.getXsize() > Config.CommonConfig.MAX_SIZE_X.get() && Config.CommonConfig.MAX_SIZE_X.get() != -1;
     }
 
     public void setSelectedPos(BlockPos selectedPos) {

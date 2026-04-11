@@ -12,10 +12,12 @@ import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -62,7 +64,6 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         StructurePlaceSettings settings = new StructurePlaceSettings();
         Rotation rotation = StructureWandHandler.transferDirectionToRotation(direction());
         settings.setRotation(rotation);
-        settings.setIgnoreEntities(true);
         List<StructureTemplate.StructureBlockInfo> blockInfos = StructureTemplate.processBlockInfos(
                 (ServerLevelAccessor) level,
                 pos,
@@ -72,7 +73,15 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 activeTemplate
         );
 
+//        List<StructureTemplate.StructureEntityInfo> entityInfos = StructureTemplate.processEntityInfos(
+//                activeTemplate,
+//                level,
+//                pos,
+//                settings,
+//                ((StructureTemplateAccessor)activeTemplate).getEntityInfoList()
+//        );
         HashMap<Item, Integer> consumes = StructureHandler.getNeededItems(blockInfos);
+//        HashMap<Item, Integer> consumes = StructureHandler.getNeededItems(blockInfos, entityInfos, (ServerLevelAccessor) level);
         int totalConsumes = consumes.values().stream().mapToInt(Integer::intValue).sum();
 
 
@@ -85,7 +94,8 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
         HashMap<BlockPos, BlockState> invalidBlocks = detectOrReplaceAir(activeTemplate, settings, activeTemplateData, rotation, level, updateFlags, replaceAir);
 
-        activeTemplate.placeInWorld(
+        StructureHandler.placeInWorld(
+                activeTemplate,
                 (ServerLevelAccessor) level,
                 pos.subtract(activeTemplateData.center().rotate(rotation)),
                 BlockPos.ZERO,
@@ -93,6 +103,8 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 level.getRandom(),
                 updateFlags
         );
+
+        System.out.println(BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse("minecraft:sign")));
 
         invalidBlocks.forEach((pos, block) -> level.setBlock(pos, block, updateFlags));
 

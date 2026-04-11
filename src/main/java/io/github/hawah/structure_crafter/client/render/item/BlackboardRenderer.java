@@ -47,7 +47,7 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
         HumanoidArm mainArm = player.getMainArm();
 
 
-        if (Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE) && mainArm.equals(HumanoidArm.RIGHT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)) {
+        if (Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE) && mainArm.equals(HumanoidArm.RIGHT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)) {
             renderBlackboardLeftArm(stack, poseStack, bufferSource, light, overlay);
         } else {
             renderGeneralItemByBakedModel(stack, itemDisplayContext, poseStack, bufferSource, light, overlay, mc, getBakedModel());

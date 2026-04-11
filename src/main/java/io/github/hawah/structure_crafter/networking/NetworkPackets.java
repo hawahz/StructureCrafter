@@ -3,7 +3,6 @@ package io.github.hawah.structure_crafter.networking;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.utils.BasePacketPayload;
 import io.github.hawah.structure_crafter.networking.utils.PacketRegistry;
-import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

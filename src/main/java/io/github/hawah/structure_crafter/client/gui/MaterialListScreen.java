@@ -237,7 +237,7 @@ public class MaterialListScreen extends BaseScreen{
                 80,
                 0,
                 () -> {
-                    if (!Config.MATERIAL_LIST_SCATTERED_ENABLED.get()) {
+                    if (!Config.CommonConfig.MATERIAL_LIST_SCATTERED_ENABLED.get()) {
                         clips.setFocused(false);
                         return;
                     }
