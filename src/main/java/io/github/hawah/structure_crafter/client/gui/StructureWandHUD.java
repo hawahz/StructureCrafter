@@ -3,9 +3,8 @@ package io.github.hawah.structure_crafter.client.gui;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,15 +12,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Stream;
 
 @SuppressWarnings("SameParameterValue")
 public class StructureWandHUD extends Screen {
@@ -51,7 +45,7 @@ public class StructureWandHUD extends Screen {
         initialized = true;
     }
     public void loadStructures() {
-        StructureHandler.loadStructures(allStructures);
+        StructureHandler.loadStructureList(allStructures);
         currentStructure = Mth.clamp(currentStructure, 0, allStructures.size());
     }
     public void render(GuiGraphics guiGraphics, float partialTicks) {

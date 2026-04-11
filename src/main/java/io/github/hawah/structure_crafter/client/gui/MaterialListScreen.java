@@ -6,7 +6,7 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.utils.ButtonGroup;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;

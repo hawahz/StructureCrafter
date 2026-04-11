@@ -1,37 +1,25 @@
 package io.github.hawah.structure_crafter.item.structure_wand;
 
 import com.mojang.datafixers.util.Either;
-import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
-import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.networking.MaterialListUploadPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
-import net.minecraft.server.network.Filterable;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.WritableBookContent;
-import net.minecraft.world.item.component.WrittenBookContent;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -39,17 +27,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
 
 public abstract class AbstractStructureWand extends Item implements ITooltipItem {
 
@@ -62,55 +41,6 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
                 DataComponentTypeRegistries.STRUCTURE_FILE,
                 "Debug.nbt"
         ).stacksTo(1));
-    }
-
-    @SuppressWarnings("ConstantValue")
-    public static StructureData loadSchematic(Level level, ItemStack blueprint) {
-        StructureTemplate t = new StructureTemplate();
-        String owner = "Dev";
-        String schematic = blueprint.get(DataComponentTypeRegistries.STRUCTURE_FILE);
-
-        if (owner == null || schematic == null || !schematic.endsWith(".nbt"))//TODO
-            return null;
-
-        Path dir;
-        Path file;
-
-        if (!level.isClientSide()) {
-            dir = io.github.hawah.structure_crafter.Paths.STRUCTURE_DIR;
-            file = Paths.get(schematic);
-        } else {
-            dir = io.github.hawah.structure_crafter.Paths.STRUCTURE_DIR;
-            file = Paths.get(schematic);
-        }
-
-        Path path = dir.resolve(file).normalize();
-        if (!path.startsWith(dir))
-            return null;
-
-        BlockPos pos;
-
-        try (DataInputStream stream = new DataInputStream(new BufferedInputStream(
-                new GZIPInputStream(Files.newInputStream(path, StandardOpenOption.READ))))) {
-
-            CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
-            t.load(level.holderLookup(Registries.BLOCK), nbt);
-            if (nbt.contains("center")) {
-                ListTag center = nbt.getList("center", CompoundTag.TAG_INT);
-                pos = new BlockPos(
-                        center.getInt(0),
-                        center.getInt(1),
-                        center.getInt(2)
-                );
-            } else {
-                pos = BlockPos.ZERO;
-                StructureCrafter.LOGGER.warn("Structure file {} does not have a center", file);
-            }
-        } catch (IOException e) {
-            return null;
-        }
-
-        return new StructureData(t, pos);
     }
 
     @Override
@@ -131,34 +61,6 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_9.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_10.get()));
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_11.get()));
-//            StructureWandHandler.ItemStackData data = StructureCrafterClient.STRUCTURE_WAND_HANDLER.data;
-//            tooltipElements
-//                    .add(t++, Either.left((data.isUpdateAll?
-//                            LangData.CONFIG_STRUCTURE_WAND_UPDATE_ALL :
-//                            LangData.CONFIG_STRUCTURE_WAND_NO_UPDATE)
-//                            .get()
-//                            .withStyle(
-//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.UPDATE_ALL)?
-//                                            ChatFormatting.WHITE :
-//                                            ChatFormatting.DARK_GRAY)));
-//            tooltipElements
-//                    .add(t++, Either.left((data.isReplaceAir?
-//                            LangData.CONFIG_STRUCTURE_WAND_CLEAR_AREA :
-//                            LangData.CONFIG_STRUCTURE_WAND_KEEP_AREA)
-//                            .get()
-//                            .withStyle(
-//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.REPLACE_AIR)?
-//                                            ChatFormatting.WHITE :
-//                                            ChatFormatting.DARK_GRAY)));
-//            tooltipElements
-//                    .add(t++, Either.left((data.isRenderBoundingBox?
-//                            LangData.CONFIG_STRUCTURE_WAND_RENDER_BOUNDS :
-//                            LangData.CONFIG_STRUCTURE_WAND_RENDER_NONE)
-//                            .get()
-//                            .withStyle(
-//                                    data.currentConfiguration.equals(StructureWandHandler.ItemStackData.Configuration.RENDER_BOUNDING_BOX)?
-//                                            ChatFormatting.WHITE :
-//                                            ChatFormatting.DARK_GRAY)));
         }
     }
 
@@ -190,6 +92,14 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
+    public static void setOwnerName(ItemStack stack, Player player) {
+        setOwnerName(stack, player.getName().getString());
+    }
+
+    public static void setOwnerName(ItemStack stack, String name) {
+        stack.set(DataComponentTypeRegistries.STRUCTURE_OWNER, name);
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static boolean isBoundsVisible(ItemStack stack) {
         return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & FORCE_BOUNDS_VISIBLE) != 0;
@@ -211,11 +121,15 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         if (player == null) {
             return;
         }
+        recordMaterialListOffhand(stack, player);
+    }
+
+    private static void recordMaterialListOffhand(ItemStack stack, LocalPlayer player) {
         ItemStack itemStack = player.getOffhandItem();
         if (!isRecordMaterialValid(itemStack))
             return;
 
-        StructureData structureData = loadSchematic(player.level(), stack);
+        StructureData structureData = StructureHandler.loadSchematic(player.level(), stack);
         List<StructureTemplate.StructureBlockInfo> blockInfos = new StructurePlaceSettings().getRandomPalette(((StructureTemplateAccessor) structureData.structureTemplate()).getPalettes(), BlockPos.ZERO).blocks();
         HashMap<Item, Integer> neededItems = getNeededItems(blockInfos);
         Stream<Map.Entry<Item, Integer>> consumedItems = neededItems.entrySet().stream().sorted(

@@ -3,8 +3,11 @@ package io.github.hawah.structure_crafter.client.handler;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -18,7 +21,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -247,27 +249,26 @@ public class BlackboardHandler {
             try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE)) {
                 NbtIo.writeCompressed(data, out);
             }
+            Networking.sendToServer(new ServerboundSaveWorldStructurePacket(fileName, firstPos, secondPos, centerPos, overwrite));
+            Minecraft.getInstance().player.displayClientMessage(
+                    LangData.INFO_CREATE_FILE_SUCCESS.get(fileName),
+                    true
+            );
         } catch (IOException e) {
             StructureCrafter.LOGGER.error("Occurred Error when saving structure.", e);
+        } finally {
+            Outliner.getInstance().thickBox(outlineSlot)
+                    .setRGBA(0, 1, 0, 1)
+                    .lazyFade(20)
+                    .discard()
+                    .finish();
+            Outliner.getInstance().thickBox(centerSlot)
+                    .setRGBA(0, 1, 0, 1)
+                    .lazyFade(20)
+                    .discard()
+                    .finish();
+            discard();
         }
-
-        Minecraft.getInstance().player.displayClientMessage(
-                LangData.INFO_CREATE_FILE_SUCCESS.get(fileName),
-                true
-        );
-
-
-        Outliner.getInstance().thickBox(outlineSlot)
-                .setRGBA(0, 1, 0, 1)
-                .lazyFade(20)
-                .discard()
-                .finish();
-        Outliner.getInstance().thickBox(centerSlot)
-                .setRGBA(0, 1, 0, 1)
-                .lazyFade(20)
-                .discard()
-                .finish();
-        discard();
     }
 
     public void tick() {

@@ -8,7 +8,7 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.LabelButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.client.utils.SearchHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -116,6 +116,7 @@ public class StructureWandScreen extends BaseScreen {
             LabelButton button = new LabelButton(Button.builder(filteredStructures.get(i), b -> {
                 ItemStack mainHandItem = Minecraft.getInstance().player.getMainHandItem();
                 AbstractStructureWand.selectStructure(mainHandItem, b.getMessage().getString());
+                AbstractStructureWand.setOwnerName(mainHandItem, Minecraft.getInstance().player);
                 selectedStructure = b.getMessage().getString();
                 labelButtons.forEach(other -> other.active = true);
                 b.active = false;
