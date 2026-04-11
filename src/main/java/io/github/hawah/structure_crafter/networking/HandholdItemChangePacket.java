@@ -1,6 +1,9 @@
 package io.github.hawah.structure_crafter.networking;
 
+import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +22,7 @@ public record HandholdItemChangePacket(ItemStack stack) implements ClientToServe
             return;
         player.getItemInHand(InteractionHand.MAIN_HAND).applyComponents(stack.getComponents());
 
+        StructureHandler.checkFileExists(player, stack);
     }
 
     @Override

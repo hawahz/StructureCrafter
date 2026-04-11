@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;

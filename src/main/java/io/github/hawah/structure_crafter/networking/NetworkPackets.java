@@ -1,6 +1,10 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.networking.structure_sync.ClientboundUploadStructureToServerPacket;
+import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundCheckStructureExistPacket;
+import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundReceiveStructureDataPacket;
+import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.BasePacketPayload;
 import io.github.hawah.structure_crafter.networking.utils.PacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,6 +25,10 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     INVENTORY_REMOVE_ITEM(PlayerInventoryRemoveItemPacket.class, PlayerInventoryRemoveItemPacket.STREAM_CODEC),
     TELEPHONE_CHANGED_TO_SERVER(ServerboundTelephoneChanged.class, ServerboundTelephoneChanged.STREAM_CODEC),
     TELEPHONE_BEACON_CHANGED_TO_CLIENT(TelephoneBlockEntityBeaconChangedPacket.class, TelephoneBlockEntityBeaconChangedPacket.STREAM_CODEC),
+    SERVER_SAVE_WORLD_STRUCTURE(ServerboundSaveWorldStructurePacket.class, ServerboundSaveWorldStructurePacket.STREAM_CODEC),
+    SERVER_CHECK_EXIST_STRUCTURE(ServerboundCheckStructureExistPacket.class, ServerboundCheckStructureExistPacket.STREAM_CODEC),
+    SERVER_RECEIVE_STRUCTURE_DATA(ServerboundReceiveStructureDataPacket.class, ServerboundReceiveStructureDataPacket.STREAM_CODEC),
+    CLIENT_UPLOAD_STRUCTURE_TO_SERVER(ClientboundUploadStructureToServerPacket.class, ClientboundUploadStructureToServerPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

@@ -17,6 +17,7 @@ import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -142,6 +143,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             if (!currentFile.isEmpty()) {
                 lock = false;
                 AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
+                AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
                 Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
             }
             dirty = false;
@@ -295,7 +297,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
 
     private void setupRenderer() {
         Level clientWorld = Minecraft.getInstance().level;
-        structureData = AbstractStructureWand.loadSchematic(clientWorld, activeSchematicItem);
+        structureData = StructureHandler.loadSchematic(clientWorld, activeSchematicItem);
 //        hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
     }
 

@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.client.handler.StructureHandler;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
@@ -57,7 +57,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         Level level = player.level();
 
         StructureData activeTemplateData =
-                AbstractStructureWand.loadSchematic(level, stack);
+                StructureHandler.loadSchematic(level, stack);
         assert activeTemplateData != null;
 
         StructureTemplate activeTemplate = activeTemplateData.structureTemplate();

@@ -34,6 +34,12 @@ public class DataComponentTypeRegistries {
             "structure_file",
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8)
     );
+
+    public static final DataComponentType<String> STRUCTURE_OWNER = register(
+            "structure_owner",
+            builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8)
+    );
+
     public static final DataComponentType<MaterialListComponent> MATERIAL_LIST = register(
             "material_list",
             builder -> builder

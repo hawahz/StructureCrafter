@@ -1,28 +1,31 @@
-package io.github.hawah.structure_crafter.client.handler;
+package io.github.hawah.structure_crafter.util;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
+import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import io.github.hawah.structure_crafter.util.StructurePlaceMode;
+import io.github.hawah.structure_crafter.networking.structure_sync.ClientboundUploadStructureToServerPacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.util.exception.IllegalStructureNameException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
-import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -44,19 +47,23 @@ import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 public class StructureHandler {
-    public static void loadStructures(List<Component> allStructures) {
+    public static void loadStructureList(List<Component> allStructures) {
         allStructures.clear();
         try (Stream<Path> paths = Files.list(Paths.STRUCTURE_DIR)) {
             paths.filter(f -> !Files.isDirectory(f) && f.getFileName().toString().endsWith(".nbt"))
@@ -357,5 +364,80 @@ public class StructureHandler {
 
     public static BlockPos parsePos(ListTag tag) {
         return new BlockPos(tag.getInt(0), tag.getInt(1), tag.getInt(2));
+    }
+
+    // Both side
+    public static StructureData loadSchematic(Level level, ItemStack blueprint) {
+        StructureTemplate t = new StructureTemplate();
+
+        String schematic = blueprint.get(DataComponentTypeRegistries.STRUCTURE_FILE);
+        String owner = blueprint.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
+
+        if (schematic == null || !schematic.endsWith(".nbt"))//TODO
+            return null;
+
+        Path dir;
+        Path file = Path.of(schematic);
+
+        if (!level.isClientSide()) {
+            dir = Paths.UPLOAD_STRUCTURE_DIR.resolve(owner);
+        } else {
+            dir = Paths.STRUCTURE_DIR;
+        }
+
+        Path path = dir.resolve(file).normalize();
+        if (!path.startsWith(dir))
+            return null;
+
+        BlockPos pos;
+
+        try (DataInputStream stream = new DataInputStream(new BufferedInputStream(
+                new GZIPInputStream(Files.newInputStream(path, StandardOpenOption.READ))))) {
+
+            CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
+            t.load(level.holderLookup(Registries.BLOCK), nbt);
+            if (nbt.contains("center")) {
+                ListTag center = nbt.getList("center", CompoundTag.TAG_INT);
+                pos = new BlockPos(
+                        center.getInt(0),
+                        center.getInt(1),
+                        center.getInt(2)
+                );
+            } else {
+                pos = BlockPos.ZERO;
+                StructureCrafter.LOGGER.warn("Structure file {} does not have a center", file);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+
+        return new StructureData(t, pos);
+    }
+
+    public static void checkFileExists(ServerPlayer player, ItemStack stack) {
+        if (!(stack.getItem() instanceof AbstractStructureWand) || !stack.has(DataComponentTypeRegistries.STRUCTURE_OWNER) || !stack.has(DataComponentTypeRegistries.STRUCTURE_FILE)) {
+            return;
+        }
+
+        String schematic = stack.get(DataComponentTypeRegistries.STRUCTURE_FILE);
+        String owner = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
+
+        if (schematic == null || !schematic.endsWith(".nbt"))
+            return;
+
+        Path dir = Paths.STRUCTURE_DIR;
+        Path file = java.nio.file.Paths.get(owner, schematic);
+
+        Path path = dir.resolve(file).normalize();
+
+        if (Files.isDirectory(path)) {
+            throw new IllegalStructureNameException("Structure name ["+ path +"] is a directory");
+        }
+        if (Files.exists(path)) {
+            return;
+        }
+
+        Networking.sendToPlayer(new ClientboundUploadStructureToServerPacket(player.getName().getString(), schematic), player);
+
     }
 }
