@@ -113,7 +113,7 @@ public class Blackboard extends Item implements ITooltipItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return (Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE) && Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT))?
+        return (BlackboardRenderType.WRITE.equals(Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get()) && Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT))?
                 UseAnim.NONE :
                 UseAnim.EAT;
     }

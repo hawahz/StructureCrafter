@@ -12,19 +12,13 @@ import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
-import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
-import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.item.TelephoneHandset;
-import io.github.hawah.structure_crafter.networking.PlayerInventoryRemoveItemPacket;
-import io.github.hawah.structure_crafter.networking.ServerboundTelephoneChanged;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.Models;
 import io.github.hawah.structure_crafter.util.Textures;
-import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -43,18 +37,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
@@ -230,19 +220,19 @@ public class ClientEvents {
     @SubscribeEvent
     public static void renderHand(RenderHandEvent event) {
         LocalPlayer player;
-        if (event.getItemStack().is(Items.INK_SAC) && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD) && Config.BLACKBOARD_RENDER_TYPE.get().equals(BlackboardRenderType.WRITE)) {
+        if (event.getItemStack().is(Items.INK_SAC) && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD) && Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE)) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public static void loadCompleted(FMLLoadCompleteEvent event) {
-        ModContainer modContainer = ModList.get()
-                .getModContainerById(StructureCrafter.MODID)
-                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
-
-        Supplier<IConfigScreenFactory> configScreen = () ->
-                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
-        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+//        ModContainer modContainer = ModList.get()
+//                .getModContainerById(StructureCrafter.MODID)
+//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
+//
+//        Supplier<IConfigScreenFactory> configScreen = () ->
+//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
+//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
     }
 }

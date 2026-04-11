@@ -124,7 +124,7 @@ public class StructureRenderer {
             float dist = (float) posLight.getCenter().distanceTo(camera);
 
             minDist = Math.min(minDist, dist);
-            if (!frustum.isVisible(new AABB(posLight)) || (Config.LOW_COST.get() && enableCulling && dist > minDistCache + 20 * Math.max(1, minDistCache/30))) {
+            if (!frustum.isVisible(new AABB(posLight)) || (Config.ClientConfig.RENDER_LOW_COST.get() && enableCulling && dist > minDistCache + 20 * Math.max(1, minDistCache/30))) {
                 continue;
             }
 

@@ -150,7 +150,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
-                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.STRUCTURE_PLACE_DISTANCE.getAsInt()
+                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.CommonConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
         if (!rotateLock) {
             rawDirection = player.getDirection();
@@ -188,7 +188,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             }
         }
 
-        if (lock && player.blockPosition().distManhattan(selectedPos) > Config.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
+        if (lock && player.blockPosition().distManhattan(selectedPos) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
             lock = false;
         }
 

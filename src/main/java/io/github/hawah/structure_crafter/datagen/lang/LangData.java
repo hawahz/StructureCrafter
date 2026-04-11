@@ -115,6 +115,28 @@ public enum LangData {
 
     MESSAGE_TELEPHONE_CHANNEL_NOT_FOUND("message.telephone_channel_not_found","§kFound No Channel",0),
 
+    CONFIGURATION_BLACKBOARD_ANIMATION_TYPE("configuration.blackboard_animation_type","Blackboard Animation Type",0),
+    CONFIGURATION_BLACKBOARD_ANIMATION_TYPE_TOOLTIP("configuration.blackboard_animation_type.tooltip","Selects the animation type used when interacting with the Blackboard.",0),
+    CONFIGURATION_RENDER_LOW_COST("configuration.render_low_cost","Low-Cost Rendering",0),
+    CONFIGURATION_RENDER_LOW_COST_TOOLTIP("configuration.render_low_cost.tooltip","Reduces rendering cost for structures. May affect visual quality.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X("configuration.blackboard_record_size_limit_x","Blackboard Size Limit (X)",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y("configuration.blackboard_record_size_limit_y","Blackboard Size Limit (Y)",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z("configuration.blackboard_record_size_limit_z","Blackboard Size Limit (Z)",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X_TOOLTIP("configuration.blackboard_record_size_limit_x.tooltip","Maximum X dimension of structures recorded by the Blackboard.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y_TOOLTIP("configuration.blackboard_record_size_limit_y.tooltip","Maximum Y dimension of structures recorded by the Blackboard.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z_TOOLTIP("configuration.blackboard_record_size_limit_z.tooltip","Maximum Z dimension of structures recorded by the Blackboard.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME("configuration.blackboard_record_size_limit_volume","Blackboard Volume Limit",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME_TOOLTIP("configuration.blackboard_record_size_limit_volume.tooltip","Maximum volume of structures recorded by the Blackboard.",0),
+    CONFIGURATION_STRUCTURE_PLACE_DISTANCE("configuration.structure_place_distance","Placement Distance Multiplier",0),
+    CONFIGURATION_STRUCTURE_PLACE_DISTANCE_TOOLTIP("configuration.structure_place_distance.tooltip","Defines the maximum placement distance (as a multiple of the player's reach) when using the Structure Wand in survival mode.",0),
+    CONFIGURATION_PREVIEW_UNLOCK_DISTANCE("configuration.preview_unlock_distance","Preview Unlock Distance",0),
+    CONFIGURATION_PREVIEW_UNLOCK_DISTANCE_TOOLTIP("configuration.preview_unlock_distance.tooltip","Defines the maximum distance a locked structure can remain locked.",0),
+    CONFIGURATION_STRUCTURE_PLACE_MODE("configuration.structure_place_mode","NBT Placement Mode",0),
+    CONFIGURATION_STRUCTURE_PLACE_MODE_TOOLTIP("configuration.structure_place_mode.tooltip","Defines how NBT data is handled when placing blocks: ALL applies NBT to all blocks; IGNORE_NBT ignores all NBT data (may break structures); BLACKLIST ignores NBT only for blocks in the blacklist.",0),
+    CONFIGURATION_STRUCTURE_BLACKLIST("configuration.structure_blacklist","NBT Ignore List",0),
+
+    CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
+
     ;
 
     public final String key;
