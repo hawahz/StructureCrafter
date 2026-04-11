@@ -1,10 +1,12 @@
 package io.github.hawah.structure_crafter.networking;
 
+import com.mojang.blaze3d.resource.ResourceHandle;
 import io.github.hawah.structure_crafter.client.handler.StructureHandler;
 import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
@@ -31,7 +33,9 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.*;
 
@@ -109,7 +113,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
     private static boolean canPlaceStructure(ServerPlayer player, HashMap<Item, Integer> consumes, int totalConsumes) {
         HashMap<ItemStack, Integer> playerInventory = new HashMap<>();
-        HashMap<IItemHandler, HashMap<Integer, Integer>> itemHandlerMap = new HashMap<>();
+        HashMap<ResourceHandler<ItemResource>, HashMap<Integer, Integer>> itemHandlerMap = new HashMap<>();
 
         NonNullList<ItemStack> items = StructureHandler.getInventoryItems(player);
 
@@ -117,21 +121,22 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
             if (item.isEmpty()) {
                 continue;
             }
-            IItemHandler handler;
-            if ((handler = item.getCapability(Capabilities.ItemHandler.ITEM)) != null) {
+            ResourceHandler<ItemResource> handler;
+            if ((handler = item.getCapability(Capabilities.Item.ITEM, null)) != null) {
                 itemHandlerMap.put(handler, new HashMap<>());
-                for (int i = 0; i < handler.getSlots(); i++) {
+                for (int i = 0; i < handler.size(); i++) {
                     shrinkIfMatch(itemHandlerMap.getOrDefault(handler, new HashMap<>()), consumes, handler, i);
                 }
             } else if (item.has(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE)) {
                 TelephoneHandsetComponent handsetComponent = item.get(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE);
                 BlockPos sourcePos = handsetComponent.pos();
                 ResourceKey<Level> dimension = handsetComponent.dimension();
-                handler = player.getServer()
+                handler = player.level()
+                        .getServer()
                         .getLevel(dimension)
-                        .getCapability(Capabilities.ItemHandler.BLOCK, sourcePos, Direction.NORTH);
+                        .getCapability(Capabilities.Item.BLOCK, sourcePos, Direction.NORTH);
                 itemHandlerMap.put(handler, new HashMap<>());
-                for (int i = 0; i < handler.getSlots(); i++) {
+                for (int i = 0; i < handler.size(); i++) {
                     shrinkIfMatch(itemHandlerMap.getOrDefault(handler, new HashMap<>()), consumes, handler, i);
                 }
             }
@@ -149,7 +154,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
             return false;
         }
         playerInventory.forEach(ItemStack::shrink);
-        itemHandlerMap.forEach((handler, map) -> map.forEach((slot, count) -> handler.extractItem(slot, count, false)));
+        itemHandlerMap.forEach((handler, map) -> map.forEach((slot, count) -> handler.extract(slot, handler.getResource(slot), count, Transaction.openRoot())));
         player.causeFoodExhaustion(totalConsumes * 0.1F);
         return true;
     }
@@ -180,9 +185,9 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
     private static void shrinkIfMatch(HashMap<Integer, Integer> slotToCount,
                                       HashMap<Item, Integer> consumes,
-                                      IItemHandler handler,
+                                      ResourceHandler<ItemResource> handler,
                                       int slot) {
-        ItemStack slotItem = handler.getStackInSlot(slot);
+        ItemStack slotItem = handler.getResource(slot).toStack();
         if (!consumes.containsKey(slotItem.getItem())) {
             return;
         }

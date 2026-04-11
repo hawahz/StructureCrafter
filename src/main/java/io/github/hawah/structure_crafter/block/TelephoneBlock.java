@@ -13,6 +13,9 @@ import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.VoxelShapeMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -57,8 +60,8 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
     public static final VoxelShape EAST = VoxelShapeMaker.getByHorizontalDirection(Direction.EAST, NORTH);
     public static final VoxelShape WEST = VoxelShapeMaker.getByHorizontalDirection(Direction.WEST, NORTH);
 
-    public TelephoneBlock() {
-        super(Properties.of());
+    public TelephoneBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(
                 this.stateDefinition.any()
                         .setValue(FACING, Direction.NORTH)
@@ -66,9 +69,6 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         );
     }
 
-    public TelephoneBlock(Properties properties) {
-        this();
-    }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

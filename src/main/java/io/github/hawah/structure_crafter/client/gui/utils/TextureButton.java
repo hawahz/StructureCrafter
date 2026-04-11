@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
@@ -88,14 +89,17 @@ public class TextureButton extends AbstractWidget {
                         inactiveStartY),
                 this.getWidth(),
                 this.getHeight(),
-                0xFFFFFF << 4 | (int) (this.alpha*255)
+                1,
+                1,
+                1,
+                this.alpha
         );
 
         if (this.getMessage().getString().isEmpty() || !this.isHovered())
             return;
         guiGraphics.renderTooltip(
                 Minecraft.getInstance().font,
-                List.of((ClientTooltipComponent) this.getMessage()),
+                List.of(ClientTooltipComponent.create(FormattedCharSequence.forward(this.getMessage().getString(), this.getMessage().getStyle()))),
                 mouseX,
                 mouseY,
                 DefaultTooltipPositioner.INSTANCE,

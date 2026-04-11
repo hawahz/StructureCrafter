@@ -17,8 +17,11 @@ public class ClientItemRendererExtensions implements IClientItemExtensions {
         return new ClientItemRendererExtensions(renderer);
     }
 
-    @Override
-    public SpecialModelRenderer<?> getCustomRenderer() {
-        return renderer;
-    }
+//    @Override
+//    public SpecialModelRenderer<?> getCustomRenderer() {
+//        return renderer;
+//    }
+
+
+
 }

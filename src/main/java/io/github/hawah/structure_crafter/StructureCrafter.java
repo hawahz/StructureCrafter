@@ -46,6 +46,7 @@ public class StructureCrafter {
                                 output.accept(ItemRegistries.STRUCTURE_WAND.get());
                                 output.accept(ItemRegistries.BLACKBOARD.get());
                                 output.accept(ItemRegistries.MATERIAL_LIST.get());
+                                output.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM);
                             })
                             .build()
     );
@@ -60,7 +61,7 @@ public class StructureCrafter {
 
         DataComponentTypeRegistries.register(modEventBus);
 
-        //CREATIVE_MODE_TABS.register(modEventBus);
+        CREATIVE_MODE_TABS.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 

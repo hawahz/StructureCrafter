@@ -16,5 +16,6 @@ public class TelephoneBlockEntityState extends BlockEntityRenderState {
     }
 
     public BlockPos blockPos;
-    public final Direction facing;
+    public Direction facing;
+    public float partialTicks;
 }

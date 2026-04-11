@@ -336,7 +336,7 @@ public class StructureWandHUD extends Screen {
                 component,
                 x + 10,
                 y + 4,
-                0xe3d1bc
+                0xFFe3d1bc
         );
         poseStack.popMatrix();
     }

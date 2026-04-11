@@ -190,7 +190,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
-    @OnlyIn(Dist.CLIENT)
+//    @OnlyIn(Dist.CLIENT)
     public static boolean isBoundsVisible(ItemStack stack) {
         return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & FORCE_BOUNDS_VISIBLE) != 0;
     }
@@ -204,7 +204,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
-    @OnlyIn(Dist.CLIENT)
+//    @OnlyIn(Dist.CLIENT)
     public static void selectStructure(ItemStack stack, String structure) {
         stack.set(DataComponentTypeRegistries.STRUCTURE_FILE, structure);
         LocalPlayer player = Minecraft.getInstance().player;

@@ -198,10 +198,10 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void registerRenderers(RegisterSpecialModelRendererEvent event) {
-        event.register(
-                Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "Blackboard"),
-                new BlackboardRenderer()
-                );
+//        event.register(
+//                Identifier.fromNamespaceAndPath(StructureCrafter.MODID, "Blackboard"),
+//                new BlackboardRenderer()
+//                );
     }
 
     @SubscribeEvent
@@ -212,7 +212,7 @@ public class ClientEvents {
         );
     }
 
-    @OnlyIn(Dist.CLIENT)
+//    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onRegisterModel(ModelEvent.RegisterStandalone event) {
         Models.register(event);

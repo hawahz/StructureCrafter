@@ -13,7 +13,10 @@ import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,8 +34,8 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Blackboard extends Item implements ITooltipItem {
-    public Blackboard() {
-        super(new Properties().stacksTo(1));
+    public Blackboard(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override

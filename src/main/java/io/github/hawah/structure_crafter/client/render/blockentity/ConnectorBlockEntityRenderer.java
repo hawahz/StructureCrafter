@@ -50,13 +50,17 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
 
     @Override
     public TelephoneBlockEntityState createRenderState() {
-        return null;
+        return new TelephoneBlockEntityState();
     }
 
     @Override
     public void extractRenderState(TelephoneBlockEntity blockEntity, TelephoneBlockEntityState renderState, float partialTick, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, partialTick, cameraPosition, breakProgress);
-
+        renderState.facing = blockEntity.facing;
+        renderState.hasTelephone = blockEntity.hasTelephone();
+        renderState.blockPos = blockEntity.getBlockPos();
+        renderState.blockEntityType = blockEntity.getType();
+        renderState.partialTicks = partialTick;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
                     default -> 0;
         }));
         poseStack.translate(-0.5, -0.5, -0.5);
-        float lerpAlpha = Mth.lerp(1-EaseHelper.easeInPow(1-pingPong((AnimationTickHolder.getTicks() + AnimationTickHolder.getPartialTicks()) / 20F), 2), 0.6F, 0.8F);
+        float lerpAlpha = Mth.lerp(1-EaseHelper.easeInPow(1-pingPong((AnimationTickHolder.getTicks() + renderState.partialTicks) / 20F), 2), 0.6F, 0.8F);
         float aChannel = renderState.hasTelephone()? 1 : lerpAlpha;
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.translucentMovingBlock());
@@ -134,20 +138,19 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
 //                ModelData.EMPTY,
 //                RenderType.solid()
 //        );
-        StandaloneModelLoader.BakedModels
 
-        nodeCollector.submitModel(
-                bakedModel,
-                renderState,
-                poseStack,
-                RenderTypes.translucentMovingBlock(),
-                0xF000F0,
-                0xF000F0,
-                0xF000F0,
-                null,
-                0xF000F0,
-                null
-        );
+//        nodeCollector.submitModel(
+//                bakedModel,
+//                renderState,
+//                poseStack,
+//                RenderTypes.translucentMovingBlock(),
+//                0xF000F0,
+//                0xF000F0,
+//                0xF000F0,
+//                null,
+//                0xF000F0,
+//                null
+//        );
 
         poseStack.popPose();
     }

@@ -9,16 +9,16 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.function.*;
 
-@EventBusSubscriber(modid = StructureCrafter.MODID)
+//@EventBusSubscriber(modid = StructureCrafter.MODID)
 public class DataGenerator {
-    @SubscribeEvent // on the mod event bus
+//    @SubscribeEvent // on the mod event bus
     public static void gatherData(GatherDataEvent event) {
 
         // other providers here
 //        addClient(event, StampWeaverItemModelProvider::new);
-        event.createProvider(ModRecipeGenerator.Runner::new);
-        addClient(event, ModEnUsLangProvider::new);
-        addClient(event, ModItemModelProvider::new);
+//        event.createProvider(ModRecipeGenerator.Runner::new);
+//        addClient(event, ModEnUsLangProvider::new);
+//        addClient(event, ModItemModelProvider::new);
     }
 
 

@@ -19,7 +19,7 @@ public record ServerboundTelephoneChanged(TelephoneHandsetComponent component) i
             StreamCodec.composite(TelephoneHandsetComponent.STREAM_CODEC, ServerboundTelephoneChanged::component, ServerboundTelephoneChanged::new);
     @Override
     public void handle(ServerPlayer player) {
-        try (ServerLevel level = player.serverLevel()) {
+        try (ServerLevel level = player.level()) {
             BlockPos pos = player.blockPosition();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof TelephoneBlockEntity telephoneBlockEntity) {

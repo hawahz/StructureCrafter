@@ -84,7 +84,7 @@ public abstract class BaseScreen extends Screen {
         Matrix3x2fStack poseStack = guiGraphics.pose();
 
         renderMenuBackground(guiGraphics);
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+//        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         renderWindowPre(guiGraphics, mouseX, mouseY, partialTick);
 
         poseStack.pushMatrix();
@@ -139,8 +139,8 @@ public abstract class BaseScreen extends Screen {
                 texture,
                 x,
                 y,
-                u/256F,
-                v/256F,
+                u,
+                v,
                 width,
                 height,
                 256,
@@ -157,11 +157,11 @@ public abstract class BaseScreen extends Screen {
                      int v,
                      int width,
                      int height,
-                     float r,
-                     float g,
-                     float b,
-                     float a) {
-        blit(guiGraphics, texture, x, y, u, v, width, height, (int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
+                     float rf,
+                     float gf,
+                     float bf,
+                     float af) {
+        blit(guiGraphics, texture, x, y, u, v, width, height, (int) (rf * 255), (int) (gf * 255), (int) (bf * 255), (int) (af * 255));
     }
 
     public static void blit(GuiGraphics guiGraphics,
@@ -172,7 +172,7 @@ public abstract class BaseScreen extends Screen {
                      int v,
                      int width,
                      int height) {
-        blit(guiGraphics, texture, x, y, u, v, width, height, 1, 1, 1, 1);
+        blit(guiGraphics, texture, x, y, u, v, width, height, 1f, 1, 1, 1);
     }
 
     public static void blit(GuiGraphics guiGraphics,

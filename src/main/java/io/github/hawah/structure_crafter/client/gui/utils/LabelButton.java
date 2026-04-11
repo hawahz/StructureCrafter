@@ -24,6 +24,10 @@ public class LabelButton extends Button {
                         0xBCBCBC :
                         0x00CF68 :
                 0xFFFFFF;
-        this.renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+        this.renderScrollingStringOverContents(
+                guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE),
+                this.getMessage().copy().withColor(i),
+                2
+        );
     }
 }

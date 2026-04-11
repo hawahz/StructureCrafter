@@ -11,7 +11,10 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -37,8 +40,8 @@ import java.util.*;
 @ParametersAreNonnullByDefault
 @EventBusSubscriber
 public class TelephoneHandset extends Item implements ITooltipItem{
-    public TelephoneHandset() {
-        super(new Properties().stacksTo(1));
+    public TelephoneHandset(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     public static void clientTick() {

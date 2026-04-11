@@ -11,6 +11,9 @@ import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -29,8 +32,8 @@ import java.util.concurrent.CompletableFuture;
 
 @ParametersAreNonnullByDefault
 public class MaterialList extends Item {
-    public MaterialList() {
-        super(new Properties().component(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY));
+    public MaterialList(Properties properties) {
+        super(properties.component(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY));
     }
 
     @Override

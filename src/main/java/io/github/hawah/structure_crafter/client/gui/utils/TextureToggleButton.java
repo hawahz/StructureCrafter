@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import org.joml.Matrix3x2fStack;
 
 import java.util.List;
@@ -155,7 +156,10 @@ public class TextureToggleButton extends AbstractWidget {
                                 originStartY),
                 this.getWidth(),
                 this.getHeight(),
-                0xFFFFFF << 4 | (int) (this.alpha*255)
+                1,
+                1,
+                1,
+                this.alpha
         );
 
         if (this.getMessage().getString().isEmpty() || !this.isHovered())
@@ -167,7 +171,7 @@ public class TextureToggleButton extends AbstractWidget {
         pose.translate(mouseX, mouseY);
         guiGraphics.renderTooltip(
                 Minecraft.getInstance().font,
-                List.of((ClientTooltipComponent) (isToggled()?this.messageToggled: this.getMessage())),
+                List.of(ClientTooltipComponent.create(FormattedCharSequence.forward(this.getMessage().getString(), this.getMessage().getStyle()))),
                 mouseX,
                 mouseY,
                 DefaultTooltipPositioner.INSTANCE,

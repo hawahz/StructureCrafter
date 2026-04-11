@@ -60,9 +60,6 @@ public class TelephoneBlockEntity extends BlockEntity {
     private boolean hasTelephone = true;
     private boolean dirty = true;
 
-    @OnlyIn(Dist.CLIENT)
-    public boolean playerLookingAt = false;
-
     public void setDirty() {
         dirty = true;
     }
