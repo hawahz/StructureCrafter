@@ -2,7 +2,8 @@ package io.github.hawah.structure_crafter.block.blockentity;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
-import io.github.hawah.structure_crafter.networking.TelephoneBlockEntityBeaconChangedPacket;
+import io.github.hawah.structure_crafter.networking.telephone.ClientboundTelephoneBlockEntityTelephoneChangedPacket;
+import io.github.hawah.structure_crafter.networking.telephone.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -49,13 +50,17 @@ public class TelephoneBlockEntity extends BlockEntity {
     public void setHasTelephone(boolean hasTelephone) {
         this.hasTelephone = hasTelephone;
         setChanged();
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        Networking.sendToAll(new ClientboundTelephoneBlockEntityTelephoneChangedPacket(worldPosition, level.dimensionTypeRegistration(), hasTelephone));
     }
 
     public boolean hasTelephone() {
         return hasTelephone;
     }
 
-    private boolean hasTelephone = true;
+    public boolean hasTelephone = true;
     private boolean dirty = true;
 
     public void setDirty() {
@@ -230,7 +235,7 @@ public class TelephoneBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        hasTelephone = tag.getBoolean("hasTelephone");
+        setHasTelephone(tag.getBoolean("hasTelephone"));
         hasBeacon = tag.getBoolean("hasBeacon");
         if (hasTelephone() && level != null && level.isClientSide()) {
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(worldPosition);

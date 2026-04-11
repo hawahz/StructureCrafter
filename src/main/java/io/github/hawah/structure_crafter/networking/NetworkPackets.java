@@ -2,6 +2,8 @@ package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.structure_sync.*;
+import io.github.hawah.structure_crafter.networking.telephone.ClientboundTelephoneBlockEntityTelephoneChangedPacket;
+import io.github.hawah.structure_crafter.networking.telephone.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.BasePacketPayload;
 import io.github.hawah.structure_crafter.networking.utils.PacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,6 +29,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     SERVER_RECEIVE_STRUCTURE_DATA(ServerboundReceiveStructureDataPacket.class, ServerboundReceiveStructureDataPacket.STREAM_CODEC),
     CLIENT_UPLOAD_STRUCTURE_TO_SERVER(ClientboundUploadStructureToServerPacket.class, ClientboundUploadStructureToServerPacket.STREAM_CODEC),
     SERVER_RECEIVE_SPLIT_STRUCTURE_DATA(ServerboundReceiveSplitStructureDataPacket.class, ServerboundReceiveSplitStructureDataPacket.STREAM_CODEC),
+    CLIENT_TELEPHONE_CHANGED(ClientboundTelephoneBlockEntityTelephoneChangedPacket.class, ClientboundTelephoneBlockEntityTelephoneChangedPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

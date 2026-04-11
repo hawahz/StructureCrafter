@@ -1,7 +1,7 @@
-package io.github.hawah.structure_crafter.networking;
+package io.github.hawah.structure_crafter.networking.telephone;
 
-import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
+import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.player.LocalPlayer;
