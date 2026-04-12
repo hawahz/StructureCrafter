@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.block;
 
 import com.mojang.serialization.MapCodec;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
@@ -201,10 +202,10 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         ItemStack telephoneHandset = ItemRegistries.TELEPHONE_HANDSET.toStack();
         telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
         player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
-        if (level.isClientSide()){
+        if (level.isClientSide() && Config.ClientConfig.RENDER_TELEPHONE_BOOST_POSITION.get()){
             Outliner.getInstance().chaseBox(new Object(), pos, pos)
                     .setRGBA(0, 1, 0, 1)
-                    .lazyDiscard(50)
+                    .lazyDiscard(20)
                     .finish();
         }
     }

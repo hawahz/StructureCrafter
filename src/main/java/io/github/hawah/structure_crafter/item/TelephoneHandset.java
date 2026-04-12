@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
@@ -43,7 +44,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
 
     public static void clientTick() {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
+        if (player == null || !Config.ClientConfig.RENDER_TELEPHONE_BOOST_POSITION.get()) {
             return;
         }
         TelephoneHandsetComponent handset;

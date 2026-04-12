@@ -134,6 +134,7 @@ public enum LangData {
     CONFIGURATION_STRUCTURE_PLACE_MODE("configuration.structure_place_mode","NBT Placement Mode",0),
     CONFIGURATION_STRUCTURE_PLACE_MODE_TOOLTIP("configuration.structure_place_mode.tooltip","Defines how NBT data is handled when placing blocks: ALL applies NBT to all blocks; IGNORE_NBT ignores all NBT data (may break structures); BLACKLIST ignores NBT only for blocks in the blacklist.",0),
     CONFIGURATION_STRUCTURE_BLACKLIST("configuration.structure_blacklist","NBT Ignore List",0),
+    CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION("configuration.render_telephone_boost_position","Render Telephone Boost Position",0),
 
     CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
 

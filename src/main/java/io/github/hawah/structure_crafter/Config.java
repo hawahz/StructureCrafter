@@ -19,6 +19,7 @@ public class Config {
 
         public static final ModConfigSpec.EnumValue<BlackboardRenderType> BLACKBOARD_ANIMATION_TYPE;
         public static final ModConfigSpec.BooleanValue RENDER_LOW_COST;
+        public static final ModConfigSpec.BooleanValue RENDER_TELEPHONE_BOOST_POSITION;
 
         static {
             ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -32,6 +33,11 @@ public class Config {
                     .comment(LangData.CONFIGURATION_RENDER_LOW_COST.def)
                     .translation(LangData.CONFIGURATION_RENDER_LOW_COST.key)
                     .define("render_low_cost", false);
+
+            RENDER_TELEPHONE_BOOST_POSITION = builder
+                    .comment(LangData.CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION.def)
+                    .translation(LangData.CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION.key)
+                    .define("render_telephone_boost_position", true);
 
             SPEC = builder.build();
         }

@@ -137,6 +137,7 @@ public class Outliner {
 
     public void clear() {
         outlines.clear();
+        overOutlines.clear();
     }
 
     public void updateOutlinePosition(Object slot, Vec3 p0, Vec3 p1) {

@@ -43,6 +43,7 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.List;
 
@@ -227,6 +228,18 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void loadCompleted(FMLLoadCompleteEvent event) {
+//        ModContainer modContainer = ModList.get()
+//                .getModContainerById(StructureCrafter.MODID)
+//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
+//
+//        Supplier<IConfigScreenFactory> configScreen = () ->
+//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
+//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+    }
+
+    @SubscribeEvent
+    public static void exitWorld(LevelEvent.Unload event) {
+        Outliner.getInstance().clear();
 //        ModContainer modContainer = ModList.get()
 //                .getModContainerById(StructureCrafter.MODID)
 //                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
