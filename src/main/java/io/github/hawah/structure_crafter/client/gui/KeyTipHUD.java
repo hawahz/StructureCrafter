@@ -39,7 +39,7 @@ public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
             if (!bindedKey.canDisplay()) {
                 continue;
             }
-            for (KeyBinding.KeyNode key : bindedKey.keys) {
+            for (KeyBinding.KeyNode key : bindedKey.flipedKeys) {
                 if (key.isActive() && !key.isEnd()) {
                     continue;
                 }

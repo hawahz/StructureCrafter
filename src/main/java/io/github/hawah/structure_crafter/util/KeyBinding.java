@@ -29,9 +29,14 @@ public enum KeyBinding {
     ;
     private final List<Action> actions = new ArrayList<>();
     public final KeyNode[] keys;
+    public final KeyNode[] flipedKeys;
 
     KeyBinding(KeyNode... keys) {
         this.keys = keys;
+        flipedKeys = new KeyNode[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            flipedKeys[i] = keys[keys.length - i - 1];
+        }
     }
     public void bind(Action action) {
         actions.add(action);
@@ -51,6 +56,7 @@ public enum KeyBinding {
         return false;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isActive() {
         for (KeyNode key : keys) {
             if (!key.pressed) {
@@ -135,7 +141,7 @@ public enum KeyBinding {
         }
 
         public static Action of(Supplier<Boolean> validateDetect, Runnable action, Component description, Runnable onRelease) {
-            return new Action(validateDetect, action, description);
+            return new Action(validateDetect, action, description, onRelease);
         }
 
         public static Action of(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description) {
@@ -226,10 +232,7 @@ public enum KeyBinding {
             KeyBuffer.scroll = scroll;
         }
 
-        public List<KeyNode> getValidNext() {
-            return validNext.get();
-        }
-
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public boolean isEnd() {
             return isEnd;
         }
