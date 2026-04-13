@@ -97,7 +97,6 @@ public class StructureRenderer {
      * @param buffer 多重缓冲区，接收不同类型的顶点数据
      */
     public void renderBuffer(PoseStack poseStack, MultiBufferSource buffer) {
-//        Tesselator.getInstance().begin()
         cachedRenderers.forEach(
                 (type, renderer) ->
                         renderer.render(poseStack, buffer.getBuffer(type), blockGetter)
