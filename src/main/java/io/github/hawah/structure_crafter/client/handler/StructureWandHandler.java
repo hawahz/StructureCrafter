@@ -96,12 +96,18 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 () -> lock = !lock && selectedPos != null,
                 LangData.HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK.get()
         ));
-//        KeyBinding.ALT_S.bind(KeyBinding.Action.of(
-//                () -> active,
-//                () -> {
-//
-//                }
-//        ));
+        KeyBinding.ALT_S.bind(KeyBinding.Action.of(
+                () -> active,
+                () -> {
+
+                },
+                LangData.HUD_TIP_STRUCTURE_WAND_SWITCH.get()
+        ));
+        KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
+                () -> active,
+                () -> { },
+                LangData.HUD_TIP_STRUCTURE_WAND_ROTATE.get()
+        ));
     }
 
     public void setDirty(boolean dirty) {
@@ -179,6 +185,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             oPlayerDirection = playerDirection==null? player.getDirection() : playerDirection;
             playerDirection = playerDirection==null? player.getDirection() : playerDirection;
         }
+        //noinspection StatementWithEmptyBody
         if (lock) {
 
         } else if (rotated > 0) {

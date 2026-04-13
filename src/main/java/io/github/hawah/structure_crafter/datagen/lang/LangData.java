@@ -88,6 +88,8 @@ public enum LangData {
     HUD_TIP_BLACKBOARD_CHANGE_DISTANCE("hud.blackboard_change_distance","Change Reach Distance", 0),
     HUD_TIP_BLACKBOARD_SELECT_OPPOSITE_FACE("hud.blackboard_select_opposite_face","Select Opposite Face", 0),
     HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE("hud.blackboard_push_or_pull_face","Push/Pull Face", 0),
+    HUD_TIP_STRUCTURE_WAND_SWITCH("hud.structure_wand_switch","Switch Structure", 0),
+    HUD_TIP_STRUCTURE_WAND_ROTATE("hud.structure_wand_rotate","Rotate Structure", 0),
 
     HUD_TIP_STRUCTURE_WAND_PLACE("hud.structure_wand_place","Place Structure", 0),
     HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG("hud.structure_wand_open_config","Open Settings", 0),
