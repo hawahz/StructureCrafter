@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client.render;
+package io.github.hawah.structure_crafter.client.render.structure;
 
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -19,12 +19,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
@@ -49,8 +51,11 @@ import java.util.Map;
 public class StructureBlockGetter extends Level implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blockMap = new HashMap<>();
     private final Level realLevel;
+    private final BoundingBox bounds;
+    private BlockPos offset = BlockPos.ZERO;
+    private Rotation rotation = Rotation.NONE;
 
-    public StructureBlockGetter(StructureTemplate template, BlockPos origin, Level realLevel) {
+    public StructureBlockGetter(StructureTemplate template, Level realLevel) {
         super(
                 (WritableLevelData) realLevel.getLevelData(),
                 realLevel.dimension(),
@@ -65,9 +70,21 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         this.realLevel = realLevel;
         // 初始化时把结构里的方块全存入 Map，方便快速查找
         var blockInfos = ((StructureTemplateAccessor) template).getPalettes().getFirst().blocks();
+        bounds = new BoundingBox(blockInfos.getFirst().pos());
         for (var info : blockInfos) {
-            blockMap.put(origin.offset(info.pos()), info.state());
+            blockMap.put(info.pos(), info.state());
+            //noinspection deprecation
+            bounds.encapsulate(info.pos());
         }
+    }
+
+    public void setOffset(BlockPos offset) {
+        this.offset = offset;
+        // get -> pos.sub(offset)
+    }
+
+    public BoundingBox getBounds() {
+        return bounds;
     }
 
     @Override
@@ -205,7 +222,7 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
             return 15;
         }
 
-        return realLevel.getBrightness(lightLayer, p_45555_);
+        return realLevel.getBrightness(lightLayer, p_45555_.rotate(rotation).offset(offset));
     }
     @Override public int getRawBrightness(BlockPos p_45558_, int p_45559_) { return realLevel.getRawBrightness(p_45558_, p_45559_); }
     @Override public int getHeight() { return realLevel.getHeight(); }
@@ -243,5 +260,9 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
     @Override
     public List<? extends Player> players() {
         return List.of();
+    }
+
+    public void setRot(Rotation rotation) {
+        this.rotation = rotation;
     }
 }
