@@ -6,7 +6,7 @@ import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
-import io.github.hawah.structure_crafter.client.render.StructureRenderer;
+import io.github.hawah.structure_crafter.client.render.structure.StructureRenderer;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -139,6 +139,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             }
             this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
             setupRenderer();
+            structureRenderer.setDirty();
             String currentFile = hud.getCurrentStructure();
             if (!currentFile.isEmpty()) {
                 lock = false;
@@ -298,6 +299,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private void setupRenderer() {
         Level clientWorld = Minecraft.getInstance().level;
         structureData = StructureHandler.loadSchematic(clientWorld, activeSchematicItem);
+
 //        hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
     }
 
@@ -314,8 +316,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 buffer,
                 camera,
                 structureData.structureTemplate(),
-                selectedPos.subtract(structureData.center().rotate(transferDirectionToRotation(playerDirection))),
-                oSelectedPos.subtract(structureData.center().rotate(transferDirectionToRotation(oPlayerDirection))),
+                selectedPos,
+                oSelectedPos,
+                structureData.center(),
                 playerDirection,
                 oPlayerDirection,
                 Minecraft.getInstance().level
