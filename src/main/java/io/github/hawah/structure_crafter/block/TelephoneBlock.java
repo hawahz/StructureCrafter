@@ -203,7 +203,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
         telephoneHandset.set(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, new TelephoneHandsetComponent(pos, level.dimension()));
         player.setItemInHand(InteractionHand.MAIN_HAND, telephoneHandset);
         if (level.isClientSide() && Config.ClientConfig.RENDER_TELEPHONE_BOOST_POSITION.get()){
-            Outliner.getInstance().chaseBox(new Object(), pos, pos)
+            Outliner.getInstance().chaseBox(new Object(), pos, pos, true)
                     .setRGBA(0, 1, 0, 1)
                     .lazyDiscard(20)
                     .finish();

@@ -60,34 +60,10 @@ public class ClientEvents {
         Vec3 cameraPos = camera.getPosition();
         DeltaTracker partialTick = StructureCrafterClient.TIMER_NORMAL.warp(event.getPartialTick());
         MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
-        if (Outliner.hasInstance()) {
-            Outliner.getInstance().render(
-                    poseStack,
-                    bufferSource.getBuffer(RenderType.debugQuads()),
-                    cameraPos,
-                    partialTick
-            );
-        }
-        StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(
-                poseStack,
-                bufferSource,
-                cameraPos
-        );
-        //bufferSource.endBatch();
 
-        Outliner.getInstance().renderOverlay(
-                poseStack,
-                bufferSource.getBuffer(OverRenderType.OVERLAY_LINES),
-                cameraPos,
-                partialTick
-        );
-        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(
-                poseStack,
-                bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())),
-                cameraPos,
-                0.2F,
-                partialTick.getGameTimeDeltaPartialTick(true)
-        );
+        Outliner.renderInto(poseStack, bufferSource, cameraPos, partialTick);
+        StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(poseStack, bufferSource, cameraPos);
+        StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(poseStack, bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())), cameraPos, 0.2F, partialTick.getGameTimeDeltaPartialTick(true));
 
         bufferSource.endBatch();
     }
@@ -110,7 +86,6 @@ public class ClientEvents {
         Screen screen = event.getScreen();
         if (screen instanceof AbstractContainerScreen<?> containerScreen) {
             ItemStack hoveredItem = containerScreen.getSlotUnderMouse() != null? containerScreen.getSlotUnderMouse().getItem(): null;
-            ItemStack carried = containerScreen.getMenu().getCarried();
             boolean cancelInteract = (hoveredItem != null &&
                     button >= 0 && button <= 2 &&
                     hoveredItem.is(ItemRegistries.TELEPHONE_HANDSET) &&
@@ -118,13 +93,6 @@ public class ClientEvents {
             );
             if (cancelInteract) {
                 event.setCanceled(true);
-            } else if (carried.is(ItemRegistries.TELEPHONE_HANDSET) && hoveredItem == null) {
-//                Networking.sendToServer(new PlayerInventoryRemoveItemPacket(carried.copy()));
-//                TelephoneHandsetComponent telephoneHandsetComponent = carried.getOrDefault(DataComponentTypeRegistries.TELEPHONE_HANDSET_SOURCE, TelephoneHandsetComponent.EMPTY);
-//                Networking.sendToServer(new ServerboundTelephoneChanged(telephoneHandsetComponent));
-//                StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(telephoneHandsetComponent.pos());
-//                carried.shrink(1);
-
             }
         }
 
@@ -141,20 +109,11 @@ public class ClientEvents {
         }
     }
 
-    private static ItemStack hoveredItem = ItemStack.EMPTY;
     @SubscribeEvent
     public static void onContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
-        AbstractContainerScreen<?> containerScreen = event.getContainerScreen();
-        Slot slotUnderMouse = containerScreen.getSlotUnderMouse();
-        if (slotUnderMouse == null)
-            return;
-        hoveredItem = slotUnderMouse.getItem();
     }
     @SubscribeEvent
     public static void onMouseScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
-//        if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.data.onMouseScroll(event.getScrollDeltaY())) {
-//            event.setCanceled(true);
-//        }
     }
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
@@ -166,9 +125,6 @@ public class ClientEvents {
         if (KeyBinding.KeyBuffer.onMouseScrolled(delta)){
             event.setCanceled(true);
         }
-//        if (StructureCrafterClient.BLACKBOARD_HANDLER.onMouseScroll(delta)) {
-//            event.setCanceled(true);
-//        }
         if (StructureCrafterClient.STRUCTURE_WAND_HANDLER.onMouseScroll(delta)) {
             event.setCanceled(true);
         }

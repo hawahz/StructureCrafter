@@ -68,7 +68,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
                     .finish();
         }
         slot = pos;
-        Outliner.getInstance().chaseBox(pos, pos, pos)
+        Outliner.getInstance().chaseBox(pos, pos, pos, true)
                 .setRGBA(0, 1, 0, 1)
                 .finish();
     }

@@ -3,7 +3,10 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -30,70 +33,104 @@ public class Outliner {
         return INSTANCE;
     }
 
-    public OutlineElement<?> thickBox(Object slot) {
-        if (outlines.containsKey(slot)) {
-            OutlineElement<?> outlineElement = outlines.get(slot);
-            if (!(outlineElement instanceof ThickOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
-            }
-            return outlineElement;
+    public static void renderInto(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
+        if (INSTANCE == null) {
+            return;
         }
-        //        outlines.put(slot, outline);
-        return new ThickOutline();
+        INSTANCE.render(poseStack, bufferSource, cameraPos, partialTick);
+        INSTANCE.renderOverlay(poseStack, bufferSource, cameraPos, partialTick);
+    }
+
+    public OutlineElement<?> thickBox(Object slot) {
+        var slotHolder = outlines.containsKey(slot)?
+                outlines :
+                overOutlines.containsKey(slot)?
+                        overOutlines :
+                        null;
+        if (slotHolder == null) {
+            return new ThickOutline();
+        }
+        OutlineElement<?> outlineElement = slotHolder.get(slot);
+        if (!(outlineElement instanceof ThickOutline)) {
+            StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
+        }
+        return outlineElement;
     }
 
     public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
-        if (outlines.containsKey(slot)) {
-            OutlineElement<?> outline = outlines.get(slot);
+        return chaseThickBox(slot, first, second, false);
+    }
+
+    public OutlineElement<?> chaseThickBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second, boolean overlay) {
+        var slotHolder = overlay? overOutlines: outlines;
+        if (slotHolder.containsKey(slot)) {
+            OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof ThickOutline)) {
                 StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
             }
-            return getOutlineElement(first, second, outline);
+            return mulPose(first, second, outline);
         }
         ThickOutline outline = new ThickOutline();
-        outlines.put(slot, getOutlineElement(first, second, outline));
+        slotHolder.put(slot, mulPose(first, second, outline));
         return outline;
     }
 
-    public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
         outlines.forEach((object, outlineElement) ->
-                outlineElement.render(poseStack, buffer, cameraPos, partialTick)
+                outlineElement.render(poseStack, bufferSource.getBuffer(
+                        outlineElement instanceof ThickOutline?
+                                RenderType.debugQuads():
+                                RenderType.lines()
+                ), cameraPos, partialTick)
         );
     }
 
-    public void renderOverlay(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+    public void renderOverlay(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 cameraPos, DeltaTracker partialTick) {
         overOutlines.forEach((object, outlineElement) ->
-                outlineElement.render(poseStack, buffer, cameraPos, partialTick)
+                outlineElement.render(poseStack, bufferSource.getBuffer(
+                        outlineElement instanceof ThickOutline?
+                                OverRenderType.OVERLAY_QUADS :
+                                OverRenderType.OVERLAY_LINES
+                ), cameraPos, partialTick)
         );
     }
 
     public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second) {
-        if (overOutlines.containsKey(slot)) {
-            OutlineElement<?> outline = overOutlines.get(slot);
+        return chaseBox(slot, first, second, false);
+    }
+
+    public OutlineElement<?> chaseBox(Object slot, @NonNull BlockPos first, @NonNull BlockPos second, boolean overlay) {
+        var slotHolder = overlay? overOutlines: outlines;
+        if (slotHolder.containsKey(slot)) {
+            OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof FineOutline)) {
                 StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at chaseBox()");
             }
-            return getOutlineElement(first, second, outline);
+            return mulPose(first, second, outline);
         }
         FineOutline outline = new FineOutline();
-        overOutlines.put(slot, getOutlineElement(first, second, outline));
+        slotHolder.put(slot, mulPose(first, second, outline));
         return outline;
     }
 
     public OutlineElement<?> box(Object slot) {
-        if (overOutlines.containsKey(slot)) {
-            OutlineElement<?> outlineElement = overOutlines.get(slot);
-            if (!(outlineElement instanceof FineOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at box()");
-            }
-            return outlineElement;
+        var slotHolder = outlines.containsKey(slot)?
+                outlines :
+                overOutlines.containsKey(slot)?
+                        overOutlines :
+                        null;
+        if (slotHolder == null) {
+            return new FineOutline();
         }
-        //        outlines.put(slot, outline);
-        return new FineOutline();
+        OutlineElement<?> outlineElement = slotHolder.get(slot);
+        if (!(outlineElement instanceof FineOutline)) {
+            StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at box()");
+        }
+        return outlineElement;
     }
 
     @NotNull
-    private OutlineElement<?> getOutlineElement(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
+    private OutlineElement<?> mulPose(@NonNull BlockPos first, @NonNull BlockPos second, OutlineElement<?> outline) {
         outline.setPositions(
                 new Vec3(
                         Math.min(first.getX(), second.getX()),
