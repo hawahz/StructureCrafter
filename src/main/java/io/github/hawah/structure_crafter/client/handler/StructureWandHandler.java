@@ -94,7 +94,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 () -> active,
                 () -> lock = !lock && selectedPos != null,
-                LangData.HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK.get()
+                () -> lock?
+                        LangData.HUD_TIP_STRUCTURE_WAND_UNLOCK.get() :
+                        LangData.HUD_TIP_STRUCTURE_WAND_LOCK.get()
         ));
         KeyBinding.ALT_S.bind(KeyBinding.Action.of(
                 () -> active,
@@ -107,6 +109,19 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 () -> active,
                 () -> { },
                 LangData.HUD_TIP_STRUCTURE_WAND_ROTATE.get()
+        ));
+        KeyBinding.SHIFT_S.bind(KeyBinding.Action.of(
+                () -> active && lock,
+                () -> {
+                    LocalPlayer player;
+                    if ((player = Minecraft.getInstance().player) == null)
+                        return;
+                    player.getDirection();
+                    int intDelta = KeyBinding.KeyBuffer.getIntDelta();
+                    oSelectedPos = selectedPos;
+                    selectedPos = selectedPos.offset(player.getNearestViewDirection().getNormal().multiply(intDelta));
+                },
+                LangData.HUD_TIP_STRUCTURE_WAND_MOVE_LOCK.get()
         ));
     }
 
@@ -148,7 +163,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             structureRenderer.setDirty();
             String currentFile = hud.getCurrentStructure();
             if (!currentFile.isEmpty()) {
-                lock = false;
+                //lock = false;
                 AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
                 AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
                 Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
@@ -161,7 +176,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 player,
                 player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.CommonConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
-        if (!rotateLock) {
+        if (!rotateLock && !lock) {
             rawDirection = player.getDirection();
         }
         if (trace.getType() == HitResult.Type.BLOCK && !lock) {
@@ -182,13 +197,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             selectedPos = null;
         } else {
             oSelectedPos = selectedPos==null? oSelectedPos : selectedPos;
-            oPlayerDirection = playerDirection==null? player.getDirection() : playerDirection;
-            playerDirection = playerDirection==null? player.getDirection() : playerDirection;
+//            oPlayerDirection = playerDirection==null? player.getDirection() : playerDirection;
+//            playerDirection = playerDirection==null? player.getDirection() : playerDirection;
+            oPlayerDirection = playerDirection==null?
+                    player.getDirection() :
+                    playerDirection;
+            playerDirection = rawDirection;
         }
-        //noinspection StatementWithEmptyBody
-        if (lock) {
-
-        } else if (rotated > 0) {
+        if (rotated > 0) {
             for (int i = 0; i < Math.abs(rotated); i++) {
                 playerDirection = playerDirection.getClockWise();
             }
@@ -292,9 +308,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
         if (Screen.hasControlDown()) {
-            if (lock) {
-                return true;
-            }
+//            if (lock) {
+//                return true;
+//            }
             int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
             rotated = rotated + intDelta;
             rotated %= 4;
