@@ -245,7 +245,7 @@ public class StructureRenderer {
         poseStack.mulPose(Axis.YN.rotationDegrees(degree));
         poseStack.translate(
                 -center.getX()- 0.5,
-                 0,
+                 -center.getY(),
                 -center.getZ()- 0.5
         );
     }
