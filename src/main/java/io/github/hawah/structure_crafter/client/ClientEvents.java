@@ -6,12 +6,11 @@ import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
-import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
-import io.github.hawah.structure_crafter.client.render.ruler.Ruler;
+import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -30,7 +29,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -65,7 +63,7 @@ public class ClientEvents {
         Outliner.renderInto(poseStack, bufferSource, cameraPos, partialTick);
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(poseStack, bufferSource, cameraPos);
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(poseStack, bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())), cameraPos, 0.2F, partialTick.getGameTimeDeltaPartialTick(true));
-        Ruler.getInstance().render(poseStack, bufferSource, cameraPos, partialTick);
+        RulerMaker.getInstance().render(poseStack, bufferSource, cameraPos, partialTick);
         bufferSource.endBatch();
     }
 
@@ -82,7 +80,7 @@ public class ClientEvents {
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
         TelephoneHandset.clientTick();
         ClientDataHolder.tick();
-        Ruler.tick();
+        RulerMaker.tick();
     }
 
     @SubscribeEvent

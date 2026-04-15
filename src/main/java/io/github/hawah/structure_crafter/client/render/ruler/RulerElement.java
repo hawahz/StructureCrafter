@@ -13,6 +13,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class RulerElement<T extends RulerElement<T>> extends DoublePointElement<T> {
 
     protected boolean isManhattan = true;
@@ -60,66 +63,103 @@ public abstract class RulerElement<T extends RulerElement<T>> extends DoublePoin
         Vec3 start = oPos0.lerp(visualPos0, delta);
         Vec3 end = oPos1.lerp(visualPos1, delta);
 
-        // === 1️⃣ 构造固定路径：X → Y → Z ===
-        Vec3 p0 = start;
-        Vec3 p1 = new Vec3(end.x, start.y, start.z);     // 走 X
-        Vec3 p2 = new Vec3(end.x, end.y, start.z);       // 走 Y
-        Vec3 p3 = end;                                   // 走 Z
+        double lenX = Math.abs(end.x - start.x);
+        double lenY = Math.abs(end.y - start.y);
+        double lenZ = Math.abs(end.z - start.z);
 
-        float x0 = (float)(p0.x - cameraPos.x);
-        float y0 = (float)(p0.y - cameraPos.y);
-        float z0 = (float)(p0.z - cameraPos.z);
+        // === 1️⃣ 计算 delta ===
+        double dx = end.x - start.x;
+        double dy = end.y - start.y;
+        double dz = end.z - start.z;
 
-        float x1 = (float)(p1.x - cameraPos.x);
-        float y1 = (float)(p1.y - cameraPos.y);
-        float z1 = (float)(p1.z - cameraPos.z);
+        // === 2️⃣ 按轴长度排序（长轴优先） ===
+        List<Integer> axes = new ArrayList<>();
+        axes.add(0); // X
+        axes.add(1); // Y
+        axes.add(2); // Z
 
-        float x2 = (float)(p2.x - cameraPos.x);
-        float y2 = (float)(p2.y - cameraPos.y);
-        float z2 = (float)(p2.z - cameraPos.z);
+        axes.sort((a, b) -> {
+            double da = (a == 0 ? Math.abs(dx) : a == 1 ? Math.abs(dy) : Math.abs(dz));
+            double db = (b == 0 ? Math.abs(dx) : b == 1 ? Math.abs(dy) : Math.abs(dz));
+            return Double.compare(da, db); // 大的在前
+        });
 
-        float x3 = (float)(p3.x - cameraPos.x);
-        float y3 = (float)(p3.y - cameraPos.y);
-        float z3 = (float)(p3.z - cameraPos.z);
+        // === 3️⃣ 构造路径点（逐轴逼近 end） ===
+        Vec3[] points = new Vec3[4];
+        points[0] = start;
 
-        // === 3️⃣ 渲染三段（建议三轴不同颜色） ===
+        double cx = start.x;
+        double cy = start.y;
+        double cz = start.z;
 
-        // X 轴（红）
-        renderEdge(mat, buffer, x0, y0, z0, x1, y1, z1, cr, cg, cb, ca);
+        for (int i = 0; i < 3; i++) {
+            int axis = axes.get(i);
 
-        // Y 轴（绿）
-        renderEdge(mat, buffer, x1, y1, z1, x2, y2, z2, cr, cg, cb, ca);
+            if (axis == 0) cx = end.x;
+            else if (axis == 1) cy = end.y;
+            else cz = end.z;
 
-        // Z 轴（蓝）
-        renderEdge(mat, buffer, x2, y2, z2, x3, y3, z3, cr, cg, cb, ca);
+            points[i + 1] = new Vec3(cx, cy, cz);
+        }
+
+        // === 4️⃣ 转换到相机坐标 ===
+        float[][] v = new float[4][3];
+        for (int i = 0; i < 4; i++) {
+            v[i][0] = (float)(points[i].x - cameraPos.x);
+            v[i][1] = (float)(points[i].y - cameraPos.y);
+            v[i][2] = (float)(points[i].z - cameraPos.z);
+        }
+
+        // === 5️⃣ 渲染三段（按轴自动上色） ===
+        for (int i = 0; i < 3; i++) {
+            renderEdge(
+                    mat, buffer,
+                    v[i][0], v[i][1], v[i][2],
+                    v[i+1][0], v[i+1][1], v[i+1][2],
+                    cr, cg, cb, ca
+            );
+        }
 
         // === 4️⃣ （可选）计算每段中点（用于文字） ===
-        Vec3 midX = p0.add(p1).scale(0.5);
-        Vec3 midY = p1.add(p2).scale(0.5);
-        Vec3 midZ = p2.add(p3).scale(0.5);
+        // === 4️⃣ 计算每段中点（适配长轴优先） ===
+        Vec3 midX = null, midY = null, midZ = null;
+
+        for (int i = 0; i < 3; i++) {
+            Vec3 mid = points[i].add(points[i + 1]).scale(0.5);
+            int axis = axes.get(i);
+
+            if (axis == 0) midX = mid;
+            else if (axis == 1) midY = mid;
+            else midZ = mid;
+        }
 
         // === 5️⃣ （可选）长度 ===
-        double dx = Math.abs(end.x - start.x);
-        double dy = Math.abs(end.y - start.y);
-        double dz = Math.abs(end.z - start.z);
+
 
         poseStack.pushPose();
 
         Minecraft mc = Minecraft.getInstance();
-        if (dx > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(dx * 100) / 100.0), mc, cameraPos, midX, 0);
+        if (lenX > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(lenX * 100) / 100.0), mc, cameraPos, midX, 0,
+                    (int) cr*255,
+                    (int) cg*255,
+                    (int) cb*255,
+                    (int) ca*255);
         }
-        if (dy > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(dy * 100) / 100.0), mc, cameraPos, midY, 1);
+        if (lenY > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(lenY * 100) / 100.0), mc, cameraPos, midY, 1,
+                    (int) cr*255,
+                    (int) cg*255,
+                    (int) cb*255,
+                    (int) ca*255);
         }
-        if (dz > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(dz * 100) / 100.0), mc, cameraPos, midZ, 2);
+        if (lenZ > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(lenZ * 100) / 100.0), mc, cameraPos, midZ, 2,
+                    (int) cr*255,
+                    (int) cg*255,
+                    (int) cb*255,
+                    (int) ca*255);
         }
-
-
-//        drawString(poseStack, String.valueOf(Math.round(dx * 100) / 100.0), mc, cameraPos, midX, 3);
-//        drawString(poseStack, String.valueOf(Math.round(dy * 100) / 100.0), mc, cameraPos, midY, 4);
-//        drawString(poseStack, String.valueOf(Math.round(dz * 100) / 100.0), mc, cameraPos, midZ, 5);
         poseStack.popPose();
 
         return;
@@ -131,7 +171,11 @@ public abstract class RulerElement<T extends RulerElement<T>> extends DoublePoin
                                    Minecraft mc,
                                    Vec3 cameraPos,
                                    Vec3 position,
-                                   int type) {
+                                   int type,
+                                   int r,
+                                   int g,
+                                   int b,
+                                   int a) {
         Camera mainCamera = Minecraft.getInstance().gameRenderer.getMainCamera();
         if (!mainCamera.isInitialized())
             return;
@@ -222,7 +266,7 @@ public abstract class RulerElement<T extends RulerElement<T>> extends DoublePoin
                 text,
                 f,
                 0.0F,
-                0xFFFFFF,
+                a << 24 | r << 16 | g << 8 | b,
                 false,
                 poseStack.last().pose(),
                 mc.renderBuffers().bufferSource(),

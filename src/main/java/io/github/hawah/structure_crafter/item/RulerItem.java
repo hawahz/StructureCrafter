@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.item;
 
-import io.github.hawah.structure_crafter.client.render.ruler.Ruler;
+import io.github.hawah.structure_crafter.client.StructureWandModifier;
+import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -17,7 +18,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class RulerItem extends Item {
+public class RulerItem extends Item implements IModifierItem{
     public RulerItem(Properties properties) {
         super(properties.stacksTo(1).component(DataComponentTypeRegistries.RULER_EDGE_MODE, false));
     }
@@ -31,9 +32,9 @@ public class RulerItem extends Item {
             return InteractionResult.PASS;
         BlockPos clickedPos = context.getClickedPos();
         if (first) {
-            Ruler.getInstance().chase(this, clickedPos, cachedPos);
+            RulerMaker.getInstance().chase(this, clickedPos, cachedPos);
         } else {
-            Ruler.getInstance().chase(this, cachedPos, clickedPos);
+            RulerMaker.getInstance().chase(this, cachedPos, clickedPos);
         }
         first = !first;
         cachedPos = clickedPos;
@@ -47,5 +48,10 @@ public class RulerItem extends Item {
                     !player.getItemInHand(usedHand).getOrDefault(DataComponentTypeRegistries.RULER_EDGE_MODE, false));
         }
         return super.use(level, player, usedHand);
+    }
+
+    @Override
+    public StructureWandModifier.Type getType() {
+        return StructureWandModifier.Type.RULER;
     }
 }

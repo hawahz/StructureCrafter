@@ -11,37 +11,44 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Ruler {
+public class RulerMaker {
     private final HashMap<Object, RulerElement<?>> rulers = new HashMap<>();
-    private static Ruler INSTANCE = null;
+    private static RulerMaker INSTANCE = null;
 
-    public Ruler() {
+    public RulerMaker() {
     }
 
-    public static Ruler getInstance() {
+    public static RulerMaker getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new Ruler();
+            INSTANCE = new RulerMaker();
         }
         return INSTANCE;
     }
 
     public RulerElement<?> chase(Object slot, BlockPos pos0, BlockPos pos1) {
 
-        boolean flagX = pos0.getX() <= pos1.getX();
-        boolean flagY = pos0.getY() <= pos1.getY();
-        boolean flagZ = pos0.getZ() <= pos1.getZ();
+        boolean flagX = pos0.getX() < pos1.getX();
+        boolean flagY = pos0.getY() < pos1.getY();
+        boolean flagZ = pos0.getZ() < pos1.getZ();
+        boolean flagXr = pos0.getX() > pos1.getX();
+        boolean flagYr = pos0.getY() > pos1.getY();
+        boolean flagZr = pos0.getZ() > pos1.getZ();
         float x0 = flagX ? pos0.getX() + 1 : pos0.getX();
-        float y0 = flagY ? pos0.getY() + 1 : pos0.getY();
+        float y0 = pos0.getY();//flagY ? pos0.getY() + 1 : pos0.getY();
         float z0 = flagZ ? pos0.getZ() + 1 : pos0.getZ();
-        float x1 = !flagX ? pos1.getX() + 1 : pos1.getX();
-        float y1 = !flagY ? pos1.getY() + 1 : pos1.getY();
-        float z1 = !flagZ ? pos1.getZ() + 1 : pos1.getZ();
+        float x1 = flagXr ? pos1.getX() + 1 : pos1.getX();
+        float y1 = pos1.getY();//flagYr ? pos1.getY() + 1 : pos1.getY();
+        float z1 = flagZr ? pos1.getZ() + 1 : pos1.getZ();
 
         return rulers.compute(slot, (object, outlineElement) ->
                 outlineElement == null?
                         new ThickRuler().createManhattan(new Vec3(x0, y0, z0), new Vec3(x1, y1, z1)):
                         outlineElement.setPositions(new Vec3(x0, y0, z0), new Vec3(x1, y1, z1))
         );
+    }
+
+    public RulerElement<?> chase(Object slot) {
+        return rulers.getOrDefault(slot, new ThickRuler());
     }
 
     public static boolean hasInstance() {

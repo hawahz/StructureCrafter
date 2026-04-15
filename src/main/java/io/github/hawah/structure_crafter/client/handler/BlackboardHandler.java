@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue", "SameParameterValue"})
-public class BlackboardHandler {
+public class BlackboardHandler implements IHandler{
 
     private Object outlineSlot = new Object();
     private Object centerSlot = new Object();
@@ -271,6 +271,7 @@ public class BlackboardHandler {
         }
     }
 
+    @Override
     public void tick() {
         if (!isVisible()) {
             Outliner.getInstance().thickBox(outlineSlot)
