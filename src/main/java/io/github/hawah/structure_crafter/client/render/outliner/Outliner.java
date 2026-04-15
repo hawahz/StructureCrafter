@@ -1,7 +1,6 @@
 package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import net.minecraft.client.DeltaTracker;
@@ -156,20 +155,20 @@ public class Outliner {
                 slotsToRemove.add(object);
             }
         });
-        List<Object> outlineSlotsToRemove = new ArrayList<>();
         INSTANCE.overOutlines.forEach((object, outlineElement) -> {
             outlineElement.tick();
             if (Math.abs(outlineElement.oa) < 0.01 && outlineElement.discarded) {
-                outlineSlotsToRemove.add(object);
+                slotsToRemove.add(object);
             }
         });
         slotsToRemove.forEach(object -> INSTANCE.clearSlot(object));
-        outlineSlotsToRemove.forEach(object -> INSTANCE.clearSlot(object));
     }
 
     public void clearSlot(Object slot) {
         outlines.computeIfPresent(slot, (object, outlineElement) -> outlineElement.discard());
         outlines.remove(slot);
+        overOutlines.computeIfPresent(slot, (object, outlineElement) -> outlineElement.discard());
+        overOutlines.remove(slot);
     }
 
     public void clear() {

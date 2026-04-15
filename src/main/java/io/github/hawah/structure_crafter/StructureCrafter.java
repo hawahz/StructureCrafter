@@ -48,6 +48,7 @@ public class StructureCrafter {
                                 output.accept(ItemRegistries.BLACKBOARD.get());
                                 output.accept(ItemRegistries.MATERIAL_LIST.get());
                                 output.accept(ItemRegistries.TELEPHONE_BLOCK_ITEM.get());
+                                output.accept(ItemRegistries.RULER_ITEM.get());
                             })
                             .build()
     );

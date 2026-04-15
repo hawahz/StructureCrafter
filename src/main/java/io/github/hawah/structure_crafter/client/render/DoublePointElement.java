@@ -11,9 +11,10 @@ public abstract class DoublePointElement<T extends DoublePointElement<T>> extend
     protected Vec3 visualPos1 = Vec3.ZERO;
     protected Vec3 actualPos1 = Vec3.ZERO;
 
-    public void setPositions(Vec3 p0, Vec3 p1) {
+    public T setPositions(Vec3 p0, Vec3 p1) {
         actualPos0 = p0;
         actualPos1 = p1;
+        return (T) this;
     }
 
     @Override

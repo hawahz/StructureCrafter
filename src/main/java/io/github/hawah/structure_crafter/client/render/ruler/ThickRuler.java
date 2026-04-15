@@ -1,9 +1,8 @@
 package io.github.hawah.structure_crafter.client.render.ruler;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.hawah.structure_crafter.client.render.outliner.ThickOutline;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 
 public class ThickRuler extends RulerElement<ThickRuler>{
@@ -14,11 +13,22 @@ public class ThickRuler extends RulerElement<ThickRuler>{
     }
 
     @Override
-    public void renderEdge(Matrix4f mat, VertexConsumer buffer, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax, float r, float g, float b, float a) {
-        if (isManhattan) {
-            drawBox(mat, buffer, xMin - visualThickness/2, yMin - visualThickness/2, zMin - visualThickness/2, xMax + visualThickness/2, yMax + visualThickness/2, zMax + visualThickness/2, r, g, b, a); // 北西角
-            return;
-        }
+    public void renderEdge(Matrix4f mat, VertexConsumer buffer, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b, float a) {
+        AABB box = new AABB(x1, y1, z1, x2, y2, z2).inflate(visualThickness/2);
+        drawBox(
+                mat,
+                buffer,
+                (float) box.minX,
+                (float) box.minY,
+                (float) box.minZ,
+                (float) box.maxX,
+                (float) box.maxY,
+                (float) box.maxZ,
+                r,
+                g,
+                b,
+                a
+        );
     }
 
     private void drawBox(Matrix4f matrix, VertexConsumer buffer, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b, float a) {

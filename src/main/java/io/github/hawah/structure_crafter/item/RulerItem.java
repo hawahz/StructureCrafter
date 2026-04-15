@@ -1,4 +1,51 @@
 package io.github.hawah.structure_crafter.item;
 
-public class RulerItem {
+import io.github.hawah.structure_crafter.client.render.ruler.Ruler;
+import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class RulerItem extends Item {
+    public RulerItem(Properties properties) {
+        super(properties.stacksTo(1).component(DataComponentTypeRegistries.RULER_EDGE_MODE, false));
+    }
+
+    static boolean first = true;
+    static BlockPos cachedPos = BlockPos.ZERO;
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        if (!context.getLevel().isClientSide())
+            return InteractionResult.PASS;
+        BlockPos clickedPos = context.getClickedPos();
+        if (first) {
+            Ruler.getInstance().chase(this, clickedPos, cachedPos);
+        } else {
+            Ruler.getInstance().chase(this, cachedPos, clickedPos);
+        }
+        first = !first;
+        cachedPos = clickedPos;
+        return super.useOn(context);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        if (player.isShiftKeyDown() && usedHand.equals(InteractionHand.MAIN_HAND)) {
+            player.getItemInHand(usedHand).set(DataComponentTypeRegistries.RULER_EDGE_MODE,
+                    !player.getItemInHand(usedHand).getOrDefault(DataComponentTypeRegistries.RULER_EDGE_MODE, false));
+        }
+        return super.use(level, player, usedHand);
+    }
 }

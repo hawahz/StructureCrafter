@@ -34,6 +34,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8)
     );
 
+    public static final DataComponentType<Boolean> RULER_EDGE_MODE = register(
+            "ruler_edge_mode",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
     public static final DataComponentType<MaterialListComponent> MATERIAL_LIST = register(
             "material_list",
             builder -> builder

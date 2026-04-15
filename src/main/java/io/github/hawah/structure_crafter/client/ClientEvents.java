@@ -11,6 +11,7 @@ import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBloc
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.client.render.ruler.Ruler;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -64,7 +65,7 @@ public class ClientEvents {
         Outliner.renderInto(poseStack, bufferSource, cameraPos, partialTick);
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(poseStack, bufferSource, cameraPos);
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(poseStack, bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())), cameraPos, 0.2F, partialTick.getGameTimeDeltaPartialTick(true));
-
+        Ruler.getInstance().render(poseStack, bufferSource, cameraPos, partialTick);
         bufferSource.endBatch();
     }
 
@@ -72,12 +73,16 @@ public class ClientEvents {
     public static void onTickPre(ClientTickEvent.Pre event) {
         AnimationTickHolder.tick();
         KeyBinding.tick();
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
+            return;
+        }
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
         TelephoneHandset.clientTick();
         ClientDataHolder.tick();
+        Ruler.tick();
     }
 
     @SubscribeEvent

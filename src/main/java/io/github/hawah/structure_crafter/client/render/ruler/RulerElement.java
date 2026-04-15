@@ -2,13 +2,14 @@ package io.github.hawah.structure_crafter.client.render.ruler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.hawah.structure_crafter.StructureCrafterClient;
-import io.github.hawah.structure_crafter.client.render.ColoredElement;
+import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.render.DoublePointElement;
+import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -56,13 +57,179 @@ public abstract class RulerElement<T extends RulerElement<T>> extends DoublePoin
 //                    )
             return;
         }
-        AABB box = new AABB(actualPos0, actualPos1);//.inflate(0.002 * (1 + priority));
-        float xMin = (float) (box.minX - cameraPos.x);
-        float yMin = (float) (box.minY - cameraPos.y);
-        float zMin = (float) (box.minZ - cameraPos.z);
-        float xMax = (float) (box.maxX - cameraPos.x);
-        float yMax = (float) (box.maxY - cameraPos.y);
-        float zMax = (float) (box.maxZ - cameraPos.z);
+        Vec3 start = oPos0.lerp(visualPos0, delta);
+        Vec3 end = oPos1.lerp(visualPos1, delta);
 
+        // === 1️⃣ 构造固定路径：X → Y → Z ===
+        Vec3 p0 = start;
+        Vec3 p1 = new Vec3(end.x, start.y, start.z);     // 走 X
+        Vec3 p2 = new Vec3(end.x, end.y, start.z);       // 走 Y
+        Vec3 p3 = end;                                   // 走 Z
+
+        float x0 = (float)(p0.x - cameraPos.x);
+        float y0 = (float)(p0.y - cameraPos.y);
+        float z0 = (float)(p0.z - cameraPos.z);
+
+        float x1 = (float)(p1.x - cameraPos.x);
+        float y1 = (float)(p1.y - cameraPos.y);
+        float z1 = (float)(p1.z - cameraPos.z);
+
+        float x2 = (float)(p2.x - cameraPos.x);
+        float y2 = (float)(p2.y - cameraPos.y);
+        float z2 = (float)(p2.z - cameraPos.z);
+
+        float x3 = (float)(p3.x - cameraPos.x);
+        float y3 = (float)(p3.y - cameraPos.y);
+        float z3 = (float)(p3.z - cameraPos.z);
+
+        // === 3️⃣ 渲染三段（建议三轴不同颜色） ===
+
+        // X 轴（红）
+        renderEdge(mat, buffer, x0, y0, z0, x1, y1, z1, cr, cg, cb, ca);
+
+        // Y 轴（绿）
+        renderEdge(mat, buffer, x1, y1, z1, x2, y2, z2, cr, cg, cb, ca);
+
+        // Z 轴（蓝）
+        renderEdge(mat, buffer, x2, y2, z2, x3, y3, z3, cr, cg, cb, ca);
+
+        // === 4️⃣ （可选）计算每段中点（用于文字） ===
+        Vec3 midX = p0.add(p1).scale(0.5);
+        Vec3 midY = p1.add(p2).scale(0.5);
+        Vec3 midZ = p2.add(p3).scale(0.5);
+
+        // === 5️⃣ （可选）长度 ===
+        double dx = Math.abs(end.x - start.x);
+        double dy = Math.abs(end.y - start.y);
+        double dz = Math.abs(end.z - start.z);
+
+        poseStack.pushPose();
+
+        Minecraft mc = Minecraft.getInstance();
+        if (dx > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(dx * 100) / 100.0), mc, cameraPos, midX, 0);
+        }
+        if (dy > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(dy * 100) / 100.0), mc, cameraPos, midY, 1);
+        }
+        if (dz > 0.1) {
+            drawString(poseStack, String.valueOf(Math.round(dz * 100) / 100.0), mc, cameraPos, midZ, 2);
+        }
+
+
+//        drawString(poseStack, String.valueOf(Math.round(dx * 100) / 100.0), mc, cameraPos, midX, 3);
+//        drawString(poseStack, String.valueOf(Math.round(dy * 100) / 100.0), mc, cameraPos, midY, 4);
+//        drawString(poseStack, String.valueOf(Math.round(dz * 100) / 100.0), mc, cameraPos, midZ, 5);
+        poseStack.popPose();
+
+        return;
+
+    }
+
+    private static void drawString(PoseStack poseStack,
+                                   String text,
+                                   Minecraft mc,
+                                   Vec3 cameraPos,
+                                   Vec3 position,
+                                   int type) {
+        Camera mainCamera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        if (!mainCamera.isInitialized())
+            return;
+        Vec3 upVector = Minecraft.getInstance().player.getUpVector(AnimationTickHolder.getPartialTicks());
+        float scale = 0.05F;
+        Font font = mc.font;
+        double d0 = cameraPos.x;
+        double d1 = cameraPos.y;
+        double d2 = cameraPos.z;
+        poseStack.pushPose();
+        poseStack.translate((float)(position.x - d0), (float)(position.y - d1), (float)(position.z - d2));
+        poseStack.mulPose(switch (type) {
+            case 0 -> {
+                double angle = position.subtract(new Vec3(position.x, cameraPos.y, cameraPos.z)).normalize().dot(new Vec3(0, 0, -1));
+                if (position.y() <= cameraPos.y()) {
+                    if (angle <= 0.5 && upVector.dot(new Vec3(0, 0, -1)) > 0) {
+                        yield Axis.XN.rotation((float) (Math.PI / 2));
+                    } else if (angle >= 0.5) {
+                        yield Axis.YN.rotation(0);
+                    } else if (angle <= -0.5) {
+                        yield Axis.YN.rotation((float) Math.PI);
+                    } else {
+                        yield Axis.YN.rotation((float) Math.PI).mul(Axis.XN.rotation((float) (Math.PI / 2)));
+                    }
+                } else {
+                    if (angle <= 0.5 && upVector.dot(new Vec3(0, 0, -1)) < 0) {
+                        yield Axis.XN.rotation((float) (3 * Math.PI / 2));
+                    } else if (angle >= 0.5) {
+                        yield Axis.YN.rotation(0);
+                    } else if (angle <= -0.5) {
+                        yield Axis.YN.rotation((float) Math.PI);
+                    }
+                    yield Axis.YN.rotation((float) Math.PI).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+
+                }
+            }
+            case 1 -> {
+                double angle0 = position.subtract(cameraPos).normalize().dot(new Vec3(0, 0, -1));
+                double angle1 = position.subtract(cameraPos).normalize().dot(new Vec3(1, 0, 0));
+                if (angle0 > 0) {
+                    yield Axis.ZN.rotation((float) (Math.PI / 2));
+                } else if (cameraPos.x() < position.x() && cameraPos.z() > position.z()) {
+                    yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+                } else if (cameraPos.x() > position.x() && cameraPos.z() < position.z()) {
+                    yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (3 * Math.PI / 2)));
+                } else{
+                    yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI)));
+                }
+            }
+            case 2 -> {
+                double angle = position.subtract(cameraPos).normalize().dot(new Vec3(1, 0, 0));
+                if (position.y() <= cameraPos.y()) {
+                    if (angle <= 0.8 && upVector.dot(new Vec3(1, 0, 0)) > 0) {
+                        yield Axis.YN.rotation((float) (Math.PI / 2)).mul(Axis.XN.rotation((float) (Math.PI / 2)));
+                    } else if (angle >= 0.8) {
+                        yield Axis.YN.rotation((float) (Math.PI / 2));
+                    } else if (angle <= -0.8) {
+                        yield Axis.YP.rotation((float) (Math.PI / 2));
+                    } else {
+                        yield Axis.YP.rotation((float) (Math.PI / 2)).mul(Axis.XN.rotation((float) (Math.PI / 2)));
+                    }
+                } else {
+                    if (angle <= 0.8 && upVector.dot(new Vec3(1, 0, 0)) < 0) {
+                        yield Axis.YN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+                    } else if (angle >= 0.8) {
+                        yield Axis.YN.rotation((float) (Math.PI / 2));
+                    } else if (angle <= -0.8) {
+                        yield Axis.YP.rotation((float) (Math.PI / 2));
+                    } else {
+                        yield Axis.YP.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+                    }
+                }
+
+            }
+
+            default -> Axis.YN.rotation(0);
+        });
+        if (type == 4) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(180));
+        }
+        poseStack.translate(0, font.lineHeight * scale, 0);
+        poseStack.scale(scale, -scale, scale);
+
+        boolean middle = true, transparent = true;
+        float f = middle ? (float)(-font.width(text)) / 2.0F : 0.0F;
+        f -= 0 / scale;
+        font.drawInBatch(
+                text,
+                f,
+                0.0F,
+                0xFFFFFF,
+                false,
+                poseStack.last().pose(),
+                mc.renderBuffers().bufferSource(),
+                transparent ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL,
+                0,
+                15728880
+        );
+        poseStack.popPose();
     }
 }

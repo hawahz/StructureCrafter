@@ -11,7 +11,6 @@ import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
-import io.github.hawah.structure_crafter.networking.ClientboundContainerSlotChangedPacket;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
@@ -33,17 +32,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 public class StructureWandHandler implements LayeredDraw.Layer {
@@ -51,33 +47,31 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private final Object slot = new Object();
 
     private ItemStack activeSchematicItem;
-    private BlockPos selectedPos;
-    private BlockPos oSelectedPos;
     private final StructureRenderer structureRenderer = new StructureRenderer();
     private StructureData structureData = null;
+
+    private BlockPos selectedPos;
+    private BlockPos oSelectedPos;
     private Direction playerDirection;
     private Direction oPlayerDirection;
     private Direction rawDirection;
+
     private boolean active;
+
     private boolean dirty = true;
 
-    public boolean isLock() {
-        return lock;
-    }
-
-    public void setLock(boolean lock) {
-        this.lock = lock;
-    }
-
     private boolean lock = false;
+
     private boolean rotateLock = false;
     private boolean renderBoundingBox = false;
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
-    @Deprecated
-    public ItemStackData data = new ItemStackData();
 
     public StructureWandHandler() {
+        bindKeys();
+    }
+
+    private void bindKeys() {
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
                 () -> active && selectedPos != null,
                 () ->{
@@ -125,10 +119,6 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         ));
     }
 
-    public void setDirty(boolean dirty) {
-        this.dirty = dirty;
-    }
-
     public void setCurrentStructure(String structure) {
         hud.setCurrentStructure(structure);
     }
@@ -151,54 +141,65 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         hud.tick();
 
         active = true;
-        if (activeSchematicItem != stack || dirty) {
-            hud.loadStructures();
-            structureRenderer.clearCache();
-            if (activeSchematicItem != stack) {
-                activeSchematicItem = stack;
-                hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
-            }
-            this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
-            setupRenderer();
-            structureRenderer.setDirty();
-            String currentFile = hud.getCurrentStructure();
-            if (!currentFile.isEmpty()) {
-                //lock = false;
-                AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
-                AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
-                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
-            }
-            dirty = false;
-        }
 
+        handleChanged(stack, player);
+
+        // 变换预处理
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
                 player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.CommonConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
         if (!rotateLock && !lock) {
+            // 当没有旋转锁定和锁定时，将玩家朝向缓存到rawDirection当中
+            // 若未来发生锁定，则直接通过此渠道获取原始方向，并作用rotated
             rawDirection = player.getDirection();
         }
-        if (trace.getType() == HitResult.Type.BLOCK && !lock) {
 
-            BlockPos hit = trace.getBlockPos();
-            boolean replaceable = player.level().getBlockState(hit)
-                    .canBeReplaced(new BlockPlaceContext(new UseOnContext(player, InteractionHand.MAIN_HAND, trace)));
-            if (!replaceable)
-                hit = hit.relative(trace.getDirection());
-            oSelectedPos = selectedPos==null? hit : selectedPos;
-            selectedPos = hit;
+        // 位置处理
+        handlePosition(trace, player);
+        // 旋转处理
+        handleRotation(player);
+
+        // 强制解锁条件
+        if (lock && player.blockPosition().distManhattan(selectedPos) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
+            lock = false;
+        }
+
+        // 提交渲染
+        submitRenderer();
+    }
+
+    private void handlePosition(BlockHitResult hitResult, LocalPlayer player) {
+        if (lock) {
+            // 锁定的时候，tick前的选择点更新，如果当前冻结选择点为null(保护性)，则维持，否则更新为选择点
+            oSelectedPos = selectedPos==null? oSelectedPos : selectedPos;
+            return;
+        }
+
+        if (hitResult.getType() != HitResult.Type.BLOCK) {
+            selectedPos = null;
+            return;
+        }
+
+        BlockPos hit = hitResult.getBlockPos();
+        boolean lookingAtReplaceable = player.level().getBlockState(hit)
+                .canBeReplaced(new BlockPlaceContext(new UseOnContext(player, InteractionHand.MAIN_HAND, hitResult)));
+        if (!lookingAtReplaceable) {
+            hit = hit.relative(hitResult.getDirection());
+        }
+        oSelectedPos = selectedPos==null? hit : selectedPos;
+        selectedPos = hit;
+        setupRenderer();
+    }
+
+    private void handleRotation(LocalPlayer player) {
+        if (lock) {
             oPlayerDirection = playerDirection==null?
                     player.getDirection() :
                     playerDirection;
             playerDirection = rawDirection;
-            setupRenderer();
-        } else if (!lock) {
-            selectedPos = null;
-        } else {
-            oSelectedPos = selectedPos==null? oSelectedPos : selectedPos;
-//            oPlayerDirection = playerDirection==null? player.getDirection() : playerDirection;
-//            playerDirection = playerDirection==null? player.getDirection() : playerDirection;
+        } else if (selectedPos != null) {
             oPlayerDirection = playerDirection==null?
                     player.getDirection() :
                     playerDirection;
@@ -213,12 +214,16 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 playerDirection = playerDirection.getCounterClockWise();
             }
         }
+    }
 
-        if (lock && player.blockPosition().distManhattan(selectedPos) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
-            lock = false;
-        }
-
-        if (this.renderBoundingBox && selectedPos != null && structureData != null && structureData.structureTemplate() != null && structureData.center() != null) {
+    private void submitRenderer() {
+        if (
+                this.renderBoundingBox &&
+                        selectedPos != null &&
+                        structureData != null &&
+                        structureData.structureTemplate() != null &&
+                        structureData.center() != null
+        ) {
             StructurePlaceSettings settings = new StructurePlaceSettings();
             Rotation rotation = StructureWandHandler.transferDirectionToRotation(this.playerDirection);
             settings.setRotation(rotation);
@@ -238,42 +243,39 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                     .fade()
                     .finish();
         }
-
     }
 
-    @Deprecated
-    public boolean onMouseInput(int button, boolean pressed) {
-        if (!active) {
-            return false;
+    /**
+     * 处理结构文件改变。
+     * 若当前物品与缓存不一致，或是已标记为脏（标记为脏意味着当前选择的结构发生了变化），
+     * 则重新加载结构数据，也就是结构发生变化，需要告知渲染器结构数据已改变，重新建立顶点缓存
+     * @param stack: 玩家主手的物品
+     * @param player： 玩家
+     */
+    private void handleChanged(ItemStack stack, LocalPlayer player) {
+        if (activeSchematicItem == stack && !dirty) {
+            return;
         }
-        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && pressed) {
-            lock = !lock && selectedPos != null;
-            return true;
-        }
-        if (button != GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            return false;
-        }
-        if (!pressed) {
-            return false;
-        }
-        if (Screen.hasShiftDown()) {
-            ScreenOpener.open(new StructureWandScreen());
-            return true;
-        }
-        if (selectedPos == null) {
-            return false;
-        }
+        hud.loadStructures();
+        structureRenderer.clearCache();
 
-//        if (lock) {
-//            Minecraft.getInstance().player.displayClientMessage(
-//                    LangData, true
-//            );
-//            return false;
-//        }
-
-        lock = false;
-        Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
-        return true;
+        // 若是因为物品发生改变，则重新设置结构文件并修改hud
+        if (activeSchematicItem != stack) {
+            activeSchematicItem = stack;
+            hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
+        }
+        this.renderBoundingBox = AbstractStructureWand.isBoundsVisible(activeSchematicItem);
+        setupRenderer();
+        structureRenderer.setDirty();
+        String currentFile = hud.getCurrentStructure();
+        // 如果hud的当前文件不为空，则
+        if (!currentFile.isEmpty()) {
+            //lock = false;
+            AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
+            AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
+            Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
+        }
+        dirty = false;
     }
 
     public boolean onMouseScroll(double delta) {
@@ -287,20 +289,14 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 if (currentFile.isEmpty()) {
                     return true;
                 }
-//                lock = false;
-//                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-//                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
-                dirty = true;
+                setDirty();
                 return true;
             } else if (delta < 0) {
                 String currentFile = hud.scrollDown();
                 if (currentFile.isEmpty()) {
                     return true;
                 }
-//                lock = false;
-//                activeSchematicItem.set(DataComponentTypeRegistries.STRUCTURE_FILE, currentFile);
-//                Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
-                dirty = true;
+                setDirty();
                 return true;
             }
         }
@@ -308,9 +304,6 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             return false;
         }
         if (Screen.hasControlDown()) {
-//            if (lock) {
-//                return true;
-//            }
             int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
             rotated = rotated + intDelta;
             rotated %= 4;
@@ -322,8 +315,6 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private void setupRenderer() {
         Level clientWorld = Minecraft.getInstance().level;
         structureData = StructureHandler.loadSchematic(clientWorld, activeSchematicItem);
-
-//        hud.setCurrentStructure(activeSchematicItem.get(DataComponentTypeRegistries.STRUCTURE_FILE));
     }
 
     public void render(PoseStack ms, MultiBufferSource.BufferSource buffer, Vec3 camera) {
@@ -375,90 +366,15 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         this.rotateLock = rotateLock;
     }
 
-    @SuppressWarnings("unused")
-    @Deprecated(forRemoval = true)
-    public static class ItemStackData {
+    public boolean isLock() {
+        return lock;
+    }
 
-        public int slotId;
-        public ItemStack itemStack;
-        public Configuration currentConfiguration = Configuration.UPDATE_ALL;
-        public boolean isUpdateAll = false;
-        public boolean isRenderBoundingBox = false;
-        public boolean isReplaceAir = false;
+    public void setLock(boolean lock) {
+        this.lock = lock;
+    }
 
-        public void init(ItemStack itemStack, int slotId) {
-            if (this.itemStack == itemStack)
-                return;
-            this.itemStack = itemStack;
-            this.slotId = slotId;
-            this.isUpdateAll = AbstractStructureWand.getUpdateFlags(itemStack) == Block.UPDATE_ALL;
-            this.isRenderBoundingBox = AbstractStructureWand.isBoundsVisible(itemStack);
-            this.isReplaceAir = AbstractStructureWand.isReplaceAir(itemStack);
-            this.currentConfiguration = Configuration.UPDATE_ALL;
-        }
-
-        public void config() {
-            if (Minecraft.getInstance().screen == null || isInValid())
-                return;
-            this.currentConfiguration.apply(this);
-            Networking.sendToServer(new ClientboundContainerSlotChangedPacket(slotId, itemStack));
-
-        }
-        public boolean onMouseScroll(double delta) {
-            if (this.isInValid())
-                return false;
-            if (Screen.hasShiftDown()) {
-                delta *= -1;
-                int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
-                currentConfiguration = Configuration.values()[Math.floorMod(currentConfiguration.ordinal() + intDelta, Configuration.values().length)];
-                return true;
-            }
-            currentConfiguration = Configuration.UPDATE_ALL;
-            return false;
-        }
-
-        public boolean isInValid() {
-            return this.itemStack == null;
-        }
-
-        public boolean onMouseInput(int button, boolean pressed) {
-            if (!pressed || isInValid()) {
-                return false;
-            }
-
-            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && Screen.hasShiftDown()) {
-                config();
-                return true;
-            }
-            return false;
-        }
-        public void clear() {
-            this.itemStack = null;
-            this.currentConfiguration = Configuration.UPDATE_ALL;
-        }
-        public enum Configuration {
-            UPDATE_ALL(itemStackData -> {
-                itemStackData.isUpdateAll = !itemStackData.isUpdateAll;
-                AbstractStructureWand.setUpdateFlags(itemStackData.itemStack, itemStackData.isUpdateAll ? Block.UPDATE_ALL : 0);
-            }),
-            REPLACE_AIR(itemStackData -> {
-                itemStackData.isReplaceAir = !itemStackData.isReplaceAir;
-                AbstractStructureWand.setReplaceAir(itemStackData.itemStack, itemStackData.isReplaceAir);
-            }),
-            RENDER_BOUNDING_BOX(itemStackData -> {
-                itemStackData.isRenderBoundingBox = !itemStackData.isRenderBoundingBox;
-                AbstractStructureWand.setBoundsVisible(itemStackData.itemStack, itemStackData.isRenderBoundingBox);
-            }),
-            ;
-            private final Consumer<ItemStackData> config;
-
-            Configuration(Consumer<ItemStackData> config) {
-                this.config = config;
-            }
-
-            public void apply(ItemStackData itemStackData) {
-                this.config.accept(itemStackData);
-            }
-        }
+    public void setDirty() {
+        this.dirty = true;
     }
 }

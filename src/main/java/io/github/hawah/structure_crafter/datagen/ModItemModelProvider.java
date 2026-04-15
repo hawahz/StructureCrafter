@@ -16,5 +16,6 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         simpleBlockItem(BlockRegistry.TELEPHONE_BLOCK.get());
+        basicItem(ItemRegistries.RULER_ITEM.get());
     }
 }
