@@ -197,6 +197,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
         if (hitResult.getType() != HitResult.Type.BLOCK) {
             selectedPos = null;
+            modifier.clear();
             return;
         }
 
