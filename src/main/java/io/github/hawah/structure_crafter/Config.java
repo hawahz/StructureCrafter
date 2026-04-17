@@ -4,7 +4,11 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.StructurePlaceMode;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -94,7 +98,7 @@ public class Config {
             STRUCTURE_PLACE_MODE = builder
                     .comment(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.def)
                     .translation(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.key)
-                    .defineEnum("structure_place_mode", StructurePlaceMode.ALL);
+                    .defineEnum("structure_place_mode", StructurePlaceMode.BLACKLIST);
 
             STRUCTURE_BLACKLIST = builder
                     .comment(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.def)
@@ -136,6 +140,52 @@ public class Config {
     }
 
     private static boolean validateItemName(final Object obj) {
-        return obj instanceof String itemName && BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse(itemName));
+        if (!(obj instanceof String raw)) {
+            return false;
+        }
+
+        // 是否是 tag
+        boolean isTag = raw.startsWith("#");
+
+        // 去掉 # 再处理
+        String id = isTag ? raw.substring(1) : raw;
+
+        // 更建议用 MC 规范（小写！）
+        if (!raw.matches("[#]?[a-z0-9._-]+:[a-z0-9/._-]+")) {
+            return false;
+        }
+
+        if (id.isEmpty()) {
+            return false;
+        }
+
+        ResourceLocation rl;
+        try {
+            rl = ResourceLocation.parse(id);
+        } catch (Exception e) {
+            return false;
+        }
+
+        if (isTag) {
+            return true;
+        } else {
+            return BuiltInRegistries.BLOCK.containsKey(rl);
+        }
+    }
+
+    public static boolean isBlockValid(BlockState blockState) {
+        String descriptionId = BuiltInRegistries.BLOCK.getKey(blockState.getBlock()).toString();
+        return CommonConfig.STRUCTURE_BLACKLIST.get().stream().noneMatch(
+                (name) -> {
+                    boolean isTag = name.startsWith("#");
+
+                    if (isTag) {
+                        TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.parse(name.substring(1)));
+                        return blockState.is(tag);
+                    } else {
+                        return name.equals(descriptionId);
+                    }
+                }
+        );
     }
 }
