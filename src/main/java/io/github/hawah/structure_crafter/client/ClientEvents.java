@@ -78,6 +78,7 @@ public class ClientEvents {
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
+        StructureCrafterClient.RULER_HANDLER.tick();
         TelephoneHandset.clientTick();
         ClientDataHolder.tick();
         RulerMaker.tick();

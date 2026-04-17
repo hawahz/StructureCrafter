@@ -32,7 +32,7 @@ public class OverRenderType extends RenderType {
                     .createCompositeState(false)
     );
 
-    public static final RenderType OVERLAY_QUADS = create(
+    public static final RenderType OVERLAY_QUADS = RenderType.create(
             "overlay_quads",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
@@ -41,13 +41,11 @@ public class OverRenderType extends RenderType {
             true,
             RenderType.CompositeState.builder()
                     .setShaderState(POSITION_COLOR_SHADER)
-                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setOutputState(ITEM_ENTITY_TARGET)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
                     .setCullState(NO_CULL)
                     .setDepthTestState(NO_DEPTH_TEST)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .setOutputState(MAIN_TARGET)
                     .createCompositeState(false)
     );
 }

@@ -80,8 +80,8 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         axes.add(2); // Z
 
         axes.sort((a, b) -> {
-            double da = (a == 0 ? Math.abs(dx) : a == 1 ? Math.abs(dy) : Math.abs(dz));
-            double db = (b == 0 ? Math.abs(dx) : b == 1 ? Math.abs(dy) : Math.abs(dz));
+            double da = (a == 0 ? Math.abs(dx) : a == 1 ? Math.abs(dy) * 3 : Math.abs(dz));
+            double db = (b == 0 ? Math.abs(dx) : b == 1 ? Math.abs(dy) * 3 : Math.abs(dz));
             return Double.compare(da, db); // 大的在前
         });
 
@@ -140,6 +140,9 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         poseStack.pushPose();
 
         Minecraft mc = Minecraft.getInstance();
+        if (ca <= 0.9) {
+            return;
+        }
         if (lenX > 0.1) {
             drawString(poseStack, String.valueOf(Math.round(lenX * 100) / 100.0), mc, cameraPos, midX, 0,
                     (int) cr*255,
@@ -181,7 +184,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         if (!mainCamera.isInitialized())
             return;
         Vec3 upVector = Minecraft.getInstance().player.getUpVector(AnimationTickHolder.getPartialTicks());
-        float scale = 0.05F;
+        float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.5F;
         Font font = mc.font;
         double d0 = cameraPos.x;
         double d1 = cameraPos.y;
@@ -260,8 +263,8 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         poseStack.translate(0, font.lineHeight * scale, 0);
         poseStack.scale(scale, -scale, scale);
 
-        boolean middle = true, transparent = true;
-        float f = middle ? (float)(-font.width(text)) / 2.0F : 0.0F;
+        boolean transparent = true;
+        float f = (float) -font.width(text) / 2.0F;
         f -= 0 / scale;
         font.drawInBatch(
                 text,
