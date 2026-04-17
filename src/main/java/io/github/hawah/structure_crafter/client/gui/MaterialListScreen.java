@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.utils.ButtonGroup;
@@ -156,7 +157,7 @@ public class MaterialListScreen extends BaseScreen{
                         statisticsTextPages.add(stringBuilder.toString());
                     })
                 ).exceptionally(e -> {
-                    StructureCrafter.LOGGER.error("Error When Sync", e);
+                    LogUtils.getLogger().error("Error When Sync", e);
                     return null;
                 });
 
@@ -402,7 +403,7 @@ public class MaterialListScreen extends BaseScreen{
             firstPage = materialToggleButton.isToggled()? materialTextPages.get(currentPage) : statisticsTextPages.isEmpty()? "" : statisticsTextPages.get(currentPage);
             itemPageFirst = materialToggleButton.isToggled()? materialPage.get(currentPage): List.of();
         } catch (Exception e) {
-            StructureCrafter.LOGGER.error("Error occurred when turning pages. Page {}, Total {}", pages, currentPage, e);
+            LogUtils.getLogger().error("Error occurred when turning pages. Page {}, Total {}", pages, currentPage, e);
             pose.popPose();
             return;
         }

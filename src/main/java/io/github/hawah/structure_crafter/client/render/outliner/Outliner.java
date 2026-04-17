@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.render.OverRenderType;
 import net.minecraft.client.DeltaTracker;
@@ -51,7 +52,7 @@ public class Outliner {
         }
         OutlineElement<?> outlineElement = slotHolder.get(slot);
         if (!(outlineElement instanceof ThickOutline)) {
-            StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
+            LogUtils.getLogger().warn("Outline element is not a ThickOutline at thickBox()");
         }
         return outlineElement;
     }
@@ -65,7 +66,7 @@ public class Outliner {
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof ThickOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
+                LogUtils.getLogger().warn("Outline element is not a ThickOutline at chaseThickBox()   ");
             }
             return mulPose(first, second, outline);
         }
@@ -103,7 +104,7 @@ public class Outliner {
         if (slotHolder.containsKey(slot)) {
             OutlineElement<?> outline = slotHolder.get(slot);
             if (!(outline instanceof FineOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at chaseBox()");
+                LogUtils.getLogger().warn("Outline element is not a FineOutline at chaseBox()");
             }
             return mulPose(first, second, outline);
         }
@@ -123,7 +124,7 @@ public class Outliner {
         }
         OutlineElement<?> outlineElement = slotHolder.get(slot);
         if (!(outlineElement instanceof FineOutline)) {
-            StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at box()");
+            LogUtils.getLogger().warn("Outline element is not a FineOutline at box()");
         }
         return outlineElement;
     }

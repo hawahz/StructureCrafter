@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.util;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
@@ -400,7 +401,7 @@ public class StructureHandler {
                 );
             } else {
                 pos = BlockPos.ZERO;
-                StructureCrafter.LOGGER.warn("Structure file {} does not have a center", file);
+                LogUtils.getLogger().warn("Structure file {} does not have a center", file);
             }
         } catch (IOException e) {
             return null;

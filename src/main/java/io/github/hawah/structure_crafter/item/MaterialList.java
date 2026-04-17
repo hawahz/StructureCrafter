@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
@@ -101,7 +102,7 @@ public class MaterialList extends Item implements ITooltipItem{
                             true
                     )))
                     .exceptionally(e-> {
-                        StructureCrafter.LOGGER.error("Error Occurred when calculate Container items.", e);
+                        LogUtils.getLogger().error("Error Occurred when calculate Container items.", e);
                         return null;
                     });
             return InteractionResult.CONSUME;

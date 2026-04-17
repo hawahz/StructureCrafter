@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.util;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
@@ -30,8 +31,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-
-import static io.github.hawah.structure_crafter.StructureCrafter.LOGGER;
 
 public final class ItemEntry implements DataComponentHolder {
     public static final ItemEntry EMPTY = new ItemEntry(0, 0);
@@ -221,7 +220,7 @@ public final class ItemEntry implements DataComponentHolder {
 
     public static Optional<ItemEntry> parse(HolderLookup.Provider lookupProvider, Tag tag) {
         return CODEC.parse(lookupProvider.createSerializationContext(NbtOps.INSTANCE), tag)
-                .resultOrPartial(s -> LOGGER.error("Tried to load invalid item: '{}'", s));
+                .resultOrPartial(s -> LogUtils.getLogger().error("Tried to load invalid item: '{}'", s));
     }
 
     @Override
