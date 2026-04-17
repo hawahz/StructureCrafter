@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter;
 
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
+import io.github.hawah.structure_crafter.util.StarPattern;
 import io.github.hawah.structure_crafter.util.StructurePlaceMode;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -151,11 +152,17 @@ public class Config {
         String id = isTag ? raw.substring(1) : raw;
 
         // 更建议用 MC 规范（小写！）
-        if (!raw.matches("[#]?[a-z0-9._-]+:[a-z0-9/._-]+")) {
+        if (!raw.matches("[#]?[a-z0-9.*_-]+:[a-z0-9/.*_-]+")) {
             return false;
         }
 
         if (id.isEmpty()) {
+            return false;
+        }
+
+        if (raw.contains("*") && !isTag) {
+            return true;
+        } else if (raw.contains("*") && isTag) {
             return false;
         }
 
@@ -182,8 +189,10 @@ public class Config {
                     if (isTag) {
                         TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.parse(name.substring(1)));
                         return blockState.is(tag);
-                    } else {
+                    } else if (!name.contains("*")) {
                         return name.equals(descriptionId);
+                    } else {
+                        return StarPattern.matchWildcard(name, descriptionId);
                     }
                 }
         );
