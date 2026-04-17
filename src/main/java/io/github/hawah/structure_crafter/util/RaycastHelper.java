@@ -6,10 +6,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public class RaycastHelper {
@@ -158,6 +160,11 @@ public class RaycastHelper {
         }
 
         return new PredicateTraceResult();
+    }
+
+    public static Direction intersectRayWithBox(AABB boundingBox, Vec3 from, Vec3 direction) {
+        BlockHitResult clip = AABB.clip(List.of(boundingBox), from, direction, BlockPos.ZERO);
+        return clip==null? null : clip.getDirection();
     }
 
     public static class PredicateTraceResult {

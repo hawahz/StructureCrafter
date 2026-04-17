@@ -21,8 +21,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -37,7 +35,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue", "SameParameterValue"})
@@ -218,7 +215,7 @@ public class BlackboardHandler implements IHandler{
         }
 
         LocalPlayer player = Minecraft.getInstance().player;
-        BlockHitResult trace = rayTraceRange(player.level(), player, 75);
+        BlockHitResult trace = RaycastHelper.rayTraceRange(player.level(), player, 75);
 
         // buffered selected pos
         if (trace != null && trace.getType() == HitResult.Type.BLOCK) {
@@ -228,9 +225,10 @@ public class BlackboardHandler implements IHandler{
 
         // select face
         if (firstPos != null && secondPos != null && Screen.hasAltDown()) {
-            selectedFace = scrolling <= 0? intersectRayWithBox(
+            selectedFace = scrolling <= 0? RaycastHelper.intersectRayWithBox(
+                    cachedBoundingBox,
                     player.getEyePosition(),
-                    getTraceTarget(player, 300, player.getEyePosition())
+                    RaycastHelper.getTraceTarget(player, 300, player.getEyePosition())
             ) : selectedFace;
             if (canSelectOpposite()) {
                 selectedFace = selectedFace.getOpposite();
@@ -395,22 +393,6 @@ public class BlackboardHandler implements IHandler{
         return Screen.hasControlDown() && (firstPos == null || secondPos == null || centerPos == null);
     }
 
-    /**
-     * Cast a Ray Trace in Level, from Player's Camera to blocks max to range
-     * @param player Ray Trace Source
-     * @param range How long would this ray keep detecting
-     * */
-    private static BlockHitResult rayTraceRange(Level level, Player player, double range) {
-        Vec3 origin = player.getEyePosition();
-        Vec3 target = getTraceTarget(player, range, origin);
-        ClipContext context = new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
-        return level.clip(context);
-    }
-
-
-    static Vec3 getTraceTarget(Player player, double range, Vec3 origin) {
-        return RaycastHelper.getTraceTarget(player, range, origin);
-    }
 
     /**
      * Whether the Handler is active, only when player holds a blackboard item and no screen present
@@ -469,11 +451,4 @@ public class BlackboardHandler implements IHandler{
         centerSlot = new Object();
         centerPos = null;
     }
-
-    private Direction intersectRayWithBox(Vec3 from, Vec3 direction) {
-        BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), from, direction, BlockPos.ZERO);
-        return clip==null? null : clip.getDirection();
-
-    }
-
 }
