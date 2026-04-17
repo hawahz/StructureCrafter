@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unchecked")
-public abstract class RenderElement<T extends RenderElement<T>> {
+public abstract class RenderElement<Self extends RenderElement<Self>> {
 
     protected List<LazySet> lazySets = new ArrayList<>();
 
@@ -30,24 +30,24 @@ public abstract class RenderElement<T extends RenderElement<T>> {
 
     public abstract void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick);
 
-    public T discard() {
+    public Self discard() {
         discarded = true;
-        return (T) this;
+        return (Self) this;
     }
 
-    public T lazyDiscard(int delayTicks) {
+    public Self lazyDiscard(int delayTicks) {
         lazySet(delayTicks, this::discard);
-        return (T) this;
+        return (Self) this;
     }
 
-    public T setPriority(int priority) {
+    public Self setPriority(int priority) {
         this.priority = priority;
-        return (T) this;
+        return (Self) this;
     }
 
-    public T smooth(float smooth) {
+    public Self smooth(float smooth) {
         this.deltaTicks = Optional.of(smooth);
-        return (T) this;
+        return (Self) this;
     }
 
     protected int priority = 0;

@@ -7,25 +7,26 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public abstract class OutlineElement<T extends OutlineElement<T>> extends DoublePointElement<T> {
+@SuppressWarnings("unchecked")
+public abstract class OutlineElement<Self extends OutlineElement<Self>> extends DoublePointElement<Self> {
     protected AABB boundingBox = AABB.ofSize(Vec3.ZERO, 0, 0, 0);
     protected Set<Direction> renderedFaces = new HashSet<>();
 
-    public T face(Direction direction) {
+    public Self face(Direction direction) {
         renderedFaces.clear();
         if (direction != null) {
             renderedFaces.add(direction);
         }
-        return (T) this;
+        return (Self) this;
     }
-    public T clearFaces() {
+    public Self clearFaces() {
         renderedFaces.clear();
-        return (T) this;
+        return (Self) this;
     }
-    public T faces(Direction... directions) {
+    public Self faces(Direction... directions) {
         if (directions != null) {
             renderedFaces.addAll(Arrays.stream(directions).filter(Objects::nonNull).toList());
         }
-        return (T) this;
+        return (Self) this;
     }
 }

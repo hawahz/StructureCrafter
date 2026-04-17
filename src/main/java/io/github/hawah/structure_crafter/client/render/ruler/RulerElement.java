@@ -16,19 +16,20 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RulerElement<T extends RulerElement<T>> extends DoublePointElement<T> {
+@SuppressWarnings("unchecked")
+public abstract class RulerElement<Self extends RulerElement<Self>> extends DoublePointElement<Self> {
 
     protected boolean isManhattan = true;
 
-    public T createManhattan(Vec3 start, Vec3 end) {
+    public Self createManhattan(Vec3 start, Vec3 end) {
         init(start, end);
         this.isManhattan = true;
-        return (T) this;
+        return (Self) this;
     }
-    public T createStrait(Vec3 start, Vec3 end) {
+    public Self createStrait(Vec3 start, Vec3 end) {
         init(start, end);
         this.isManhattan = false;
-        return (T) this;
+        return (Self) this;
     }
 
     private void init(Vec3 start, Vec3 end) {

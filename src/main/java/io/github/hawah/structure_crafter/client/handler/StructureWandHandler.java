@@ -12,7 +12,6 @@ import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.IModifierItem;
-import io.github.hawah.structure_crafter.item.RulerItem;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
@@ -79,7 +78,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
     private void bindKeys() {
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
-                () -> active && selectedPos != null,
+                () -> isActive() && selectedPos != null,
                 () ->{
                     lock = false;
                     Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
@@ -88,31 +87,31 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                 LangData.HUD_TIP_STRUCTURE_WAND_PLACE.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
-                () -> active,
+                this::isActive,
                 () -> ScreenOpener.open(new StructureWandScreen()),
                 LangData.HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG.get()
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
-                () -> active,
+                this::isActive,
                 () -> lock = !lock && selectedPos != null,
                 () -> lock?
                         LangData.HUD_TIP_STRUCTURE_WAND_UNLOCK.get() :
                         LangData.HUD_TIP_STRUCTURE_WAND_LOCK.get()
         ));
         KeyBinding.ALT_S.bind(KeyBinding.Action.of(
-                () -> active,
+                this::isActive,
                 () -> {
 
                 },
                 LangData.HUD_TIP_STRUCTURE_WAND_SWITCH.get()
         ));
         KeyBinding.CTRL_S.bind(KeyBinding.Action.of(
-                () -> active,
+                this::isActive,
                 () -> { },
                 LangData.HUD_TIP_STRUCTURE_WAND_ROTATE.get()
         ));
         KeyBinding.SHIFT_S.bind(KeyBinding.Action.of(
-                () -> active && lock,
+                () -> isActive() && lock,
                 () -> {
                     LocalPlayer player;
                     if ((player = Minecraft.getInstance().player) == null || !modifier.getType().equals(StructureWandModifier.Type.NONE))
@@ -132,21 +131,22 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
     @Override
     public void tick() {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
-        }
-        ItemStack wandStack, rulerStack;
-        if (!((wandStack = player.getMainHandItem()).getItem() instanceof AbstractStructureWand)) {
-            active = false;
-            activeSchematicItem = null;
+        if (!isVisible()) {
             Outliner.getInstance().thickBox(slot)
                     .fade()
                     .finish();
+        }
+        if (!isActive()) {
+            active = false;
+            activeSchematicItem = null;
             modifier.clear();
             return;
         }
-        if (!((rulerStack = player.getOffhandItem()).getItem() instanceof IModifierItem modifierItem)) {
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        assert player != null;
+        ItemStack wandStack = player.getMainHandItem();
+        if (!(player.getOffhandItem().getItem() instanceof IModifierItem modifierItem)) {
             if (!modifier.getType().equals(StructureWandModifier.Type.NONE)) {
                 modifier.clear();
                 modifier = StructureWandModifier.create(StructureWandModifier.Type.NONE);
@@ -186,6 +186,20 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
         // 提交渲染
         submitRenderer();
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public boolean isVisible() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return false;
+        }
+        return player.getMainHandItem().getItem() instanceof AbstractStructureWand;
     }
 
     private void handlePosition(BlockHitResult hitResult, LocalPlayer player) {
@@ -303,7 +317,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
     }
 
     public boolean onMouseScroll(double delta) {
-        if (!active) {
+        if (!isActive()) {
             return false;
         }
 
@@ -342,7 +356,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
     }
 
     public void render(PoseStack ms, MultiBufferSource.BufferSource buffer, Vec3 camera) {
-        if (!active) {
+        if (!isActive()) {
             return;
         }
         if (structureData == null || selectedPos == null) {
@@ -377,7 +391,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
     @Override
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !active)
+        if (mc.options.hideGui || !isActive())
             return;
         hud.render(guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
     }

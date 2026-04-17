@@ -4,7 +4,7 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import net.minecraft.util.Mth;
 
 @SuppressWarnings("unchecked")
-public abstract class ColoredElement<T extends ColoredElement<T>> extends RenderElement<T>{
+public abstract class ColoredElement<Self extends ColoredElement<Self>> extends RenderElement<Self>{
     protected float r = 1.0F, g = 1.0F, b = 1.0F, a = 1.0F;
     protected float or;
     protected float og;
@@ -22,12 +22,12 @@ public abstract class ColoredElement<T extends ColoredElement<T>> extends Render
      * @param a 透明度分量，范围通常为0.0-1.0
      * @return 返回当前对象的引用，支持链式调用
      */
-    public T setRGBA(float r, float g, float b, float a) {
+    public Self setRGBA(float r, float g, float b, float a) {
         setR(r);
         setG(g);
         setB(b);
         setA(a);
-        return (T) this;
+        return (Self) this;
     }
 
     /**
@@ -35,9 +35,9 @@ public abstract class ColoredElement<T extends ColoredElement<T>> extends Render
      *
      * @return 返回当前对象的引用，支持链式调用
      */
-    public T fade() {
+    public Self fade() {
         setA(0);
-        return (T) this;
+        return (Self) this;
     }
 
     /**
@@ -46,9 +46,9 @@ public abstract class ColoredElement<T extends ColoredElement<T>> extends Render
      * @param delayTicks 延迟的 tick 数量
      * @return 返回当前对象的引用，支持链式调用
      */
-    public T lazyFade(int delayTicks) {
+    public Self lazyFade(int delayTicks) {
         lazySet(delayTicks, this::fade);
-        return (T) this;
+        return (Self) this;
     }
     /**
      * 丢弃元素，先执行淡出效果再调用父类的丢弃逻辑
@@ -56,7 +56,7 @@ public abstract class ColoredElement<T extends ColoredElement<T>> extends Render
      * @return 返回当前对象的引用，支持链式调用
      */
     @Override
-    public T discard() {
+    public Self discard() {
         this.fade();
         return super.discard();
     }

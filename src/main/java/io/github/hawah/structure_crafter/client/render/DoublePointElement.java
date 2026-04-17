@@ -3,7 +3,8 @@ package io.github.hawah.structure_crafter.client.render;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class DoublePointElement<T extends DoublePointElement<T>> extends ColoredElement<T>  {
+@SuppressWarnings("unchecked")
+public abstract class DoublePointElement<Self extends DoublePointElement<Self>> extends ColoredElement<Self>  {
     protected Vec3 oPos0 = Vec3.ZERO;
     protected Vec3 oPos1 = Vec3.ZERO;
     protected Vec3 visualPos0 = Vec3.ZERO;
@@ -11,10 +12,10 @@ public abstract class DoublePointElement<T extends DoublePointElement<T>> extend
     protected Vec3 visualPos1 = Vec3.ZERO;
     protected Vec3 actualPos1 = Vec3.ZERO;
 
-    public T setPositions(Vec3 p0, Vec3 p1) {
+    public Self setPositions(Vec3 p0, Vec3 p1) {
         actualPos0 = p0;
         actualPos1 = p1;
-        return (T) this;
+        return (Self) this;
     }
 
     @Override

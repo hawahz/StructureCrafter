@@ -3,7 +3,6 @@ package io.github.hawah.structure_crafter.client.handler;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
@@ -13,7 +12,6 @@ import io.github.hawah.structure_crafter.util.files.FileHelper;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
-import io.github.hawah.structure_crafter.item.blackboard.Blackboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -33,7 +31,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -141,73 +138,6 @@ public class BlackboardHandler implements IHandler{
                 },
                 LangData.HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE.get()
         ));
-    }
-
-    @Deprecated
-    public boolean onMouseScroll(double delta) {
-        if (firstPos == null) {
-            return false;
-        }
-        if (!isActive()) {
-            return false;
-        }
-        int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
-        if (canPushOrPullFace()) {
-            pushOrPullFace(intDelta, Screen.hasControlDown());
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Handle MouseInput when local player holds a {@link Blackboard} item
-     * @param button Use {@link GLFW} patterns
-     * */
-    @Deprecated
-    public boolean onMouseInput(int button, boolean pressed) {
-        boolean isRight;
-        if ((!(isRight = (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT)) && button != GLFW.GLFW_MOUSE_BUTTON_LEFT) || !pressed) {
-            return false;
-        }
-        if (!isActive()) {
-            return false;
-        }
-
-
-
-        if (!isRight) {
-            if (Minecraft.getInstance().player.isShiftKeyDown()) {
-                deleteCenter();
-                return true;
-            }
-            if (selectedPos != null) {
-                centerPos = selectedPos;
-                return true;
-            }
-        }
-
-        if (Minecraft.getInstance().player.isShiftKeyDown()) {
-            delete();
-            return true;
-        }
-
-        if (selectedPos == null) {
-            return false;
-        }
-
-        if (firstPos == null) {
-            firstPos = selectedPos;
-            return true;
-        }
-        if (secondPos == null) {
-            setSecondPos(selectedPos);
-            return true;
-        }
-        firstPos = selectedPos;
-        setSecondPos(null);
-
-        return true;
     }
 
     /**
@@ -485,17 +415,14 @@ public class BlackboardHandler implements IHandler{
     /**
      * Whether the Handler is active, only when player holds a blackboard item and no screen present
      * */
+    @Override
     public boolean isActive() {
         return isPresent() && Minecraft.getInstance().player.getMainHandItem().is(ItemRegistries.BLACKBOARD);
     }
 
+    @Override
     public boolean isVisible() {
         return isActive() || (isPresent() && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD));
-    }
-
-    private boolean isPresent() {
-        return Minecraft.getInstance() != null && Minecraft.getInstance().level != null
-                /*&& Minecraft.getInstance().screen == null*/ && Minecraft.getInstance().player != null;
     }
 
     /**
