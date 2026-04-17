@@ -58,8 +58,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
     private Direction oPlayerDirection;
     private Direction rawDirection;
 
-    private boolean active;
-
     private boolean dirty = true;
 
     private boolean lock = false;
@@ -137,7 +135,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                     .finish();
         }
         if (!isActive()) {
-            active = false;
             activeSchematicItem = null;
             modifier.clear();
             return;
@@ -157,8 +154,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         }
 
         hud.tick();
-
-        active = true;
 
         handleChanged(wandStack, player);
 
@@ -190,11 +185,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
     @Override
     public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public boolean isVisible() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return false;

@@ -20,7 +20,7 @@ public class RulerHandler implements IHandler {
     private BlockPos selectedPos;
     private BlockPos firstPos;
     private BlockPos secondPos;
-    private Queue<RulerHolder> slots = new ArrayDeque<>();
+    private final Queue<RulerHolder> slots = new ArrayDeque<>();
     private Object fistSlotHolder, secondSlotHolder;
 
     public RulerHandler() {

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.render.DoublePointElement;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.util.ArgmaxUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -184,6 +185,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         if (!mainCamera.isInitialized())
             return;
         Vec3 upVector = Minecraft.getInstance().player.getUpVector(AnimationTickHolder.getPartialTicks());
+        Vec3 lookVector = Minecraft.getInstance().player.getLookAngle();
         float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.5F;
         Font font = mc.font;
         double d0 = cameraPos.x;
@@ -191,65 +193,81 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         double d2 = cameraPos.z;
         poseStack.pushPose();
         poseStack.translate((float)(position.x - d0), (float)(position.y - d1), (float)(position.z - d2));
+        final float threshold = 0.5F;
+        // TODO 将柱式剔除修改为锥状式剔除
         poseStack.mulPose(switch (type) {
             case 0 -> {
-                double angle = position.subtract(new Vec3(position.x, cameraPos.y, cameraPos.z)).normalize().dot(new Vec3(0, 0, -1));
+                double angleFromCameraToPosition =
+                        position.subtract(cameraPos)
+                                .normalize()
+                                .dot(new Vec3(0, 0, -1));
+                double upAngle = upVector.dot(new Vec3(0, 0, -1));
                 if (position.y() <= cameraPos.y()) {
-                    if (angle <= 0.5 && upVector.dot(new Vec3(0, 0, -1)) > 0) {
+                    if (Math.abs(angleFromCameraToPosition) <= threshold && (upAngle > 0)) {
                         yield Axis.XN.rotation((float) (Math.PI / 2));
-                    } else if (angle >= 0.5) {
+                    } else if (angleFromCameraToPosition >= threshold) {
                         yield Axis.YN.rotation(0);
-                    } else if (angle <= -0.5) {
-                        yield Axis.YN.rotation((float) Math.PI);
-                    } else {
+                    } else if (Math.abs(angleFromCameraToPosition) <= threshold && (upAngle < 0)) {
                         yield Axis.YN.rotation((float) Math.PI).mul(Axis.XN.rotation((float) (Math.PI / 2)));
+                    } else {
+                        yield Axis.YN.rotation((float) Math.PI);
                     }
                 } else {
-                    if (angle <= 0.5 && upVector.dot(new Vec3(0, 0, -1)) < 0) {
-                        yield Axis.XN.rotation((float) (3 * Math.PI / 2));
-                    } else if (angle >= 0.5) {
+                    if (Math.abs(angleFromCameraToPosition) <= threshold && (upAngle < 0)) {
+                        yield Axis.XP.rotation((float) (Math.PI / 2));
+                    } else if (angleFromCameraToPosition >= threshold) {
                         yield Axis.YN.rotation(0);
-                    } else if (angle <= -0.5) {
-                        yield Axis.YN.rotation((float) Math.PI);
+                    } else if (Math.abs(angleFromCameraToPosition) <= threshold && (upAngle > 0)) {
+                        yield Axis.YN.rotation((float) Math.PI).mul(Axis.XP.rotation((float) (Math.PI / 2)));
                     }
-                    yield Axis.YN.rotation((float) Math.PI).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+                    yield Axis.YN.rotation((float) Math.PI);
 
                 }
             }
             case 1 -> {
-                double angle0 = position.subtract(cameraPos).normalize().dot(new Vec3(0, 0, -1));
-                double angle1 = position.subtract(cameraPos).normalize().dot(new Vec3(1, 0, 0));
-                if (angle0 > 0) {
+                double angle0 = lookVector.dot(new Vec3(0, 0, -1));
+                double angle1 = lookVector.dot(new Vec3(1, 0, 0));
+                double angle2 = lookVector.dot(new Vec3(-1, 0, 0));
+                double angle3 = lookVector.dot(new Vec3(0, 0, 1));
+                int arg = ArgmaxUtil.argmax(new double[]{angle0, angle1, angle2, angle3});
+
+                if (arg == 0) {
                     yield Axis.ZN.rotation((float) (Math.PI / 2));
-                } else if (cameraPos.x() < position.x() && cameraPos.z() > position.z()) {
+                } else if (arg == 1) {
                     yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
-                } else if (cameraPos.x() > position.x() && cameraPos.z() < position.z()) {
+                } else if (arg == 2) {
                     yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (3 * Math.PI / 2)));
-                } else{
+                } else if (arg == 3) {
                     yield Axis.ZN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI)));
+                } else {
+                    throw new IllegalStateException();
                 }
             }
             case 2 -> {
-                double angle = position.subtract(cameraPos).normalize().dot(new Vec3(1, 0, 0));
+                double angleFromCameraToPosition =
+                        position.subtract(cameraPos)
+                                .normalize()
+                                .dot(new Vec3(1, 0, 0));
+                double upAngle = upVector.dot(new Vec3(1, 0, 0));
                 if (position.y() <= cameraPos.y()) {
-                    if (angle <= 0.8 && upVector.dot(new Vec3(1, 0, 0)) > 0) {
+                    if (Math.abs(angleFromCameraToPosition) <= threshold && upAngle > 0) {
                         yield Axis.YN.rotation((float) (Math.PI / 2)).mul(Axis.XN.rotation((float) (Math.PI / 2)));
-                    } else if (angle >= 0.8) {
+                    } else if (angleFromCameraToPosition >= threshold) {
                         yield Axis.YN.rotation((float) (Math.PI / 2));
-                    } else if (angle <= -0.8) {
-                        yield Axis.YP.rotation((float) (Math.PI / 2));
-                    } else {
+                    } else if (Math.abs(angleFromCameraToPosition) <= threshold && upAngle <= 0) {
                         yield Axis.YP.rotation((float) (Math.PI / 2)).mul(Axis.XN.rotation((float) (Math.PI / 2)));
+                    } else {
+                        yield Axis.YP.rotation((float) (Math.PI / 2));
                     }
                 } else {
-                    if (angle <= 0.8 && upVector.dot(new Vec3(1, 0, 0)) < 0) {
+                    if (Math.abs(angleFromCameraToPosition) <= threshold && upAngle < 0) {
                         yield Axis.YN.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
-                    } else if (angle >= 0.8) {
+                    } else if (angleFromCameraToPosition >= threshold) {
                         yield Axis.YN.rotation((float) (Math.PI / 2));
-                    } else if (angle <= -0.8) {
-                        yield Axis.YP.rotation((float) (Math.PI / 2));
-                    } else {
+                    } else if (Math.abs(angleFromCameraToPosition) <= threshold && upAngle >= 0) {
                         yield Axis.YP.rotation((float) (Math.PI / 2)).mul(Axis.XP.rotation((float) (Math.PI / 2)));
+                    } else {
+                        yield Axis.YP.rotation((float) (Math.PI / 2));
                     }
                 }
 

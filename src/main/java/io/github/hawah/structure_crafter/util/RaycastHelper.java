@@ -163,7 +163,11 @@ public class RaycastHelper {
     }
 
     public static Direction intersectRayWithBox(AABB boundingBox, Vec3 from, Vec3 direction) {
-        BlockHitResult clip = AABB.clip(List.of(boundingBox), from, direction, BlockPos.ZERO);
+        return intersectRayWithBox(from, direction, boundingBox);
+    }
+
+    public static Direction intersectRayWithBox(Vec3 from, Vec3 direction, AABB... boundingBoxes) {
+        BlockHitResult clip = AABB.clip(List.of(boundingBoxes), from, direction, BlockPos.ZERO);
         return clip==null? null : clip.getDirection();
     }
 
