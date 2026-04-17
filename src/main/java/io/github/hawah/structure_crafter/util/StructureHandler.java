@@ -210,7 +210,7 @@ public class StructureHandler {
                                         structuretemplate$structureblockinfo.nbt().putLong("LootTableSeed", random.nextLong());
                                     }
 
-                                    blockentity1.loadWithComponents(structuretemplate$structureblockinfo.nbt(), serverLevel.registryAccess());
+                                    blockentity1.loadWithComponents(NBTHelper.BlockEntity.cleanTag(structuretemplate$structureblockinfo.nbt(), serverLevel.registryAccess()), serverLevel.registryAccess());
                                 }
                             }
 
