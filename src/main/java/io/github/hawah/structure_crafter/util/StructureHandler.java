@@ -15,7 +15,6 @@ import io.github.hawah.structure_crafter.util.exception.IllegalStructureNameExce
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
@@ -342,11 +341,7 @@ public class StructureHandler {
     private static boolean blockChecker(BlockState state) {
         return switch (Config.CommonConfig.STRUCTURE_PLACE_MODE.get()) {
             case ALL -> true;
-            case BLACKLIST -> {
-                String descriptionId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-                List<? extends String> list = Config.CommonConfig.STRUCTURE_BLACKLIST.get();
-                yield !list.contains(descriptionId);
-            }
+            case BLACKLIST -> Config.isBlockValid(state);
             default -> false;
         };
     }
