@@ -22,6 +22,7 @@ public class RulerHandler implements IHandler {
     private BlockPos secondPos;
     private final Queue<RulerHolder> slots = new ArrayDeque<>();
     private Object fistSlotHolder, secondSlotHolder;
+    private boolean swapped = false;
 
     public RulerHandler() {
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
@@ -31,7 +32,12 @@ public class RulerHandler implements IHandler {
                         firstPos = selectedPos;
                     } else if (secondPos == null) {
                         secondPos = selectedPos;
-                        push(fistSlotHolder, secondSlotHolder, firstPos, secondPos);
+                        push(
+                                fistSlotHolder,
+                                secondSlotHolder,
+                                swapped? secondPos: firstPos,
+                                swapped? firstPos: secondPos
+                        );
                         firstPos = null;
                         secondPos = null;
                         fistSlotHolder = null;
@@ -48,6 +54,11 @@ public class RulerHandler implements IHandler {
                     }
                     Minecraft.getInstance().player.swing(InteractionHand.MAIN_HAND);
                 },
+                Component.empty()
+        ));
+        KeyBinding.LEFT.bind(KeyBinding.Action.of(
+                this::isActive,
+                this::swap,
                 Component.empty()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
@@ -98,7 +109,10 @@ public class RulerHandler implements IHandler {
         if (fistSlotHolder != null && firstPos != null && selectedPos != null) {
             if (secondSlotHolder == null)
                 secondSlotHolder = new Object();
-            RulerMaker.getInstance().chase(fistSlotHolder, firstPos, selectedPos)
+            RulerMaker.getInstance().chase(
+                    fistSlotHolder,
+                            swapped? selectedPos: firstPos,
+                            swapped? firstPos: selectedPos)
                     .finish();
             Outliner.getInstance().chaseThickBox(fistSlotHolder, firstPos, firstPos)
                     .finish();
@@ -123,6 +137,10 @@ public class RulerHandler implements IHandler {
                     .setRGBA(0, 1, 0, firstPos == null? 1: 0)
                     .smooth(0.8F)
                     .finish();
+        } else {
+            Outliner.getInstance().thickBox(this)
+                    .fade()
+                    .finish();
         }
         LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;
@@ -141,7 +159,11 @@ public class RulerHandler implements IHandler {
         return isPresent() && Minecraft.getInstance().player.getMainHandItem().is(ItemRegistries.RULER_ITEM);
     }
 
-    static class RulerHolder {
+    private void swap() {
+        this.swapped = !swapped;
+    }
+
+    static final class RulerHolder {
         private final BlockPos pos0, pos1;
         private final Object slot0, slot1;
 

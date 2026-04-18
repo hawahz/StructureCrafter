@@ -133,6 +133,8 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             Outliner.getInstance().thickBox(slot)
                     .fade()
                     .finish();
+            modifier.clear();
+            modifier = StructureWandModifier.create(StructureWandModifier.Type.NONE);
         }
         if (!isActive()) {
             activeSchematicItem = null;

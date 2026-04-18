@@ -141,34 +141,29 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         poseStack.pushPose();
 
         Minecraft mc = Minecraft.getInstance();
-        if (ca <= 0.9) {
-            return;
-        }
+
         if (lenX > 0.1) {
             drawString(poseStack, String.valueOf(Math.round(lenX * 100) / 100.0), mc, cameraPos, midX, 0,
-                    (int) cr*255,
-                    (int) cg*255,
-                    (int) cb*255,
-                    (int) ca*255);
+                    (int) (cr*255),
+                    (int) (cg*255),
+                    (int) (cb*255),
+                    (int) (ca*255));
         }
         if (lenY > 0.1) {
             drawString(poseStack, String.valueOf(Math.round(lenY * 100) / 100.0), mc, cameraPos, midY, 1,
-                    (int) cr*255,
-                    (int) cg*255,
-                    (int) cb*255,
-                    (int) ca*255);
+                    (int) (cr*255),
+                    (int) (cg*255),
+                    (int) (cb*255),
+                    (int) (ca*255));
         }
         if (lenZ > 0.1) {
             drawString(poseStack, String.valueOf(Math.round(lenZ * 100) / 100.0), mc, cameraPos, midZ, 2,
-                    (int) cr*255,
-                    (int) cg*255,
-                    (int) cb*255,
-                    (int) ca*255);
+                    (int) (cr*255),
+                    (int) (cg*255),
+                    (int) (cb*255),
+                    (int) (ca*255));
         }
         poseStack.popPose();
-
-        return;
-
     }
 
     private static void drawString(PoseStack poseStack,
@@ -186,11 +181,12 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
             return;
         Vec3 upVector = Minecraft.getInstance().player.getUpVector(AnimationTickHolder.getPartialTicks());
         Vec3 lookVector = Minecraft.getInstance().player.getLookAngle();
-        float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.5F;
+        float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.5F * (a/255F);
         Font font = mc.font;
         double d0 = cameraPos.x;
         double d1 = cameraPos.y;
         double d2 = cameraPos.z;
+        System.out.println(a);
         poseStack.pushPose();
         poseStack.translate((float)(position.x - d0), (float)(position.y - d1), (float)(position.z - d2));
         final float threshold = 0.5F;
@@ -287,6 +283,18 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         font.drawInBatch(
                 text,
                 f,
+                1F,
+                a << 24,
+                false,
+                poseStack.last().pose(),
+                mc.renderBuffers().bufferSource(),
+                Font.DisplayMode.NORMAL,
+                0,
+                15728880
+        );
+        font.drawInBatch(
+                text,
+                f,
                 0.0F,
                 a << 24 | r << 16 | g << 8 | b,
                 false,
@@ -296,6 +304,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
                 0,
                 15728880
         );
+
         poseStack.popPose();
     }
 }
