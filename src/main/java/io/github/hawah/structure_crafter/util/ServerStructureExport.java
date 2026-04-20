@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.util;
 
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Paths;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.util.exception.IllegalStructureNameException;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
 import net.minecraft.core.BlockPos;
@@ -59,7 +59,7 @@ public class ServerStructureExport {
                 NbtIo.writeCompressed(data, out);
             }
         } catch (IOException e) {
-            StructureCrafter.LOGGER.error("Occurred Error when saving structure.", e);
+            LogUtils.getLogger().error("Occurred Error when saving structure.", e);
         }
     }
 }

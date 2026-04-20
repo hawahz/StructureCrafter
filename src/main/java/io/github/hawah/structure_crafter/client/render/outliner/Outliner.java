@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.hawah.structure_crafter.StructureCrafter;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -34,7 +34,7 @@ public class Outliner {
         if (outlines.containsKey(slot)) {
             OutlineElement<?> outlineElement = outlines.get(slot);
             if (!(outlineElement instanceof ThickOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at thickBox()");
+                LogUtils.getLogger().warn("Outline element is not a ThickOutline at thickBox()");
             }
             return outlineElement;
         }
@@ -46,7 +46,7 @@ public class Outliner {
         if (outlines.containsKey(slot)) {
             OutlineElement<?> outline = outlines.get(slot);
             if (!(outline instanceof ThickOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a ThickOutline at chaseThickBox()   ");
+                LogUtils.getLogger().warn("Outline element is not a ThickOutline at chaseThickBox()   ");
             }
             return getOutlineElement(first, second, outline);
         }
@@ -71,7 +71,7 @@ public class Outliner {
         if (overOutlines.containsKey(slot)) {
             OutlineElement<?> outline = overOutlines.get(slot);
             if (!(outline instanceof FineOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at chaseBox()");
+                LogUtils.getLogger().warn("Outline element is not a FineOutline at chaseBox()");
             }
             return getOutlineElement(first, second, outline);
         }
@@ -84,7 +84,7 @@ public class Outliner {
         if (overOutlines.containsKey(slot)) {
             OutlineElement<?> outlineElement = overOutlines.get(slot);
             if (!(outlineElement instanceof FineOutline)) {
-                StructureCrafter.LOGGER.warn("Outline element is not a FineOutline at box()");
+                LogUtils.getLogger().warn("Outline element is not a FineOutline at box()");
             }
             return outlineElement;
         }

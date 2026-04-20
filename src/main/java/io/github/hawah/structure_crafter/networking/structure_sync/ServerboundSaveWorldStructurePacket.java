@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
-import io.github.hawah.structure_crafter.StructureCrafter;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import io.github.hawah.structure_crafter.util.ServerStructureExport;
@@ -32,7 +32,7 @@ public record ServerboundSaveWorldStructurePacket(String fileName, BlockPos firs
                     overwrite()
             );
         } catch (Exception e) {
-            StructureCrafter.LOGGER.error("Failed to save structure named {} from player {} on server.", fileName, player.getName().getString(), e);
+            LogUtils.getLogger().error("Failed to save structure named {} from player {} on server.", fileName, player.getName().getString(), e);
         }
     }
 

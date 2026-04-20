@@ -1,8 +1,8 @@
 package io.github.hawah.structure_crafter.client.handler;
 
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
@@ -255,7 +255,7 @@ public class BlackboardHandler {
                     true
             );
         } catch (IOException e) {
-            StructureCrafter.LOGGER.error("Occurred Error when saving structure.", e);
+            LogUtils.getLogger().error("Occurred Error when saving structure.", e);
         } finally {
             Outliner.getInstance().thickBox(outlineSlot)
                     .setRGBA(0, 1, 0, 1)
