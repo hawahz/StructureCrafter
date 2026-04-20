@@ -104,7 +104,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
                 updateFlags
         );
 
-        System.out.println(BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse("minecraft:sign")));
+//        System.out.println(BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse("minecraft:sign")));
 
         invalidBlocks.forEach((pos, block) -> level.setBlock(pos, block, updateFlags));
 

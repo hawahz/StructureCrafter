@@ -2,12 +2,13 @@ package io.github.hawah.structure_crafter.client.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.hawah.structure_crafter.compat.sable.RenderCompat;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
+import org.joml.*;
 
 public class ThickOutline extends OutlineElement<ThickOutline> {
     private float visualThickness = 0.0F, actualThickness;
@@ -33,21 +34,26 @@ public class ThickOutline extends OutlineElement<ThickOutline> {
         ).inflate(0.002 * (1 + priority)); // 稍微膨胀一点防止与方块表面闪烁
         AABB box = boundingBox;
 
+        poseStack.pushPose();
+        box = RenderCompat.applyTransform(box, poseStack, cameraPos, box.getCenter(), delta);
+        poseStack.translate(-cameraPos.x(), -cameraPos.y(), -cameraPos.z());
+        Matrix4f mat = poseStack.last().pose();
+
+        poseStack.popPose();
+
         float cr = Mth.lerp(delta, or, r),
                 cg = Mth.lerp(delta, og, g),
                 cb = Mth.lerp(delta, ob, b),
                 ca = Mth.lerp(delta, oa, a);
 
         // 计算相对于摄像机的 AABB 边界
-        float xMin = (float) (box.minX - cameraPos.x);
-        float yMin = (float) (box.minY - cameraPos.y);
-        float zMin = (float) (box.minZ - cameraPos.z);
-        float xMax = (float) (box.maxX - cameraPos.x);
-        float yMax = (float) (box.maxY - cameraPos.y);
+        float xMin = (float) (box.minX/* - cameraPos.x*/);
+        float yMin = (float) (box.minY/* - cameraPos.y*/);
+        float zMin = (float) (box.minZ/* - cameraPos.z*/);
+        float xMax = (float) (box.maxX/* - cameraPos.x*/);
+        float yMax = (float) (box.maxY/* - cameraPos.y*/);
 
-        float zMax = (float) (box.maxZ - cameraPos.z);
-
-        Matrix4f mat = poseStack.last().pose();
+        float zMax = (float) (box.maxZ/* - cameraPos.z*/);
 
         // --- 12条边，每条边都是一个完整的长方体，且完全向内延伸 ---
 

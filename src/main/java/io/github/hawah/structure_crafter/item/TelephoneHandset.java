@@ -5,6 +5,7 @@ import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -92,10 +93,11 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         if (!level.dimension().equals(handsetComponent.dimension())) {
             return;
         }
-        BlockPos pos = handsetComponent.pos();
-        if (!(level.getBlockEntity(pos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
+        BlockPos rawPos = handsetComponent.pos();
+        BlockPos pos = SableLogicTransformCompat.applyTransform(rawPos);
+        if (!(level.getBlockEntity(rawPos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
             stack.shrink(1);
-            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
+            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(rawPos);
             return;
         }
         Vec3 directionVec = pos.getCenter().subtract(player.position());
@@ -106,11 +108,11 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
         }
         if (level.isClientSide()) {
-            Vec3 center = pos.getCenter()
+            Vec3 center = SableLogicTransformCompat.applyTransform(rawPos.getCenter())
                     .add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getNormal()).multiply(0.5, 0.5, 0.5))
                     .add(new Vec3(0, -0.25, 0));
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
-                    pos,
+                    rawPos,
                     center,
                     Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
                     telephoneBlockEntity.hasBeacon,

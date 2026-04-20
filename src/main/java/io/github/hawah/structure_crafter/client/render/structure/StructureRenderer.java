@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.render.structure;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
+import io.github.hawah.structure_crafter.compat.sable.RenderCompat;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
@@ -226,15 +227,20 @@ public class StructureRenderer {
                                        Direction oPlayerDirection,
                                        float partialTicks) {
         Vec3 offset = new Vec3(
-                Mth.lerp(partialTicks, oAnchorPos.getX(), anchorPos.getX()),
-                Mth.lerp(partialTicks, oAnchorPos.getY(), anchorPos.getY()),
-                Mth.lerp(partialTicks, oAnchorPos.getZ(), anchorPos.getZ())
+                Mth.lerp((double) partialTicks, oAnchorPos.getX(), anchorPos.getX()),
+                Mth.lerp((double) partialTicks, oAnchorPos.getY(), anchorPos.getY()),
+                Mth.lerp((double) partialTicks, oAnchorPos.getZ(), anchorPos.getZ())
         );
+
+        offset = RenderCompat.applyTransform(poseStack, camera, anchorPos, partialTicks, offset);
+
         poseStack.translate(
                 - camera.x(),
                 - camera.y(),
                 - camera.z()
         );
+
+
 
         float degree = getDegree(playerDirection, oPlayerDirection, partialTicks);
         poseStack.translate(
