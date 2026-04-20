@@ -1,5 +1,7 @@
 package io.github.hawah.structure_crafter.client.handler;
 
+import io.github.hawah.structure_crafter.client.gui.RulerScreen;
+import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -59,6 +61,13 @@ public class RulerHandler implements IHandler {
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 this::isActive,
                 this::swap,
+                Component.empty()
+        ));
+        KeyBinding.ALT_R.bind(KeyBinding.Action.of(
+                this::isActive,
+                () -> {
+                    ScreenOpener.open(new RulerScreen());
+                },
                 Component.empty()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(

@@ -4,12 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 public abstract class BaseScreen extends Screen {
@@ -17,6 +22,7 @@ public abstract class BaseScreen extends Screen {
     protected int textureWidth, textureHeight;
     protected int windowXOffset, windowYOffset;
     protected int guiLeft, guiTop;
+    private final List<AbstractWidget> lazyRegisterComponents = new ArrayList<>();
 
     protected final float getScale() {
         return scale;
@@ -57,6 +63,21 @@ public abstract class BaseScreen extends Screen {
         guiTop = (height - textureHeight) / 2;
         guiLeft += windowXOffset;
         guiTop += windowYOffset;
+    }
+
+    /**
+     * 按照显示的覆盖顺序来添加符合逻辑的组件。后加入的组件会被渲染在更上层，逻辑上也会更先被触发
+     */
+    protected void addSortedRenderWidget(AbstractWidget widget) {
+        this.lazyRegisterComponents.add(widget);
+    }
+
+    protected void finishRegister() {
+        for (int i = 0; i < lazyRegisterComponents.size(); i++) {
+            this.addRenderableOnly(lazyRegisterComponents.get(i));
+            this.addWidget(lazyRegisterComponents.get(lazyRegisterComponents.size()-1-i));
+        }
+        this.lazyRegisterComponents.clear();
     }
 
     @Override
@@ -119,4 +140,79 @@ public abstract class BaseScreen extends Screen {
 
     protected void renderWindowPre(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}
     protected void renderWindowPost(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}
+
+    public static void blit(GuiGraphics guiGraphics,
+                            ResourceLocation resource,
+                            int x,
+                            int y,
+                            int u,
+                            int v,
+                            int textureWidth,
+                            int textureHeight) {
+        guiGraphics.blit(
+                resource,
+                x,
+                y,
+                u,
+                v,
+                textureWidth,
+                textureHeight
+        );
+    }
+
+    public static void line(GuiGraphics guiGraphics,
+                            int x1,
+                            int y1,
+                            int x2,
+                            int y2,
+                            int color) {
+        line(guiGraphics, x1, y1, x2, y2, color, 1);
+    }
+    public static void line(GuiGraphics guiGraphics,
+                            int x1,
+                            int y1,
+                            int x2,
+                            int y2,
+                            int color,
+                            double process) {
+
+        if (process <= 0) return;
+
+        process = Mth.clamp(process, 0, 1);
+
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+
+        int sx = (x1 < x2) ? 1 : -1;
+        int sy = (y1 < y2) ? 1 : -1;
+
+        int err = dx - dy;
+
+        int totalSteps = Math.max(dx, dy) + 1;
+
+        int drawSteps = (int) Math.round(totalSteps * process);
+
+        int x = x1;
+        int y = y1;
+
+        for (int i = 0; i < drawSteps; i++) {
+
+            // 画当前像素（用1px hLine避免重复逻辑）
+            guiGraphics.hLine(x, x, y, color);
+
+            if (x == x2 && y == y2) break;
+
+            int e2 = err << 1;
+
+            if (e2 > -dy) {
+                err -= dy;
+                x += sx;
+            }
+
+            if (e2 < dx) {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
 }

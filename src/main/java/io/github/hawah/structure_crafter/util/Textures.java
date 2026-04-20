@@ -12,6 +12,10 @@ public enum Textures {
     STRUCTURE_WAND("textures/gui/structure_wand.png", 0, 0, 80, 195, 0),
     KEYMAP("textures/gui/buttons.png", 0, 0, 16, 16, 5, 0, 16, 0, 32, 0, 48, 0, 64, 0, 80),
     TELEPHONE_WIRE("textures/addition/telephone_wire.png", 0, 0, 16, 16, 1),
+    RULER_BKG("textures/gui/ruler.png", 1, 0, 254, 152, 0),
+    RULER_DECO("textures/gui/ruler.png", 0, 231, 106, 25, 0),
+    RULER_DECO_MAP("textures/gui/ruler.png", 0, 153, 66, 66, 0),
+    RULER_DECO_SIGN("textures/gui/ruler.png", 67, 153, 9, 9, 0)
     ;
     private final ResourceLocation resource;
     private final int startX;

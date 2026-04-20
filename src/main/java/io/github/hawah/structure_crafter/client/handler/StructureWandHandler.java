@@ -218,7 +218,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         if (modifier != null) {
             selectedPos = modifier.applyModify(hit);
         }
-        setupRenderer();
+        //setupRenderer();
     }
 
     private void handleRotation(LocalPlayer player) {

@@ -186,7 +186,6 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         double d0 = cameraPos.x;
         double d1 = cameraPos.y;
         double d2 = cameraPos.z;
-        System.out.println(a);
         poseStack.pushPose();
         poseStack.translate((float)(position.x - d0), (float)(position.y - d1), (float)(position.z - d2));
         final float threshold = 0.5F;
