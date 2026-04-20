@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.handler;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
+import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
@@ -39,6 +40,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -311,7 +313,7 @@ public class BlackboardHandler {
 
         // select in the air
         if (canReachAir()) {
-            Vec3 targetVec = player.getEyePosition(0)
+            Vec3 targetVec = SableLogicTransformCompat.applyTransformInverse(player.getEyePosition(0), firstPos == null? selectedPos==null? null: selectedPos.getCenter(): firstPos.getCenter())
                     .add(player.getLookAngle()
                             .scale(reach));
             setSelectedPos(BlockPos.containing(targetVec));
@@ -410,7 +412,12 @@ public class BlackboardHandler {
             return;
         }
 
-        this.secondPos = secondPos;
+        List<BlockPos> resultHolder = new ArrayList<>(List.of(firstPos, secondPos));
+
+        SableLogicTransformCompat.applyReverseAreaTotalTransform(secondPos, resultHolder);
+
+        this.firstPos = resultHolder.getFirst();
+        this.secondPos = resultHolder.getLast();
 
         updateBoundingBox();
     }
@@ -542,9 +549,13 @@ public class BlackboardHandler {
     }
 
     private Direction intersectRayWithBox(Vec3 from, Vec3 direction) {
-        BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), from, direction, BlockPos.ZERO);
-        return clip==null? null : clip.getDirection();
 
+        List<Vec3> dataHolder = new ArrayList<>(List.of(from, direction));
+
+        SableLogicTransformCompat.transformRayIntersectData(from, direction, dataHolder, cachedBoundingBox.getCenter());
+
+        BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), dataHolder.get(0), dataHolder.get(1), BlockPos.ZERO);
+        return clip==null? null : clip.getDirection();
     }
 
 }
