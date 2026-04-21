@@ -92,6 +92,11 @@ public class Blackboard extends Item implements ITooltipItem {
                             LangData.ERROR_AREA_TOO_LARGE.get(),
                             true
                     );
+                } else if (!StructureCrafterClient.BLACKBOARD_HANDLER.isValidCenter()) {
+                    player.displayClientMessage(
+                            LangData.ERROR_ANCHOR_OUT_OF_BOUNDS.get(),
+                            true
+                    );
                 } else {
                     ScreenOpener.open(new BlackboardCheckScreen());
                 }

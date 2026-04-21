@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -85,7 +86,7 @@ public class BlackboardHandler {
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 ()-> this.isActive() && selectedPos != null,
-                () -> centerPos = selectedPos,
+                () -> centerPos = transform(selectedPos),
                 LangData.HUD_TIP_BLACKBOARD_SELECT_ANCHOR.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
@@ -313,9 +314,9 @@ public class BlackboardHandler {
 
         // select in the air
         if (canReachAir()) {
-            Vec3 targetVec = SableLogicTransformCompat.applyTransformInverse(player.getEyePosition(0), firstPos == null? selectedPos==null? null: selectedPos.getCenter(): firstPos.getCenter())
+            Vec3 targetVec = transform(player.getEyePosition(0)
                     .add(player.getLookAngle()
-                            .scale(reach));
+                            .scale(reach)));
             setSelectedPos(BlockPos.containing(targetVec));
         }
 
@@ -338,7 +339,7 @@ public class BlackboardHandler {
         if (firstPos != null) {
             int gb = 1;
             if (cachedBoundingBox != null) {
-                gb = isValidSize()? gb: 0;
+                gb = isValidSize() && isValidCenter()? gb: 0;
             }
             Outliner.getInstance()
                     .chaseThickBox(
@@ -358,11 +359,12 @@ public class BlackboardHandler {
         }
 
         if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null)) {
+            BlockPos renderedCenterPos = centerPos==null? selectedPos: centerPos;
             Outliner.getInstance()
                     .chaseThickBox(
                             centerSlot,
-                            centerPos==null? selectedPos: centerPos,
-                            centerPos==null? selectedPos: centerPos
+                            renderedCenterPos,
+                            renderedCenterPos
                     )
                     .setRGBA(1, 216F/255, 0, 1)
                     .setPriority(1)
@@ -398,7 +400,7 @@ public class BlackboardHandler {
         if (Objects.equals(this.selectedPos, selectedPos)) {
             return;
         }
-        this.selectedPos = selectedPos;
+        this.selectedPos = transform(selectedPos);
 
         if (secondPos != null) {
             return;
@@ -412,7 +414,7 @@ public class BlackboardHandler {
             return;
         }
 
-        List<BlockPos> resultHolder = new ArrayList<>(List.of(firstPos, secondPos));
+        List<BlockPos> resultHolder = Arrays.asList(firstPos, secondPos);
 
         SableLogicTransformCompat.applyReverseAreaTotalTransform(secondPos, resultHolder);
 
@@ -558,4 +560,29 @@ public class BlackboardHandler {
         return clip==null? null : clip.getDirection();
     }
 
+
+    public boolean isValidCenter() {
+        return (centerPos != null && cachedBoundingBox.contains(centerPos.getCenter())) ||
+                (centerPos == null && selectedPos != null && cachedBoundingBox.contains(selectedPos.getCenter()));
+    }
+
+    private boolean isPhysicalSide() {
+        return SableLogicTransformCompat.isPhysical(firstPos);
+    }
+
+    private BlockPos transform(BlockPos pos) {
+        if (isPhysicalSide()) {
+            return SableLogicTransformCompat.isSameSide(pos, firstPos)? pos: SableLogicTransformCompat.applyTransformInverse(pos, firstPos);
+        } else {
+            return SableLogicTransformCompat.isSameSide(pos, firstPos)? pos: SableLogicTransformCompat.applyTransform(pos);
+        }
+    }
+
+    private Vec3 transform(Vec3 pos) {
+        if (isPhysicalSide()) {
+            return SableLogicTransformCompat.isPhysical(pos)? pos: SableLogicTransformCompat.applyTransformInverse(pos, firstPos.getCenter());
+        } else {
+            return SableLogicTransformCompat.isPhysical(pos)? SableLogicTransformCompat.applyTransform(pos, firstPos.getCenter()): pos;
+        }
+    }
 }

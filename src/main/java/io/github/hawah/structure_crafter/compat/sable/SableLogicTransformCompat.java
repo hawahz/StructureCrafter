@@ -60,6 +60,55 @@ public class SableLogicTransformCompat {
         return levelAccess.logicalPose().transformPositionInverse(global);
     }
 
+    public static BlockPos applyTransformInverse(final BlockPos global, BlockPos source) {
+
+        if (source == null) {
+            source = global;
+        }
+
+        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(source);
+        if (levelAccess == null) {
+            return global;
+        }
+
+        return BlockPos.containing(levelAccess.logicalPose().transformPositionInverse((global).getCenter()));
+    }
+
+    public static boolean isPhysical(final Vec3 pos) {
+        if (pos == null)
+            return false;
+        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(pos);
+        return levelAccess != null;
+    }
+    public static boolean isPhysical(final BlockPos pos) {
+        if (pos == null)
+            return false;
+        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(pos);
+        return levelAccess != null;
+    }
+
+    public static boolean isSameSide(final Vec3 pos1, final Vec3 pos2) {
+        ClientSubLevelAccess side1 = SableCompanion.INSTANCE.getContainingClient(pos1);
+        ClientSubLevelAccess side2 = SableCompanion.INSTANCE.getContainingClient(pos2);
+        if (side1==null && side2 == null) {
+            return true;
+        }
+
+        if ((side2 == null) || (side1 == null)) {
+            return false;
+        }
+
+        return side1.getUniqueId().equals(side2.getUniqueId());
+    }
+
+    public static boolean isSameSide(final BlockPos pos1, final BlockPos pos2) {
+        if (pos1 == null || pos2 == null) {
+            return true;
+        }
+        return isSameSide(pos1.getCenter(), pos2.getCenter());
+    }
+
+
     public static void transformRayIntersectData(Vec3 from, Vec3 direction, List<Vec3> dataHolder, Vec3 center) {
         ClientSubLevelAccess containingClient = SableCompanion.INSTANCE.getContainingClient(center);
 

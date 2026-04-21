@@ -43,6 +43,7 @@
   "structure_crafter.configuration.structure_place_distance.tooltip": "Defines the maximum placement distance (as a multiple of the player's reach) when using the Structure Wand in survival mode.",
   "structure_crafter.configuration.structure_place_mode": "NBT Placement Mode",
   "structure_crafter.configuration.structure_place_mode.tooltip": "Defines how NBT data is handled when placing blocks: ALL applies NBT to all blocks; IGNORE_NBT ignores all NBT data (may break structures); BLACKLIST ignores NBT only for blocks in the blacklist.",
+  "structure_crafter.error.anchor_out_of_bounds": "Anchor is out of bounds!",
   "structure_crafter.error.area_too_large": "Selection is too large!",
   "structure_crafter.error.structure_wand_not_enough_item": "Missing %1$s %2$s(s)",
   "structure_crafter.error.structure_wand_not_enough_item_too_long": "Not enough itemIds",
