@@ -1,25 +1,31 @@
 package io.github.hawah.structure_crafter.compat.sable;
 
-import dev.ryanhcode.sable.companion.ClientSubLevelAccess;
 import dev.ryanhcode.sable.companion.SableCompanion;
 import dev.ryanhcode.sable.companion.SubLevelAccess;
 import dev.ryanhcode.sable.companion.math.BoundingBox3d;
 import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
 import dev.ryanhcode.sable.companion.math.Pose3dc;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class SableLogicTransformCompat {
+public class SableLogicTransformCompat{
 
-    public static BlockPos applyTransform(final BlockPos local) {
+    public static SableLogicTransformCompat instance() {
+        return new SableLogicTransformCompat();
+    }
+
+    private Level level;
+
+    public BlockPos applyTransform(final BlockPos local) {
         return applyTransform(local, local);
     }
 
-    public static BlockPos applyTransform(final BlockPos local, final BlockPos source) {
+    public BlockPos applyTransform(final BlockPos local, final BlockPos source) {
 
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(source);
+        SubLevelAccess levelAccess = getContaining(source);
         if (levelAccess == null) {
             return local;
         }
@@ -27,18 +33,18 @@ public class SableLogicTransformCompat {
         return BlockPos.containing(levelAccess.logicalPose().transformPosition(local.getCenter()));
     }
 
-    public static Vec3 applyTransform(final Vec3 local) {
+    public Vec3 applyTransform(final Vec3 local) {
 
         return applyTransform(local, local);
     }
 
-    public static Vec3 applyTransform(final Vec3 local, Vec3 source) {
+    public Vec3 applyTransform(final Vec3 local, Vec3 source) {
 
         if (source == null) {
             source = local;
         }
 
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(source);
+        SubLevelAccess levelAccess = getContaining(source);
         if (levelAccess == null) {
             return local;
         }
@@ -46,13 +52,13 @@ public class SableLogicTransformCompat {
         return levelAccess.logicalPose().transformPosition(local);
     }
 
-    public static Vec3 applyTransformInverse(final Vec3 global, Vec3 source) {
+    public Vec3 applyTransformInverse(final Vec3 global, Vec3 source) {
 
         if (source == null) {
             source = global;
         }
 
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(source);
+        SubLevelAccess levelAccess = getContaining(source);
         if (levelAccess == null) {
             return global;
         }
@@ -60,13 +66,13 @@ public class SableLogicTransformCompat {
         return levelAccess.logicalPose().transformPositionInverse(global);
     }
 
-    public static BlockPos applyTransformInverse(final BlockPos global, BlockPos source) {
+    public BlockPos applyTransformInverse(final BlockPos global, BlockPos source) {
 
         if (source == null) {
             source = global;
         }
 
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(source);
+        SubLevelAccess levelAccess = getContaining(source);
         if (levelAccess == null) {
             return global;
         }
@@ -74,22 +80,22 @@ public class SableLogicTransformCompat {
         return BlockPos.containing(levelAccess.logicalPose().transformPositionInverse((global).getCenter()));
     }
 
-    public static boolean isPhysical(final Vec3 pos) {
+    public boolean isPhysical(final Vec3 pos) {
         if (pos == null)
             return false;
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(pos);
+        SubLevelAccess levelAccess = getContaining(pos);
         return levelAccess != null;
     }
-    public static boolean isPhysical(final BlockPos pos) {
+    public boolean isPhysical(final BlockPos pos) {
         if (pos == null)
             return false;
-        SubLevelAccess levelAccess = SableCompanion.INSTANCE.getContainingClient(pos);
+        SubLevelAccess levelAccess = getContaining(pos);
         return levelAccess != null;
     }
 
-    public static boolean isSameSide(final Vec3 pos1, final Vec3 pos2) {
-        ClientSubLevelAccess side1 = SableCompanion.INSTANCE.getContainingClient(pos1);
-        ClientSubLevelAccess side2 = SableCompanion.INSTANCE.getContainingClient(pos2);
+    public boolean isSameSide(final Vec3 pos1, final Vec3 pos2) {
+        SubLevelAccess side1 = getContaining(pos1);
+        SubLevelAccess side2 = getContaining(pos2);
         if (side1==null && side2 == null) {
             return true;
         }
@@ -101,7 +107,7 @@ public class SableLogicTransformCompat {
         return side1.getUniqueId().equals(side2.getUniqueId());
     }
 
-    public static boolean isSameSide(final BlockPos pos1, final BlockPos pos2) {
+    public boolean isSameSide(final BlockPos pos1, final BlockPos pos2) {
         if (pos1 == null || pos2 == null) {
             return true;
         }
@@ -109,8 +115,8 @@ public class SableLogicTransformCompat {
     }
 
 
-    public static void transformRayIntersectData(Vec3 from, Vec3 direction, List<Vec3> dataHolder, Vec3 center) {
-        ClientSubLevelAccess containingClient = SableCompanion.INSTANCE.getContainingClient(center);
+    public void transformRayIntersectData(Vec3 from, Vec3 direction, List<Vec3> dataHolder, Vec3 center) {
+        SubLevelAccess containingClient = getContaining(center);
 
         if (containingClient != null) {
             dataHolder.set(0, containingClient.logicalPose().transformPositionInverse(from));
@@ -118,9 +124,9 @@ public class SableLogicTransformCompat {
         }
     }
 
-    public static void applyReverseAreaTotalTransform(BlockPos secondPos, List<BlockPos> resultHolder) {
+    public void applyReverseAreaTotalTransform(BlockPos secondPos, List<BlockPos> resultHolder) {
         if (resultHolder.getFirst() != null){
-            ClientSubLevelAccess containingClient = SableCompanion.INSTANCE.getContainingClient(resultHolder.getFirst());
+            SubLevelAccess containingClient = getContaining(resultHolder.getFirst());
             if (containingClient != null && secondPos != null && resultHolder.getFirst().distSqr(secondPos) > 100000) {
                 Pose3dc pose3dc = containingClient.logicalPose();
                 BoundingBox3dc boundingBox3dc = containingClient.boundingBox();
@@ -129,5 +135,26 @@ public class SableLogicTransformCompat {
                 resultHolder.set(1, BlockPos.containing((boundingBox3dc.toMojang().getMaxPosition())));
             }
         }
+    }
+
+    public SubLevelAccess getContaining(BlockPos pos) {
+        if (level != null) {
+            return SableCompanion.INSTANCE.getContaining(level, pos);
+        } else {
+            return SableCompanion.INSTANCE.getContainingClient(pos);
+        }
+    }
+
+    public SubLevelAccess getContaining(Vec3 pos) {
+        if (level != null) {
+            return SableCompanion.INSTANCE.getContaining(level, pos);
+        } else {
+            return SableCompanion.INSTANCE.getContainingClient(pos);
+        }
+    }
+
+    public SableLogicTransformCompat level(Level level) {
+        this.level = level;
+        return this;
     }
 }

@@ -339,7 +339,7 @@ public class BlackboardHandler {
         if (firstPos != null) {
             int gb = 1;
             if (cachedBoundingBox != null) {
-                gb = isValidSize() && isValidCenter()? gb: 0;
+                gb = isValidSize() && (isValidCenter() || selectedFace != null)? gb: 0;
             }
             Outliner.getInstance()
                     .chaseThickBox(
@@ -358,7 +358,7 @@ public class BlackboardHandler {
                     .finish();
         }
 
-        if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null)) {
+        if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null && selectedFace == null)) {
             BlockPos renderedCenterPos = centerPos==null? selectedPos: centerPos;
             Outliner.getInstance()
                     .chaseThickBox(
@@ -416,7 +416,7 @@ public class BlackboardHandler {
 
         List<BlockPos> resultHolder = Arrays.asList(firstPos, secondPos);
 
-        SableLogicTransformCompat.applyReverseAreaTotalTransform(secondPos, resultHolder);
+        SableLogicTransformCompat.instance().applyReverseAreaTotalTransform(secondPos, resultHolder);
 
         this.firstPos = resultHolder.getFirst();
         this.secondPos = resultHolder.getLast();
@@ -554,7 +554,7 @@ public class BlackboardHandler {
 
         List<Vec3> dataHolder = new ArrayList<>(List.of(from, direction));
 
-        SableLogicTransformCompat.transformRayIntersectData(from, direction, dataHolder, cachedBoundingBox.getCenter());
+        SableLogicTransformCompat.instance().transformRayIntersectData(from, direction, dataHolder, cachedBoundingBox.getCenter());
 
         BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), dataHolder.get(0), dataHolder.get(1), BlockPos.ZERO);
         return clip==null? null : clip.getDirection();
@@ -567,22 +567,24 @@ public class BlackboardHandler {
     }
 
     private boolean isPhysicalSide() {
-        return SableLogicTransformCompat.isPhysical(firstPos);
+        return SableLogicTransformCompat.instance().isPhysical(firstPos);
     }
 
     private BlockPos transform(BlockPos pos) {
+        SableLogicTransformCompat transformer = SableLogicTransformCompat.instance();
         if (isPhysicalSide()) {
-            return SableLogicTransformCompat.isSameSide(pos, firstPos)? pos: SableLogicTransformCompat.applyTransformInverse(pos, firstPos);
+            return transformer.isSameSide(pos, firstPos)? pos: transformer.applyTransformInverse(pos, firstPos);
         } else {
-            return SableLogicTransformCompat.isSameSide(pos, firstPos)? pos: SableLogicTransformCompat.applyTransform(pos);
+            return transformer.isSameSide(pos, firstPos)? pos: transformer.applyTransform(pos);
         }
     }
 
     private Vec3 transform(Vec3 pos) {
+        SableLogicTransformCompat transformer = SableLogicTransformCompat.instance();
         if (isPhysicalSide()) {
-            return SableLogicTransformCompat.isPhysical(pos)? pos: SableLogicTransformCompat.applyTransformInverse(pos, firstPos.getCenter());
+            return transformer.isPhysical(pos)? pos: transformer.applyTransformInverse(pos, firstPos.getCenter());
         } else {
-            return SableLogicTransformCompat.isPhysical(pos)? SableLogicTransformCompat.applyTransform(pos, firstPos.getCenter()): pos;
+            return transformer.isPhysical(pos)? transformer.applyTransform(pos, firstPos.getCenter()): pos;
         }
     }
 }

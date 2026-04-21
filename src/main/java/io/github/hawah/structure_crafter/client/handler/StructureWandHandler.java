@@ -215,7 +215,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             }
         }
 
-        if (lock && player.blockPosition().distManhattan(SableLogicTransformCompat.applyTransform(selectedPos)) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
+        if (lock && player.blockPosition().distManhattan(SableLogicTransformCompat.instance().applyTransform(selectedPos)) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
             lock = false;
         }
 

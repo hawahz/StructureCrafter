@@ -94,7 +94,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             return;
         }
         BlockPos rawPos = handsetComponent.pos();
-        BlockPos pos = SableLogicTransformCompat.applyTransform(rawPos);
+        BlockPos pos = SableLogicTransformCompat.instance().level(level).applyTransform(rawPos);
         if (!(level.getBlockEntity(rawPos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
             stack.shrink(1);
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(rawPos);
@@ -108,7 +108,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             player.addDeltaMovement(directionVec.normalize().multiply(factor, factor, factor));
         }
         if (level.isClientSide()) {
-            Vec3 center = SableLogicTransformCompat.applyTransform(rawPos.getCenter())
+            Vec3 center = SableLogicTransformCompat.instance().applyTransform(rawPos.getCenter())
                     .add(Vec3.atLowerCornerOf(telephoneBlockEntity.facing.getNormal()).multiply(0.5, 0.5, 0.5))
                     .add(new Vec3(0, -0.25, 0));
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(

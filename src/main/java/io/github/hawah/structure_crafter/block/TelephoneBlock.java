@@ -180,7 +180,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             return InteractionResult.PASS;
         }
         if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
-            if (!blockEntity.hasBeacon() && player.position().distanceTo(SableLogicTransformCompat.applyTransform(pos.getCenter())) > 1000) {
+            if (!blockEntity.hasBeacon() && player.position().distanceTo(SableLogicTransformCompat.instance().applyTransform(pos.getCenter())) > 1000) {
                 return InteractionResult.FAIL;
             }
             playerPickUpTelephone(level, pos, player, blockEntity);
