@@ -107,6 +107,7 @@ public enum KeyBinding {
                 return;
             }
         }
+        KeyBuffer.update(0, false, 0);
     }
 
     public static class Action {

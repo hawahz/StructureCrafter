@@ -104,6 +104,7 @@ public enum LangData {
     HUD_BLACKBOARD_SELECTION("hud.blackboard_selection", "Size (%1$s, %2$s, %3$s) (%4$s)", 4),
 
     ERROR_AREA_TOO_LARGE("error.area_too_large","Selection is too large!",0, ChatFormatting.RED),
+    ERROR_ANCHOR_OUT_OF_BOUNDS("error.anchor_out_of_bounds","Anchor is out of bounds!",0, ChatFormatting.RED),
 
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM("error.structure_wand_not_enough_item","Missing %1$s %2$s(s)",2),
     WARN_STRUCTURE_WAND_NOT_ENOUGH_ITEM_TOO_LONG("error.structure_wand_not_enough_item_too_long","Not enough itemIds",0),

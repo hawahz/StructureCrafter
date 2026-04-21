@@ -6,6 +6,7 @@ import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -179,6 +180,9 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             return InteractionResult.PASS;
         }
         if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
+            if (!blockEntity.hasBeacon() && player.position().distanceTo(SableLogicTransformCompat.instance().applyTransform(pos.getCenter())) > 1000) {
+                return InteractionResult.FAIL;
+            }
             playerPickUpTelephone(level, pos, player, blockEntity);
             return InteractionResult.SUCCESS;
         } else if (!blockEntity.hasTelephone() && player.getMainHandItem().isEmpty() && !player.isShiftKeyDown()) {

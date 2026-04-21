@@ -2,7 +2,6 @@ package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.util.StructureHandler;

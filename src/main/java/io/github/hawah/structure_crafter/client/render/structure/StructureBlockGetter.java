@@ -70,6 +70,10 @@ public class StructureBlockGetter extends Level implements BlockAndTintGetter {
         this.realLevel = realLevel;
         // 初始化时把结构里的方块全存入 Map，方便快速查找
         var blockInfos = ((StructureTemplateAccessor) template).getPalettes().getFirst().blocks();
+        if (blockInfos.isEmpty()) {
+            bounds = new BoundingBox(BlockPos.ZERO);
+            return;
+        }
         bounds = new BoundingBox(blockInfos.getFirst().pos());
         for (var info : blockInfos) {
             blockMap.put(info.pos(), info.state());

@@ -1,7 +1,6 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
 import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import io.github.hawah.structure_crafter.util.ServerStructureExport;

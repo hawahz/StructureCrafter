@@ -426,8 +426,7 @@ public class MaterialListScreen extends BaseScreen{
             Style s = Style.EMPTY;
             guiGraphics.drawString(
                     font,
-                    Component.literal(line).withStyle(style ->
-                                    style.withFont(ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "boutique"))),
+                    Component.literal(line),
                     itemPageFirst.isEmpty() || itemPageFirst.get(i).count() <= 0? left - 26: left,
                     (int) (top + 8 - font.lineHeight/2F + i * 11*2 + frontY / sc),
                     0x000000,

@@ -224,22 +224,26 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
                                                       int overlay,
                                                       Minecraft mc,
                                                       BakedModel bakedModel) {
+        boolean flag = itemDisplayContext == ItemDisplayContext.GUI || itemDisplayContext == ItemDisplayContext.GROUND || itemDisplayContext == ItemDisplayContext.FIXED;
         ItemRenderer itemRenderer = mc.getItemRenderer();
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
         bakedModel = ClientHooks.handleCameraTransforms(poseStack, bakedModel, itemDisplayContext, false);
         poseStack.translate(-0.5, -0.5, -0.5);
-        if (itemDisplayContext.equals(ItemDisplayContext.GUI)) {
-            Lighting.setupForFlatItems();
-            light = LightTexture.FULL_BRIGHT;
+        if (flag) {
+//            Lighting.setupForFlatItems();
+            light = LightTexture.pack(15, 15);
         }
         for (var model : bakedModel.getRenderPasses(stack, true)) {
             for (var rendertype : model.getRenderTypes(stack, true)) {
                 VertexConsumer vertexconsumer;
-                vertexconsumer = ItemRenderer.getFoilBufferDirect(bufferSource, rendertype, true, stack.hasFoil());
+                vertexconsumer = ItemRenderer.getFoilBufferDirect(bufferSource, RenderType.translucent(), true, stack.hasFoil());
 
                 itemRenderer.renderModelLists(model, stack, light, overlay, poseStack, vertexconsumer);
             }
+        }
+        if (flag) {
+//            Lighting.setupFor3DItems();
         }
         poseStack.popPose();
     }

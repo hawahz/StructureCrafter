@@ -43,6 +43,7 @@
   "structure_crafter.configuration.structure_place_distance.tooltip": "定义在生存模式下使用构印杖时的最大放置距离（以玩家触及距离为倍数）。",
   "structure_crafter.configuration.structure_place_mode": "NBT 放置模式",
   "structure_crafter.configuration.structure_place_mode.tooltip": "定义放置方块时 NBT 数据的处理方式：ALL 为所有方块应用 NBT；IGNORE_NBT 忽略所有方块的 NBT 数据（可能导致结构异常）；BLACKLIST 仅忽略黑名单中的方块的 NBT 数据。",
+  "structure_crafter.error.anchor_out_of_bounds": "锚点应在选区内",
   "structure_crafter.error.area_too_large": "选区过大！",
   "structure_crafter.error.structure_wand_not_enough_item": "缺少 %1$s 个 %2$s",
   "structure_crafter.error.structure_wand_not_enough_item_too_long": "物品数量不足！",

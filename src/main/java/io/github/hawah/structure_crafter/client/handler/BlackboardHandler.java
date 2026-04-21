@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.handler;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
+import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
@@ -35,6 +36,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue", "SameParameterValue"})
@@ -78,7 +82,7 @@ public class BlackboardHandler implements IHandler{
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 ()-> this.isActive() && selectedPos != null,
-                () -> centerPos = selectedPos,
+                () -> centerPos = transform(selectedPos),
                 LangData.HUD_TIP_BLACKBOARD_SELECT_ANCHOR.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
@@ -241,9 +245,9 @@ public class BlackboardHandler implements IHandler{
 
         // select in the air
         if (canReachAir()) {
-            Vec3 targetVec = player.getEyePosition(0)
+            Vec3 targetVec = transform(player.getEyePosition(0)
                     .add(player.getLookAngle()
-                            .scale(reach));
+                            .scale(reach)));
             setSelectedPos(BlockPos.containing(targetVec));
         }
 
@@ -266,7 +270,7 @@ public class BlackboardHandler implements IHandler{
         if (firstPos != null) {
             int gb = 1;
             if (cachedBoundingBox != null) {
-                gb = isValidSize()? gb: 0;
+                gb = isValidSize() && (isValidCenter() || selectedFace != null)? gb: 0;
             }
             Outliner.getInstance()
                     .chaseThickBox(
@@ -285,12 +289,13 @@ public class BlackboardHandler implements IHandler{
                     .finish();
         }
 
-        if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null)) {
+        if (centerPos != null || (firstPos != null && secondPos != null && selectedPos != null && selectedFace == null)) {
+            BlockPos renderedCenterPos = centerPos==null? selectedPos: centerPos;
             Outliner.getInstance()
                     .chaseThickBox(
                             centerSlot,
-                            centerPos==null? selectedPos: centerPos,
-                            centerPos==null? selectedPos: centerPos
+                            renderedCenterPos,
+                            renderedCenterPos
                     )
                     .setRGBA(1, 216F/255, 0, 1)
                     .setPriority(1)
@@ -326,7 +331,7 @@ public class BlackboardHandler implements IHandler{
         if (Objects.equals(this.selectedPos, selectedPos)) {
             return;
         }
-        this.selectedPos = selectedPos;
+        this.selectedPos = transform(selectedPos);
 
         if (secondPos != null) {
             return;
@@ -340,7 +345,12 @@ public class BlackboardHandler implements IHandler{
             return;
         }
 
-        this.secondPos = secondPos;
+        List<BlockPos> resultHolder = Arrays.asList(firstPos, secondPos);
+
+        SableLogicTransformCompat.instance().applyReverseAreaTotalTransform(secondPos, resultHolder);
+
+        this.firstPos = resultHolder.getFirst();
+        this.secondPos = resultHolder.getLast();
 
         updateBoundingBox();
     }
@@ -450,5 +460,43 @@ public class BlackboardHandler implements IHandler{
                 .finish();
         centerSlot = new Object();
         centerPos = null;
+    }
+
+    private Direction intersectRayWithBox(Vec3 from, Vec3 direction) {
+
+        List<Vec3> dataHolder = new ArrayList<>(List.of(from, direction));
+
+        SableLogicTransformCompat.instance().transformRayIntersectData(from, direction, dataHolder, cachedBoundingBox.getCenter());
+
+        BlockHitResult clip = AABB.clip(List.of(cachedBoundingBox), dataHolder.get(0), dataHolder.get(1), BlockPos.ZERO);
+        return clip==null? null : clip.getDirection();
+    }
+
+
+    public boolean isValidCenter() {
+        return (centerPos != null && cachedBoundingBox.contains(centerPos.getCenter())) ||
+                (centerPos == null && selectedPos != null && cachedBoundingBox.contains(selectedPos.getCenter()));
+    }
+
+    private boolean isPhysicalSide() {
+        return SableLogicTransformCompat.instance().isPhysical(firstPos);
+    }
+
+    private BlockPos transform(BlockPos pos) {
+        SableLogicTransformCompat transformer = SableLogicTransformCompat.instance();
+        if (isPhysicalSide()) {
+            return transformer.isSameSide(pos, firstPos)? pos: transformer.applyTransformInverse(pos, firstPos);
+        } else {
+            return transformer.isSameSide(pos, firstPos)? pos: transformer.applyTransform(pos);
+        }
+    }
+
+    private Vec3 transform(Vec3 pos) {
+        SableLogicTransformCompat transformer = SableLogicTransformCompat.instance();
+        if (isPhysicalSide()) {
+            return transformer.isPhysical(pos)? pos: transformer.applyTransformInverse(pos, firstPos.getCenter());
+        } else {
+            return transformer.isPhysical(pos)? transformer.applyTransform(pos, firstPos.getCenter()): pos;
+        }
     }
 }
