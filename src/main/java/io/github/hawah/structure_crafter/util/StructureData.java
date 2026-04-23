@@ -1,4 +1,4 @@
-package io.github.hawah.structure_crafter.client.utils;
+package io.github.hawah.structure_crafter.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;

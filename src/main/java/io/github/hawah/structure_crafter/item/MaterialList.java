@@ -2,8 +2,6 @@ package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
@@ -11,7 +9,6 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.FormattedText;
@@ -49,7 +46,7 @@ public class MaterialList extends Item implements ITooltipItem{
         }
 
         if (level.isClientSide) {
-            ScreenOpener.open(new MaterialListScreen());
+            //ScreenOpener.open(new MaterialListScreen());
         }
         return super.use(level, player, usedHand);
     }
@@ -111,7 +108,7 @@ public class MaterialList extends Item implements ITooltipItem{
 
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
         int t = 1;
-        if (!Screen.hasShiftDown()) {
+        if (!ITooltipItem.isShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_MATERIAL_LIST_0.get()));

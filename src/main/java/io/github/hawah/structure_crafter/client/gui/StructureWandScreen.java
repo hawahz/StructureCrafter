@@ -115,7 +115,7 @@ public class StructureWandScreen extends BaseScreen {
         for (int i = 0; i < Math.min(MAX_SLOTS, structuresInFolder.size()); i++) {
             LabelButton button = new LabelButton(Button.builder(filteredStructures.get(i), b -> {
                 ItemStack mainHandItem = Minecraft.getInstance().player.getMainHandItem();
-                AbstractStructureWand.selectStructure(mainHandItem, b.getMessage().getString());
+                AbstractStructureWand.selectStructure(mainHandItem, b.getMessage().getString(), Minecraft.getInstance().player);
                 AbstractStructureWand.setOwnerName(mainHandItem, Minecraft.getInstance().player);
                 selectedStructure = b.getMessage().getString();
                 labelButtons.forEach(other -> other.active = true);

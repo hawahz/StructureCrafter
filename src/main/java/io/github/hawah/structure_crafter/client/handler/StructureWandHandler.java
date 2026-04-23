@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Config;
-import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
@@ -165,7 +165,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
             String currentFile = hud.getCurrentStructure();
             if (!currentFile.isEmpty()) {
                 //lock = false;
-                AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
+                AbstractStructureWand.selectStructure(activeSchematicItem, currentFile, Minecraft.getInstance().player);
                 AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
                 Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
             }
