@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter.util;
 
+import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -11,6 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -167,7 +169,12 @@ public class RaycastHelper {
     }
 
     public static Direction intersectRayWithBox(Vec3 from, Vec3 direction, AABB... boundingBoxes) {
-        BlockHitResult clip = AABB.clip(List.of(boundingBoxes), from, direction, BlockPos.ZERO);
+        List<Vec3> dataHolder = new ArrayList<>(List.of(from, direction));
+
+        assert boundingBoxes.length > 0;
+        SableLogicTransformCompat.instance().transformRayIntersectData(from, direction, dataHolder, boundingBoxes[0].getCenter());
+
+        BlockHitResult clip = AABB.clip(List.of(boundingBoxes), dataHolder.get(0), dataHolder.get(1), BlockPos.ZERO);
         return clip==null? null : clip.getDirection();
     }
 

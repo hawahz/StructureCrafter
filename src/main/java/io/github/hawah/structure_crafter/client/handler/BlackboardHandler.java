@@ -229,8 +229,7 @@ public class BlackboardHandler implements IHandler{
 
         // select face
         if (firstPos != null && secondPos != null && Screen.hasAltDown()) {
-            selectedFace = scrolling <= 0? RaycastHelper.intersectRayWithBox(
-                    cachedBoundingBox,
+            selectedFace = scrolling <= 0? intersectRayWithBox(
                     player.getEyePosition(),
                     RaycastHelper.getTraceTarget(player, 300, player.getEyePosition())
             ) : selectedFace;
