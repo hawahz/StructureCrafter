@@ -2,23 +2,18 @@ package io.github.hawah.structure_crafter.item.blackboard;
 
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.Config;
-import io.github.hawah.structure_crafter.StructureCrafterClient;
-import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.Empty;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
+import io.github.hawah.structure_crafter.util.AllClientHooks;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -85,30 +80,9 @@ public class Blackboard extends Item implements ITooltipItem {
             stack.remove(DataComponentTypeRegistries.BLACKBOARD_WRITING);
         }
         if (level.isClientSide()) {
-            if (StructureCrafterClient.BLACKBOARD_HANDLER.hasSelection() && StructureCrafterClient.BLACKBOARD_HANDLER.hasCenter()) {
-
-                if (!StructureCrafterClient.BLACKBOARD_HANDLER.isValidSize()) {
-                    player.displayClientMessage(
-                            LangData.ERROR_AREA_TOO_LARGE.get(),
-                            true
-                    );
-                } else if (!StructureCrafterClient.BLACKBOARD_HANDLER.isValidCenter()) {
-                    player.displayClientMessage(
-                            LangData.ERROR_ANCHOR_OUT_OF_BOUNDS.get(),
-                            true
-                    );
-                } else {
-                    ScreenOpener.open(new BlackboardCheckScreen());
-                }
-            } else {
-                player.displayClientMessage(
-                        !StructureCrafterClient.BLACKBOARD_HANDLER.hasSelection()?
-                                LangData.INFO_NO_SELECTION.get():
-                                LangData.INFO_NO_ANCHOR.get(),
-                        true
-                );
-            }
-        } else if (!player.isCreative()) {
+            AllClientHooks.tryOpenBlackboardScreen(player);
+        }
+        if (!player.isCreative()) {
             player.getMainHandItem().shrink(1);
         }
         player.level().playSound(null, player, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, player.getSoundSource(), 1.0F, 1.0F);
@@ -122,7 +96,7 @@ public class Blackboard extends Item implements ITooltipItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return (BlackboardRenderType.WRITE.equals(Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get()) && Minecraft.getInstance().player.getMainArm().equals(HumanoidArm.RIGHT))?
+        return (BlackboardRenderType.WRITE.equals(Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get()))?
                 UseAnim.NONE :
                 UseAnim.EAT;
     }
@@ -130,7 +104,7 @@ public class Blackboard extends Item implements ITooltipItem {
     @Override
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
         int t = 1;
-        if (!Screen.hasShiftDown()) {
+        if (!ITooltipItem.isShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_BLACKBOARD_0.get()));

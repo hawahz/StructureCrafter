@@ -1,12 +1,10 @@
 package io.github.hawah.structure_crafter.client;
 
 import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
-import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.util.StructureData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.phys.Vec3;
 
 public abstract class StructureWandModifier {
     protected Type type;

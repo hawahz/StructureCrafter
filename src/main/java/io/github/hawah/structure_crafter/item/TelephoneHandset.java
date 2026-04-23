@@ -9,10 +9,8 @@ import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.util.AllClientHooks;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.CameraType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +42,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
     }
 
     public static void clientTick() {
-        LocalPlayer player = Minecraft.getInstance().player;
+        Player player = AllClientHooks.getPlayer();
         if (player == null || !Config.ClientConfig.RENDER_TELEPHONE_BOOST_POSITION.get()) {
             return;
         }
@@ -114,7 +112,7 @@ public class TelephoneHandset extends Item implements ITooltipItem{
             StructureCrafterClient.TELEPHONE_WIRE_RENDERER.update(
                     rawPos,
                     center,
-                    Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON ? player.position() : player.getEyePosition(),
+                    AllClientHooks.isFirstPerson() ? player.position() : player.getEyePosition(),
                     telephoneBlockEntity.hasBeacon,
                     player.getMainHandItem().equals(stack) || shouldPull
             );

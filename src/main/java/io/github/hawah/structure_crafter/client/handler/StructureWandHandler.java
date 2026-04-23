@@ -2,14 +2,13 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.client.StructureWandModifier;
-import io.github.hawah.structure_crafter.client.utils.StructureData;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
 import io.github.hawah.structure_crafter.client.render.structure.StructureRenderer;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
-import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.IModifierItem;
@@ -302,7 +301,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         // 如果hud的当前文件不为空，则
         if (!currentFile.isEmpty()) {
             //lock = false;
-            AbstractStructureWand.selectStructure(activeSchematicItem, currentFile);
+            AbstractStructureWand.selectStructure(activeSchematicItem, currentFile, player);
             AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
             Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
         }

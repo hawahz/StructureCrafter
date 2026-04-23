@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.util.StructureHandler;
-import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -12,12 +12,10 @@ import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;

@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.item.structure_wand;
 
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.util.StructureHandler;
-import io.github.hawah.structure_crafter.client.utils.StructureData;
+import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
@@ -10,21 +10,15 @@ import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.networking.MaterialListUploadPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -46,7 +40,7 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
     @Override
     public void handleTooltip(List<Either<FormattedText, TooltipComponent>> tooltipElements) {
         int t = 1;
-        if (!Screen.hasShiftDown()) {
+        if (!ITooltipItem.isShiftDown()) {
             tooltipElements.add(t, Either.left(LangData.SHIFT.get()));
         } else {
             tooltipElements.add(t++, Either.left(LangData.TOOLTIP_WAND_0.get()));
@@ -100,7 +94,6 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         stack.set(DataComponentTypeRegistries.STRUCTURE_OWNER, name);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static boolean isBoundsVisible(ItemStack stack) {
         return (stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, 0) & FORCE_BOUNDS_VISIBLE) != 0;
     }
@@ -114,17 +107,15 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         stack.set(DataComponentTypeRegistries.STRUCTURE_WAND_SETTINGS, settings);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static void selectStructure(ItemStack stack, String structure) {
+    public static void selectStructure(ItemStack stack, String structure, Player player) {
         stack.set(DataComponentTypeRegistries.STRUCTURE_FILE, structure);
-        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
         }
         recordMaterialListOffhand(stack, player);
     }
 
-    private static void recordMaterialListOffhand(ItemStack stack, LocalPlayer player) {
+    private static void recordMaterialListOffhand(ItemStack stack, Player player) {
         ItemStack itemStack = player.getOffhandItem();
         if (!isRecordMaterialValid(itemStack))
             return;
@@ -155,13 +146,13 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
         // TODO Configurable
         if (!page.isEmpty()) pages.add(page.toString());
         if (itemStack.has(DataComponents.WRITABLE_BOOK_CONTENT)) {
-            Minecraft.getInstance()
-                    .getConnection()
-                    .send(new ServerboundEditBookPacket(
-                            40,
-                            pages,
-                            Optional.empty())
-                    );
+//            Minecraft.getInstance()
+//                    .getConnection()
+//                    .send(new ServerboundEditBookPacket(
+//                            40,
+//                            pages,
+//                            Optional.empty())
+//                    );
         } else if (itemStack.is(Items.WRITTEN_BOOK)) {
         } else if (itemStack.has(DataComponentTypeRegistries.MATERIAL_LIST)) {
             List<ItemEntry> listedItemStack = neededItems.entrySet().stream().sorted(
