@@ -181,7 +181,7 @@ public class BlackboardHandler implements IHandler{
             try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE)) {
                 NbtIo.writeCompressed(data, out);
             }
-            Networking.sendToServer(new ServerboundSaveWorldStructurePacket(fileName, firstPos, secondPos, centerPos, overwrite));
+            Networking.sendToServer(new ServerboundSaveWorldStructurePacket(fileName, firstPos, secondPos, centerPos, true));
             Minecraft.getInstance().player.displayClientMessage(
                     LangData.INFO_CREATE_FILE_SUCCESS.get(fileName),
                     true

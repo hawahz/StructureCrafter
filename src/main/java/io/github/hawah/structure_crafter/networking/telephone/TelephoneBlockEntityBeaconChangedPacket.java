@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public record TelephoneBlockEntityBeaconChangedPacket(BlockPos pos, boolean hasBeacon) implements ServerToClientPacket {
     public static final StreamCodec<ByteBuf, TelephoneBlockEntityBeaconChangedPacket> STREAM_CODEC = StreamCodec.composite(
@@ -18,6 +20,7 @@ public record TelephoneBlockEntityBeaconChangedPacket(BlockPos pos, boolean hasB
     );
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void handle(LocalPlayer player) {
         Level level = player.level();
         if (!(level.getBlockEntity(pos()) instanceof TelephoneBlockEntity telephoneBlockEntity))

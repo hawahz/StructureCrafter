@@ -12,6 +12,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public record ClientboundTelephoneBlockEntityTelephoneChangedPacket(BlockPos pos, Holder<DimensionType> dimension, boolean hasTelephone) implements ServerToClientPacket {
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundTelephoneBlockEntityTelephoneChangedPacket> STREAM_CODEC = StreamCodec.composite(
@@ -22,6 +24,7 @@ public record ClientboundTelephoneBlockEntityTelephoneChangedPacket(BlockPos pos
     );
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void handle(LocalPlayer player) {
         Level level = player.level();
         if (!level.dimensionTypeRegistration().equals(dimension())|| !(level.getBlockEntity(pos()) instanceof TelephoneBlockEntity telephoneBlockEntity)) {

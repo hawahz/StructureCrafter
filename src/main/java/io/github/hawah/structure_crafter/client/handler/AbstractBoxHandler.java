@@ -211,7 +211,7 @@ public abstract class AbstractBoxHandler implements IHandler{
                             (isOversizeX()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
                             (isOversizeY()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
                             (isOversizeZ()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
-                            (volume > Config.CommonConfig.MAX_VOLUME.get()? "§c" : "") + volume
+                            (volume > Config.ServerConfig.MAX_VOLUME.get()? "§c" : "") + volume
                     ),
                     true
             );

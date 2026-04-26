@@ -7,5 +7,5 @@ import java.nio.file.Path;
 public class Paths {
     public static final Path GAME_DIR = FMLPaths.GAMEDIR.get();
     public static final Path STRUCTURE_DIR = GAME_DIR.resolve("schematics");
-    public static final Path UPLOAD_STRUCTURE_DIR = STRUCTURE_DIR.resolve("upload");
+    public static final Path UPLOAD_STRUCTURE_DIR = STRUCTURE_DIR.resolve("uploaded");
 }

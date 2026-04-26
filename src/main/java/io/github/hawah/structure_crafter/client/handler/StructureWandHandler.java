@@ -163,7 +163,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
-                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.CommonConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
+                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.ServerConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
         if (!rotateLock && !lock) {
             // 当没有旋转锁定和锁定时，将玩家朝向缓存到rawDirection当中
@@ -254,7 +254,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                         structureData.center() != null
         ) {
             StructurePlaceSettings settings = new StructurePlaceSettings();
-            Rotation rotation = StructureWandHandler.transferDirectionToRotation(this.playerDirection);
+            Rotation rotation = StructureHandler.transferDirectionToRotation(this.playerDirection);
             settings.setRotation(rotation);
             BoundingBox boundingBox = structureData.structureTemplate()
                     .getBoundingBox(settings, selectedPos.subtract(structureData.center().rotate(rotation)));
@@ -369,15 +369,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         );
 
         buffer.endBatch();
-    }
-
-    public static Rotation transferDirectionToRotation(Direction direction) {
-        return switch (direction) {
-            case EAST -> Rotation.CLOCKWISE_90;
-            case SOUTH -> Rotation.CLOCKWISE_180;
-            case WEST -> Rotation.COUNTERCLOCKWISE_90;
-            default -> Rotation.NONE;
-        };
     }
 
     @Override
