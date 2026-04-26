@@ -13,6 +13,8 @@ import java.util.List;
 public enum LangData {
     TITLE_BLACKBOARD_NAMETAG("title.blackboard_name_tag", "You decide to name your structure as...", 0),
 
+    WARN_STRUCTURE_PLACED_OVERSIZE("warn.structure_placed_oversize", "Structure size exceeds server limit!", 0),
+
     INFO_NO_SELECTION("client_message.info_no_selection","No Selection",0),
     INFO_ALARM_NO_NAME("client_message.info_alarm_no_name","You must name your structure!",0),
     INFO_WAND_LOCKED("client_message.info_wand_locked","You need [Left Click] to unlock your wand",0),
@@ -125,14 +127,14 @@ public enum LangData {
     CONFIGURATION_BLACKBOARD_ANIMATION_TYPE_TOOLTIP("configuration.blackboard_animation_type.tooltip","Selects the animation type used when interacting with the Blackboard.",0),
     CONFIGURATION_RENDER_LOW_COST("configuration.render_low_cost","Low-Cost Rendering",0),
     CONFIGURATION_RENDER_LOW_COST_TOOLTIP("configuration.render_low_cost.tooltip","Reduces rendering cost for structures. May affect visual quality.",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X("configuration.blackboard_record_size_limit_x","Blackboard Size Limit (X)",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y("configuration.blackboard_record_size_limit_y","Blackboard Size Limit (Y)",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z("configuration.blackboard_record_size_limit_z","Blackboard Size Limit (Z)",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X_TOOLTIP("configuration.blackboard_record_size_limit_x.tooltip","Maximum X dimension of structures recorded by the Blackboard.",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y_TOOLTIP("configuration.blackboard_record_size_limit_y.tooltip","Maximum Y dimension of structures recorded by the Blackboard.",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z_TOOLTIP("configuration.blackboard_record_size_limit_z.tooltip","Maximum Z dimension of structures recorded by the Blackboard.",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME("configuration.blackboard_record_size_limit_volume","Blackboard Volume Limit",0),
-    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME_TOOLTIP("configuration.blackboard_record_size_limit_volume.tooltip","Maximum volume of structures recorded by the Blackboard.",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_X("configuration.structure_size_limit_x","Structure Size Limit (X)",0),
+    CONFIGURATION_STRUCTURE_RECORD_SIZE_LIMIT_Y("configuration.structure_size_limit_y","Structure Size Limit (Y)",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_Z("configuration.structure_size_limit_z","Structure Size Limit (Z)",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X_TOOLTIP("configuration.structure_size_limit_x.tooltip","Maximum X dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y_TOOLTIP("configuration.structure_size_limit_y.tooltip","Maximum Y dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z_TOOLTIP("configuration.structure_size_limit_z.tooltip","Maximum Z dimension of structures. -1 for no limit.",0),
+    CONFIGURATION_STRUCTURE_SIZE_LIMIT_VOLUME("configuration.structure_size_limit_volume","Structure Volume Limit",0),
+    CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME_TOOLTIP("configuration.structure_size_limit_volume.tooltip","Maximum volume of structures. -1 for no limit.",0),
     CONFIGURATION_STRUCTURE_PLACE_DISTANCE("configuration.structure_place_distance","Placement Distance Multiplier",0),
     CONFIGURATION_STRUCTURE_PLACE_DISTANCE_TOOLTIP("configuration.structure_place_distance.tooltip","Defines the maximum placement distance (as a multiple of the player's reach) when using the Structure Wand in survival mode.",0),
     CONFIGURATION_PREVIEW_UNLOCK_DISTANCE("configuration.preview_unlock_distance","Preview Unlock Distance",0),
@@ -141,6 +143,8 @@ public enum LangData {
     CONFIGURATION_STRUCTURE_PLACE_MODE_TOOLTIP("configuration.structure_place_mode.tooltip","Defines how NBT data is handled when placing blocks: ALL applies NBT to all blocks; IGNORE_NBT ignores all NBT data (may break structures); BLACKLIST ignores NBT only for blocks in the blacklist.",0),
     CONFIGURATION_STRUCTURE_BLACKLIST("configuration.structure_blacklist","NBT Ignore List",0),
     CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION("configuration.render_telephone_boost_position","Render Telephone Boost Position",0),
+    CONFIGURATION_UPLOAD_WAIT_TIME("configuration.upload_wait_time","Upload Wait Time",0),
+    CONFIGURATION_UPLOAD_WAIT_TIME_TOOLTIP("configuration.upload_wait_time.tooltip","Server wait ticks for client structure upload.",0),
 
     CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
 

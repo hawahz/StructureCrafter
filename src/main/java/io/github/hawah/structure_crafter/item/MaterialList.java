@@ -2,6 +2,8 @@ package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
+import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
+import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
@@ -21,6 +23,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -45,10 +49,15 @@ public class MaterialList extends Item implements ITooltipItem{
             return super.use(level, player, usedHand);
         }
 
-        if (level.isClientSide) {
-            //ScreenOpener.open(new MaterialListScreen());
+        if (level.isClientSide()) {
+            openScreen();
         }
         return super.use(level, player, usedHand);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void openScreen() {
+        ScreenOpener.open(new MaterialListScreen());
     }
 
     @Override

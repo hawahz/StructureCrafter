@@ -14,6 +14,7 @@ import io.github.hawah.structure_crafter.util.exception.IllegalStructureNameExce
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -338,7 +340,7 @@ public class StructureHandler {
     }
 
     private static boolean blockChecker(BlockState state) {
-        return switch (Config.CommonConfig.STRUCTURE_PLACE_MODE.get()) {
+        return switch (Config.ServerConfig.STRUCTURE_PLACE_MODE.get()) {
             case ALL -> true;
             case BLACKLIST -> Config.isBlockValid(state);
             default -> false;
@@ -408,16 +410,16 @@ public class StructureHandler {
         return new StructureData(t, pos);
     }
 
-    public static void checkFileExists(ServerPlayer player, ItemStack stack) {
+    public static boolean checkFileExists(ServerPlayer player, ItemStack stack) {
         if (!(stack.getItem() instanceof AbstractStructureWand) || !stack.has(DataComponentTypeRegistries.STRUCTURE_OWNER) || !stack.has(DataComponentTypeRegistries.STRUCTURE_FILE)) {
-            return;
+            return false;
         }
 
         String schematic = stack.get(DataComponentTypeRegistries.STRUCTURE_FILE);
         String owner = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
 
         if (schematic == null || !schematic.endsWith(".nbt"))
-            return;
+            return false;
 
         Path dir = Paths.UPLOAD_STRUCTURE_DIR;
         Path file = java.nio.file.Paths.get(owner, schematic);
@@ -428,10 +430,48 @@ public class StructureHandler {
             throw new IllegalStructureNameException("Structure name ["+ path +"] is a directory");
         }
         if (Files.exists(path)) {
-            return;
+            return true;
         }
 
         Networking.sendToPlayer(new ClientboundUploadStructureToServerPacket(player.getName().getString(), schematic), player);
+        return false;
+    }
 
+    public static boolean checkFileExistsOnly(ServerPlayer player, ItemStack stack) {
+        if (!(stack.getItem() instanceof AbstractStructureWand) || !stack.has(DataComponentTypeRegistries.STRUCTURE_OWNER) || !stack.has(DataComponentTypeRegistries.STRUCTURE_FILE)) {
+            return false;
+        }
+
+        String schematic = stack.get(DataComponentTypeRegistries.STRUCTURE_FILE);
+        String owner = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
+
+        if (schematic == null || !schematic.endsWith(".nbt"))
+            return false;
+
+        Path dir = Paths.UPLOAD_STRUCTURE_DIR;
+        Path file = java.nio.file.Paths.get(owner, schematic);
+
+        Path path = dir.resolve(file).normalize();
+
+        if (Files.isDirectory(path)) {
+            throw new IllegalStructureNameException("Structure name ["+ path +"] is a directory");
+        }
+        return Files.exists(path);
+    }
+
+    public static boolean isSizeValid(Vec3i size) {
+        int volume = (Math.abs(size.getX()) + 1) * (Math.abs(size.getY()) + 1) * (Math.abs(size.getZ()) + 1);
+        return (size.getX() <= Config.ServerConfig.MAX_SIZE_X.get() || Config.ServerConfig.MAX_SIZE_X.get() < 0) &&
+                (size.getY() <= Config.ServerConfig.MAX_SIZE_Y.get() || Config.ServerConfig.MAX_SIZE_X.get() < 0) &&
+                (size.getZ() <= Config.ServerConfig.MAX_SIZE_Z.get() || Config.ServerConfig.MAX_SIZE_X.get() < 0) &&
+                (volume <= Config.ServerConfig.MAX_VOLUME.get() || Config.ServerConfig.MAX_VOLUME.get() < 0);
+    }
+    public static Rotation transferDirectionToRotation(Direction direction) {
+        return switch (direction) {
+            case EAST -> Rotation.CLOCKWISE_90;
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
+        };
     }
 }

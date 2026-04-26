@@ -51,65 +51,18 @@ public class Config {
     public static class CommonConfig {
         public static final ModConfigSpec SPEC;
 
-        public static final ModConfigSpec.IntValue STRUCTURE_PLACE_DISTANCE;
         public static final ModConfigSpec.IntValue PREVIEW_UNLOCK_DISTANCE;
         public static final ModConfigSpec.BooleanValue MATERIAL_LIST_SCATTERED_ENABLED;
-        public static final ModConfigSpec.IntValue MAX_SIZE_X;
-        public static final ModConfigSpec.IntValue MAX_SIZE_Y;
-        public static final ModConfigSpec.IntValue MAX_SIZE_Z;
-        public static final ModConfigSpec.IntValue MAX_VOLUME;
-        public static final ModConfigSpec.EnumValue<StructurePlaceMode> STRUCTURE_PLACE_MODE;
-        public static final ModConfigSpec.ConfigValue<List<? extends String>> STRUCTURE_BLACKLIST;
 
         static {
             ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
             builder.push("General");
-            builder.push("Blackboard Record Size Limit");
-
-            MAX_SIZE_X = builder
-                    .comment(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X.def)
-                    .translation(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_X.key)
-                    .defineInRange("max_size_x", 30, -1, Integer.MAX_VALUE);
-            MAX_SIZE_Y = builder
-                    .comment(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y.def)
-                    .translation(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Y.key)
-                    .defineInRange("max_size_y", 60, -1, Integer.MAX_VALUE);
-            MAX_SIZE_Z = builder
-                    .comment(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z.def)
-                    .translation(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_Z.key)
-                    .defineInRange("max_size_z", 30, -1, Integer.MAX_VALUE);
-            MAX_VOLUME = builder
-                    .comment(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME.def)
-                    .translation(LangData.CONFIGURATION_BLACKBOARD_RECORD_SIZE_LIMIT_VOLUME.key)
-                    .defineInRange("max_volume", 100000, -1, Integer.MAX_VALUE);
-
-            builder.pop();
-
-            STRUCTURE_PLACE_DISTANCE = builder
-                    .comment(LangData.CONFIGURATION_STRUCTURE_PLACE_DISTANCE.def)
-                    .translation(LangData.CONFIGURATION_STRUCTURE_PLACE_DISTANCE.key)
-                    .defineInRange("structure_place_distance", 1, 1, 10);
 
             PREVIEW_UNLOCK_DISTANCE = builder
                     .comment(LangData.CONFIGURATION_PREVIEW_UNLOCK_DISTANCE.def)
                     .translation(LangData.CONFIGURATION_PREVIEW_UNLOCK_DISTANCE.key)
                     .defineInRange("preview_unlock_distance", 300, 1, Integer.MAX_VALUE);
-
-            STRUCTURE_PLACE_MODE = builder
-                    .comment(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.def)
-                    .translation(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.key)
-                    .defineEnum("structure_place_mode", StructurePlaceMode.BLACKLIST);
-
-            STRUCTURE_BLACKLIST = builder
-                    .comment(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.def)
-                    .translation(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.key)
-                    .defineListAllowEmpty(
-                        "structure_blacklist",
-                        List.of("minecraft:oak_wall_sign"),
-                        () -> "",
-                        Config::validateItemName
-            );
             builder.pop();
 
 
@@ -127,11 +80,62 @@ public class Config {
 
     public static class ServerConfig {
         public static final ModConfigSpec SPEC;
+        public static final ModConfigSpec.IntValue MAX_SIZE_X;
+        public static final ModConfigSpec.IntValue MAX_SIZE_Y;
+        public static final ModConfigSpec.IntValue MAX_SIZE_Z;
+        public static final ModConfigSpec.IntValue MAX_VOLUME;
+        public static final ModConfigSpec.IntValue STRUCTURE_PLACE_DISTANCE;
+        public static final ModConfigSpec.IntValue UPLOAD_WAIT_TIME;
+        public static final ModConfigSpec.EnumValue<StructurePlaceMode> STRUCTURE_PLACE_MODE;
+        public static final ModConfigSpec.ConfigValue<List<? extends String>> STRUCTURE_BLACKLIST;
+
         static {
             ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+            builder.push("Structure Size Limit");
 
+            MAX_SIZE_X = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_X.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_X.key)
+                    .defineInRange("max_size_x", 30, -1, Integer.MAX_VALUE);
+            MAX_SIZE_Y = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_RECORD_SIZE_LIMIT_Y.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_RECORD_SIZE_LIMIT_Y.key)
+                    .defineInRange("max_size_y", 60, -1, Integer.MAX_VALUE);
+            MAX_SIZE_Z = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_Z.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_Z.key)
+                    .defineInRange("max_size_z", 30, -1, Integer.MAX_VALUE);
+            MAX_VOLUME = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_VOLUME.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_SIZE_LIMIT_VOLUME.key)
+                    .defineInRange("max_volume", 100000, -1, Integer.MAX_VALUE);
 
+            builder.pop();
 
+            UPLOAD_WAIT_TIME = builder
+                    .comment(LangData.CONFIGURATION_UPLOAD_WAIT_TIME.def)
+                    .translation(LangData.CONFIGURATION_UPLOAD_WAIT_TIME.key)
+                    .defineInRange("upload_wait_time", 20, 1, Integer.MAX_VALUE);
+
+            STRUCTURE_PLACE_DISTANCE = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_PLACE_DISTANCE.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_PLACE_DISTANCE.key)
+                    .defineInRange("structure_place_distance", 3, 1, 10);
+
+            STRUCTURE_PLACE_MODE = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_PLACE_MODE.key)
+                    .defineEnum("structure_place_mode", StructurePlaceMode.BLACKLIST);
+
+            STRUCTURE_BLACKLIST = builder
+                    .comment(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.def)
+                    .translation(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.key)
+                    .defineListAllowEmpty(
+                            "structure_blacklist",
+                            List.of(),
+                            () -> "",
+                            Config::validateItemName
+                    );
             SPEC = builder.build();
         }
     }
@@ -145,13 +149,10 @@ public class Config {
             return false;
         }
 
-        // 是否是 tag
         boolean isTag = raw.startsWith("#");
 
-        // 去掉 # 再处理
         String id = isTag ? raw.substring(1) : raw;
 
-        // 更建议用 MC 规范（小写！）
         if (!raw.matches("[#]?[a-z0-9.*_-]+:[a-z0-9/.*_-]+")) {
             return false;
         }
@@ -182,7 +183,7 @@ public class Config {
 
     public static boolean isBlockValid(BlockState blockState) {
         String descriptionId = BuiltInRegistries.BLOCK.getKey(blockState.getBlock()).toString();
-        return CommonConfig.STRUCTURE_BLACKLIST.get().stream().noneMatch(
+        return ServerConfig.STRUCTURE_BLACKLIST.get().stream().noneMatch(
                 (name) -> {
                     boolean isTag = name.startsWith("#");
 

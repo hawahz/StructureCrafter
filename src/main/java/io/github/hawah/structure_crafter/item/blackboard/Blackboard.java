@@ -23,7 +23,6 @@ import net.minecraft.world.level.Level;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@SuppressWarnings("DataFlowIssue")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Blackboard extends Item implements ITooltipItem {
