@@ -31,6 +31,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -408,16 +409,16 @@ public class StructureHandler {
         return new StructureData(t, pos);
     }
 
-    public static void checkFileExists(ServerPlayer player, ItemStack stack) {
+    public static boolean checkFileExists(ServerPlayer player, ItemStack stack) {
         if (!(stack.getItem() instanceof AbstractStructureWand) || !stack.has(DataComponentTypeRegistries.STRUCTURE_OWNER) || !stack.has(DataComponentTypeRegistries.STRUCTURE_FILE)) {
-            return;
+            return false;
         }
 
         String schematic = stack.get(DataComponentTypeRegistries.STRUCTURE_FILE);
         String owner = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
 
         if (schematic == null || !schematic.endsWith(".nbt"))
-            return;
+            return false;
 
         Path dir = Paths.UPLOAD_STRUCTURE_DIR;
         Path file = java.nio.file.Paths.get(owner, schematic);
@@ -428,10 +429,41 @@ public class StructureHandler {
             throw new IllegalStructureNameException("Structure name ["+ path +"] is a directory");
         }
         if (Files.exists(path)) {
-            return;
+            return true;
         }
 
         Networking.sendToPlayer(new ClientboundUploadStructureToServerPacket(player.getName().getString(), schematic), player);
+        return false;
+    }
 
+    public static boolean checkFileExistsOnly(ServerPlayer player, ItemStack stack) {
+        if (!(stack.getItem() instanceof AbstractStructureWand) || !stack.has(DataComponentTypeRegistries.STRUCTURE_OWNER) || !stack.has(DataComponentTypeRegistries.STRUCTURE_FILE)) {
+            return false;
+        }
+
+        String schematic = stack.get(DataComponentTypeRegistries.STRUCTURE_FILE);
+        String owner = stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_OWNER, "Shared");
+
+        if (schematic == null || !schematic.endsWith(".nbt"))
+            return false;
+
+        Path dir = Paths.UPLOAD_STRUCTURE_DIR;
+        Path file = java.nio.file.Paths.get(owner, schematic);
+
+        Path path = dir.resolve(file).normalize();
+
+        if (Files.isDirectory(path)) {
+            throw new IllegalStructureNameException("Structure name ["+ path +"] is a directory");
+        }
+        return Files.exists(path);
+    }
+
+    public static Rotation transferDirectionToRotation(Direction direction) {
+        return switch (direction) {
+            case EAST -> Rotation.CLOCKWISE_90;
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
+        };
     }
 }

@@ -95,7 +95,9 @@ public class TelephoneHandset extends Item implements ITooltipItem{
         BlockPos pos = SableLogicTransformCompat.instance().level(level).applyTransform(rawPos);
         if (!(level.getBlockEntity(rawPos) instanceof TelephoneBlockEntity telephoneBlockEntity)) {
             stack.shrink(1);
-            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(rawPos);
+            if (level.isClientSide()) {
+                StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(rawPos);
+            }
             return;
         }
         Vec3 directionVec = pos.getCenter().subtract(player.position());

@@ -2,10 +2,10 @@ package io.github.hawah.structure_crafter.client.render.structure;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.compat.sable.RenderCompat;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -80,7 +80,7 @@ public class StructureRenderer {
         }
 
         blockGetter.setOffset(anchorPos);
-        blockGetter.setRot(StructureWandHandler.transferDirectionToRotation(playerDirection));
+        blockGetter.setRot(StructureHandler.transferDirectionToRotation(playerDirection));
 
         float partialTicks = AnimationTickHolder.getPartialTicks();
 

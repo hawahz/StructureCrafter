@@ -1,16 +1,16 @@
 package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.util.StructureHandler;
+import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
+import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
+import io.github.hawah.structure_crafter.networking.ServerboundMaterialCountPacket;
+import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
-import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,12 +21,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -45,10 +44,15 @@ public class MaterialList extends Item implements ITooltipItem{
             return super.use(level, player, usedHand);
         }
 
-        if (level.isClientSide) {
-            //ScreenOpener.open(new MaterialListScreen());
+        if (level.isClientSide()) {
+            openScreen();
         }
         return super.use(level, player, usedHand);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void openScreen() {
+        ScreenOpener.open(new MaterialListScreen());
     }
 
     @Override
@@ -56,51 +60,13 @@ public class MaterialList extends Item implements ITooltipItem{
         ItemStack itemInHand = context.getItemInHand();
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
-        IItemHandler iItemHandler;
-        List<ItemEntry> consumes = itemInHand.getOrDefault(DataComponentTypeRegistries.MATERIAL_LIST, MaterialListComponent.EMPTY).itemWithCounts();
-
-
         Player player = context.getPlayer();
         // TODO
-        if (level.isClientSide() && player != null && !consumes.isEmpty() && (iItemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, context.getClickedFace())) != null) {
-
-            CompletableFuture
-                    .supplyAsync(() -> {
-                        NonNullList<ItemStack> inventoryItems = player.isShiftKeyDown()? NonNullList.create() : StructureHandler.getInventoryItems(player);
-                        for (int i = 0; i < iItemHandler.getSlots(); i++) {
-                            inventoryItems.add(iItemHandler.getStackInSlot(i));
-                        }
-                        List<ItemEntry> inventory = ItemEntry.flat(ItemEntry.fromStacks(inventoryItems));
-
-                        Map<Integer, Integer> consumeMap = new HashMap<>();
-                        for (ItemEntry consume : consumes) {
-                            consumeMap.put(consume.id(), consume.count());
-                        }
-
-                        List<ItemEntry> batched = new ArrayList<>();
-                        for (ItemEntry invEntry : inventory) {
-                            int consumeCount = consumeMap.getOrDefault(invEntry.id(), 0);
-                            if (consumeCount > 0) {
-                                int batchCount = invEntry.count() / consumeCount;
-                                if (batchCount > 0) {
-                                    batched.add(new ItemEntry(invEntry.id(), batchCount));
-                                }
-                            }
-                        }
-
-                        batched.sort(Comparator.comparingInt(ItemEntry::count));
-                        return batched.isEmpty()?0 : batched.getFirst().count();
-                    })
-                    .thenAccept((count) -> Minecraft.getInstance().execute(()-> player.displayClientMessage(
-                            player.isShiftKeyDown()?
-                                    LangData.INFO_CONTAINER_BUILD_CAPABILITY.get(count):
-                                    LangData.INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY.get(count),
-                            true
-                    )))
-                    .exceptionally(e-> {
-                        LogUtils.getLogger().error("Error Occurred when calculate Container items.", e);
-                        return null;
-                    });
+        if (player != null) {
+            Direction face = context.getClickedFace();
+            if (level.isClientSide()) {
+                Networking.sendToServer(new ServerboundMaterialCountPacket(itemInHand, pos, face, player.getUUID()));
+            }
             return InteractionResult.CONSUME;
         }
         return super.useOn(context);

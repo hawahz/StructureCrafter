@@ -1,7 +1,6 @@
 package io.github.hawah.structure_crafter.datagen;
 
 import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.block.BlockRegistry;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import net.minecraft.data.PackOutput;

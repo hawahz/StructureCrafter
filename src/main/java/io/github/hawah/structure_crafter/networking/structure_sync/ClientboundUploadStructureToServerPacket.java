@@ -12,6 +12,8 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -64,6 +66,7 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void handle(LocalPlayer player) {
     }
 

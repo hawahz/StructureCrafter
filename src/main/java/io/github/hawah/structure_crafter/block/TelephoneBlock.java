@@ -180,7 +180,7 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
             return InteractionResult.PASS;
         }
         if (blockEntity.hasTelephone() && player.getMainHandItem().isEmpty()) {
-            if (!blockEntity.hasBeacon() && player.position().distanceTo(SableLogicTransformCompat.instance().applyTransform(pos.getCenter())) > 1000) {
+            if (!blockEntity.hasBeacon() && player.position().distanceTo(SableLogicTransformCompat.instance().level(level).applyTransform(pos.getCenter())) > 1000) {
                 return InteractionResult.FAIL;
             }
             playerPickUpTelephone(level, pos, player, blockEntity);
@@ -249,7 +249,9 @@ public class TelephoneBlock extends HorizontalDirectionalBlock implements Entity
                         hitResult.getDirection().equals(state.getValue(FACING))
         ) {
             blockEntity.setHasTelephone(true);
-            StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
+            if (level.isClientSide()) {
+                StructureCrafterClient.TELEPHONE_WIRE_RENDERER.pop(pos);
+            }
             stack.shrink(1);
             return ItemInteractionResult.SUCCESS;
         }

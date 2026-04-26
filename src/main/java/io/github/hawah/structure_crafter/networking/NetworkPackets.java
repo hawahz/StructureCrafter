@@ -30,6 +30,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     CLIENT_UPLOAD_STRUCTURE_TO_SERVER(ClientboundUploadStructureToServerPacket.class, ClientboundUploadStructureToServerPacket.STREAM_CODEC),
     SERVER_RECEIVE_SPLIT_STRUCTURE_DATA(ServerboundReceiveSplitStructureDataPacket.class, ServerboundReceiveSplitStructureDataPacket.STREAM_CODEC),
     CLIENT_TELEPHONE_CHANGED(ClientboundTelephoneBlockEntityTelephoneChangedPacket.class, ClientboundTelephoneBlockEntityTelephoneChangedPacket.STREAM_CODEC),
+    MATERIAL_COUNT_PACKET(ServerboundMaterialCountPacket.class, ServerboundMaterialCountPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

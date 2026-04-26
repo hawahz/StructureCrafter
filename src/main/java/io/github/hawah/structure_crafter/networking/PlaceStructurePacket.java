@@ -1,12 +1,14 @@
 package io.github.hawah.structure_crafter.networking;
 
+import com.mojang.logging.LogUtils;
+import io.github.hawah.structure_crafter.ServerTaskHandler;
+import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
-import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
@@ -53,6 +55,15 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         boolean replaceAir = AbstractStructureWand.isReplaceAir(stack);
 
         Level level = player.level();
+        if (!StructureHandler.checkFileExists(player, stack)) {
+            LogUtils.getLogger().debug("Fall back to load structure from Client");
+            ServerTaskHandler.createTask(
+                    ()->StructureHandler.checkFileExistsOnly(player, stack()),
+                    ()->this.handle(player),
+                    4
+            );
+            return;
+        }
 
         StructureData activeTemplateData =
                 StructureHandler.loadSchematic(level, stack);
@@ -60,7 +71,7 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
 
         StructureTemplate activeTemplate = activeTemplateData.structureTemplate();
         StructurePlaceSettings settings = new StructurePlaceSettings();
-        Rotation rotation = StructureWandHandler.transferDirectionToRotation(direction());
+        Rotation rotation = StructureHandler.transferDirectionToRotation(direction());
         settings.setRotation(rotation);
         List<StructureTemplate.StructureBlockInfo> blockInfos = StructureTemplate.processBlockInfos(
                 (ServerLevelAccessor) level,
