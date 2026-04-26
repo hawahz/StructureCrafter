@@ -329,7 +329,7 @@ public class BlackboardHandler {
                             (isOversizeX()?"§c" : "") + (Math.abs(size.getX()) + 1) + "§r",
                             (isOversizeY()?"§c" : "") + (Math.abs(size.getY()) + 1) + "§r",
                             (isOversizeZ()?"§c" : "") + (Math.abs(size.getZ()) + 1) + "§r",
-                            (volume > Config.CommonConfig.MAX_VOLUME.get()? "§c" : "") + volume
+                            (isOversize() ? "§c" : "") + volume
                     ),
                     true
             );
@@ -378,22 +378,27 @@ public class BlackboardHandler {
 
     public boolean isValidSize() {
         double size = cachedBoundingBox.getMaxPosition().subtract(cachedBoundingBox.getMinPosition()).lengthSqr();
-        return !(size > Config.CommonConfig.MAX_VOLUME.get() ||
+        return !(size > Config.ServerConfig.MAX_VOLUME.get() ||
                 isOversizeX() ||
                 isOversizeY() ||
                 isOversizeZ());
     }
 
     private boolean isOversizeZ() {
-        return cachedBoundingBox.getZsize() > Config.CommonConfig.MAX_SIZE_Z.get() && Config.CommonConfig.MAX_SIZE_Z.get() != -1;
+        return cachedBoundingBox.getZsize() > Config.ServerConfig.MAX_SIZE_Z.get() && Config.ServerConfig.MAX_SIZE_Z.get() > 0;
     }
 
     private boolean isOversizeY() {
-        return cachedBoundingBox.getYsize() > Config.CommonConfig.MAX_SIZE_Y.get() && Config.CommonConfig.MAX_SIZE_Y.get() != -1;
+        return cachedBoundingBox.getYsize() > Config.ServerConfig.MAX_SIZE_Y.get() && Config.ServerConfig.MAX_SIZE_Y.get() > 0;
     }
 
     private boolean isOversizeX() {
-        return cachedBoundingBox.getXsize() > Config.CommonConfig.MAX_SIZE_X.get() && Config.CommonConfig.MAX_SIZE_X.get() != -1;
+        return cachedBoundingBox.getXsize() > Config.ServerConfig.MAX_SIZE_X.get() && Config.ServerConfig.MAX_SIZE_X.get() > 0;
+    }
+
+    private boolean isOversize() {
+        int volume = (int) (cachedBoundingBox.getXsize() * cachedBoundingBox.getYsize() * cachedBoundingBox.getZsize());
+        return volume > Config.ServerConfig.MAX_VOLUME.get() && Config.ServerConfig.MAX_VOLUME.get() > 0;
     }
 
     public void setSelectedPos(BlockPos selectedPos) {

@@ -69,7 +69,7 @@ public class StructureCrafter {
         NetworkPackets.register();
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.CommonConfig.SPEC);
-//        modContainer.registerConfig(ModConfig.Type.SERVER, Config.ServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.ServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.ClientConfig.SPEC);
     }
 

@@ -9,6 +9,6 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void serverTick(ServerTickEvent.Pre event) {
-        ServerTaskHandler.tick();
+        ServerTaskManager.tick();
     }
 }

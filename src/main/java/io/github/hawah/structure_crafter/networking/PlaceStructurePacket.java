@@ -1,8 +1,8 @@
 package io.github.hawah.structure_crafter.networking;
 
 import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.ServerTaskHandler;
-import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
+import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.ServerTaskManager;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -57,10 +57,11 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         Level level = player.level();
         if (!StructureHandler.checkFileExists(player, stack)) {
             LogUtils.getLogger().debug("Fall back to load structure from Client");
-            ServerTaskHandler.createTask(
+            ServerTaskManager.createTask(
                     ()->StructureHandler.checkFileExistsOnly(player, stack()),
                     ()->this.handle(player),
-                    4
+                    4,
+                    Config.ServerConfig.UPLOAD_WAIT_TIME.getAsInt() / 4 + 1
             );
             return;
         }

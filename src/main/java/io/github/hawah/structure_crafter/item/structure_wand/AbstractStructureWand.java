@@ -11,6 +11,7 @@ import io.github.hawah.structure_crafter.networking.MaterialListUploadPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.entity.player.Player;
@@ -92,6 +93,14 @@ public abstract class AbstractStructureWand extends Item implements ITooltipItem
 
     public static void setOwnerName(ItemStack stack, String name) {
         stack.set(DataComponentTypeRegistries.STRUCTURE_OWNER, name);
+    }
+
+    public static void setBounds(ItemStack stack, Vec3i size) {
+        stack.set(DataComponentTypeRegistries.STRUCTURE_SIZE, size);
+    }
+
+    public static Vec3i getBounds(ItemStack stack) {
+        return stack.getOrDefault(DataComponentTypeRegistries.STRUCTURE_SIZE, Vec3i.ZERO);
     }
 
     public static boolean isBoundsVisible(ItemStack stack) {

@@ -15,4 +15,10 @@ public class FileHelper {
         } while (Files.exists(filepath));
         return filename;
     }
+
+    enum State {
+        OK,
+        OVERSIZE,
+        NOTFOUND
+    }
 }

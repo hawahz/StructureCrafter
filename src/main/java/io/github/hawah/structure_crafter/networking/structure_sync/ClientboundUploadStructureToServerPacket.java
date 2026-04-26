@@ -1,17 +1,23 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Paths;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
 import io.github.hawah.structure_crafter.util.CompressedTag;
+import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -33,8 +39,8 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
     );
 
     @Override
-    public void handleData() {
-        ServerToClientPacket.super.handleData();
+    @OnlyIn(Dist.CLIENT)
+    public void handle(LocalPlayer player) {
         if (playerName == null || !structureName.endsWith(".nbt"))
             return;
 
@@ -44,10 +50,14 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
         Path path = dir.resolve(file).normalize();
         if (!path.startsWith(dir))
             return;
-
+        StructureTemplate st = new StructureTemplate();
         try (DataInputStream stream = new DataInputStream(new BufferedInputStream(
                 new GZIPInputStream(Files.newInputStream(path, StandardOpenOption.READ))))) {
             CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
+            st.load(Minecraft.getInstance().level.holderLookup(Registries.BLOCK), nbt);
+            if (!StructureHandler.isSizeValid(st.getSize())) {
+                throw new RuntimeException(LangData.WARN_STRUCTURE_PLACED_OVERSIZE.get().getString());
+            }
             if (nbt.sizeInBytes() > 2097152) {
                 CompletableFuture
                         .supplyAsync(() -> CompressedTag.split(nbt, true))
@@ -61,13 +71,9 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
             } else {
                 Networking.sendToServer(new ServerboundReceiveStructureDataPacket(nbt, playerName, structureName));
             }
-        } catch (IOException ignored) {
+        } catch (IOException | RuntimeException e) {
+            LogUtils.getLogger().warn("Failed to upload structure file.", e);
         }
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(LocalPlayer player) {
     }
 
     @Override

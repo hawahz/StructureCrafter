@@ -28,6 +28,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +84,15 @@ public class StructureWandHandler implements LayeredDraw.Layer {
                 () -> active && selectedPos != null,
                 () ->{
                     lock = false;
-                    Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
+                    Vec3i size = structureData.structureTemplate().getSize();
+                    if (StructureHandler.isSizeValid(size)) {
+                        Networking.sendToServer(new PlaceStructurePacket(activeSchematicItem.copy(), selectedPos, playerDirection));
+                    } else if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                                LangData.WARN_STRUCTURE_PLACED_OVERSIZE.get(),
+                                true
+                        );
+                    }
                 },
                 LangData.HUD_TIP_STRUCTURE_WAND_PLACE.get()
         ));
@@ -175,7 +184,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         BlockHitResult trace = RaycastHelper.rayTraceRange(
                 player.level(),
                 player,
-                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.CommonConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
+                player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.ServerConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
         if (!rotateLock && !lock) {
             rawDirection = player.getDirection();

@@ -23,7 +23,6 @@ import net.minecraft.world.level.Level;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@SuppressWarnings("DataFlowIssue")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Blackboard extends Item implements ITooltipItem {
@@ -41,10 +40,6 @@ public class Blackboard extends Item implements ITooltipItem {
             player.startUsingItem(interactionHand);
             return new InteractionResultHolder<>(InteractionResult.PASS, itemStack);
         }
-        if (player.isCreative()) {
-            finishUsingItem(itemStack, level, player);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
-        }
         ItemStack mainHandItem = player.getMainHandItem();
         if (mainHandItem.isEmpty()) {
             return super.use(level, player, interactionHand);
@@ -53,6 +48,10 @@ public class Blackboard extends Item implements ITooltipItem {
         if (mainHandItem.is(Items.INK_SAC)) {
             itemStack.set(DataComponentTypeRegistries.BLACKBOARD_WRITING, new Empty());
             player.startUsingItem(interactionHand);
+            return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
+        }
+        if (player.isCreative()) {
+            finishUsingItem(itemStack, level, player);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
         }
 
