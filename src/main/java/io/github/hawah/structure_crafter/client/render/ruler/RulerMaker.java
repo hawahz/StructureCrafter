@@ -28,10 +28,8 @@ public class RulerMaker {
     public RulerElement<?> chase(Object slot, BlockPos pos0, BlockPos pos1) {
 
         boolean flagX = pos0.getX() < pos1.getX();
-        boolean flagY = pos0.getY() < pos1.getY();
         boolean flagZ = pos0.getZ() < pos1.getZ();
         boolean flagXr = pos0.getX() > pos1.getX();
-        boolean flagYr = pos0.getY() > pos1.getY();
         boolean flagZr = pos0.getZ() > pos1.getZ();
         float x0 = flagX ? pos0.getX() + 1 : pos0.getX();
         float y0 = pos0.getY();//flagY ? pos0.getY() + 1 : pos0.getY();

@@ -266,7 +266,7 @@ public class BlackboardHandler implements IHandler{
         }
 
         // call outline renderer above
-        if (firstPos != null) {
+        if (firstPos != null || selectedPos != null) {
             int gb = 1;
             if (cachedBoundingBox != null) {
                 gb = isValidSize() && (isValidCenter() || selectedFace != null)? gb: 0;
@@ -274,7 +274,9 @@ public class BlackboardHandler implements IHandler{
             Outliner.getInstance()
                     .chaseThickBox(
                             outlineSlot,
-                            firstPos,
+                            firstPos==null?
+                                    selectedPos:
+                                    firstPos,
                             secondPos==null?
                                     selectedPos==null?
                                             firstPos:
@@ -311,7 +313,7 @@ public class BlackboardHandler implements IHandler{
         return !(size > Config.CommonConfig.MAX_VOLUME.get() ||
                 isOversizeX() ||
                 isOversizeY() ||
-                isOversizeZ());
+                isOversizeZ()) || firstPos == null;
     }
 
     private boolean isOversizeZ() {
@@ -474,7 +476,8 @@ public class BlackboardHandler implements IHandler{
 
     public boolean isValidCenter() {
         return (centerPos != null && cachedBoundingBox.contains(centerPos.getCenter())) ||
-                (centerPos == null && selectedPos != null && cachedBoundingBox.contains(selectedPos.getCenter()));
+                (centerPos == null && selectedPos != null && cachedBoundingBox.contains(selectedPos.getCenter())) ||
+                firstPos == null;
     }
 
     private boolean isPhysicalSide() {

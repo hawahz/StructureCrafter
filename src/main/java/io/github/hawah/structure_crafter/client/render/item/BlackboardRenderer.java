@@ -1,6 +1,5 @@
 package io.github.hawah.structure_crafter.client.render.item;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -20,11 +19,18 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.client.ClientHooks;
+import org.joml.Matrix4f;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
+
+    private static final Matrix4f PEN_POSE_LEFT = new Matrix4f(-0.49100673f, 0.3528031f, 0.7965209f, 0.0f, 0.34656814f, 0.91796505f, -0.19295692f, 0.0f, -0.79925334f, 0.1813055f, -0.57299685f, 0.0f, -0.7275237f, -1.3599939f, -1.069951f, 1.0f);
+    private static final Matrix4f ARM_POSE_BLACKBOARD_RIGHT = new Matrix4f(0.0089815855f, -0.9344524f, -0.3268352f, 0.0f, 0.2641586f, 0.31725943f, -0.8998163f, 0.0f, 0.9540672f, -0.07904443f, 0.2522148f, 0.0f, 0.7251719f, -0.26936373f, 0.32714024f, 1.0f);
+    private static final Matrix4f BLACKBOARD_POSE_RIGHT = new Matrix4f(0.98637027f, 0.044767376f, 0.15833953f, 0.0f, -0.061614275f, 0.99275726f, 0.10314169f, 0.0f, -0.15257525f, -0.11149159f, 0.9819833f, 0.0f, 0.26742205f, 0.21739353f, -0.8099811f, 1.0f);
+    public static final Matrix4f LEFT_PEN_ARM_POSE = new Matrix4f(-0.18751808f, 0.5646427f, 0.8037515f, 0.0f, 0.22486976f, 0.8212127f, -0.5244467f, 0.0f, -0.9561755f, 0.082396105f, -0.28096315f, 0.0f, -1.4357667f, -0.867585f, -0.22314972f, 1.0f);
+
 
     public BlackboardRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
@@ -49,12 +55,154 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
 
         if (Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE) && mainArm.equals(HumanoidArm.RIGHT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)) {
             renderBlackboardLeftArm(stack, poseStack, bufferSource, light, overlay);
+        } else if (Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE) && mainArm.equals(HumanoidArm.LEFT) && itemDisplayContext.equals(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND)) {
+            renderBlackboardRightArm(stack, poseStack, bufferSource, light, overlay);
         } else {
             renderGeneralItemByBakedModel(stack, itemDisplayContext, poseStack, bufferSource, light, overlay, mc, getBakedModel());
         }
 
         //poseStack.translate(0.5, 0.5, 0.5);
 
+        poseStack.popPose();
+    }
+
+    private void renderBlackboardRightArm(ItemStack stack, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        assert player != null;
+        poseStack.pushPose();
+
+        int useDuration = stack.getUseDuration(player);
+        float partialTicks = AnimationTickHolder.getPartialTicks();
+        float f8 = (float) stack.getUseDuration(player) - ((float) player.getUseItemRemainingTicks() - partialTicks + 1.0F);
+        boolean isUsingThis = player.isUsingItem() && player.getUseItem().equals(stack);
+        float progress = player.isUsingItem()? f8 / (float) useDuration : 0F;
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        PlayerRenderer playerrenderer = (PlayerRenderer)Minecraft.getInstance().getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(player);
+
+        if (isUsingThis) {
+
+            poseStack.translate(-0.5, 0.2, 0.2);
+
+
+
+            poseStack.pushPose();
+            poseStack.mulPose(PEN_POSE_LEFT);
+            float showRate = 4;
+            float showProgress = Mth.clamp(progress * showRate, 0, 1);
+            poseStack.translate(
+                    1.4 - 0.896 * showProgress * showProgress,
+                    1.5 - 1.4*Math.pow(showProgress - 0.5, 2),
+                    0.3
+            );
+
+
+            float writeProgress = Mth.clamp(progress * showRate - 1, 0, 3)/3F;
+            poseStack.translate(
+                    -writeProgress/3,
+                    0.1*Math.sin(writeProgress*20),
+                    -writeProgress/3
+            );
+
+            poseStack.pushPose();
+
+            poseStack.mulPose(new Matrix4f(0.76072574f, -0.32162964f, 0.25548804f, 0.0f, 0.33666632f, 0.79629093f, 0.0f, 0.0f, -0.23532003f, 0.09949172f, 0.8259234f, 0.0f, 0.7132517f, 0.9488073f, -1.2955338f, 1.0f));
+
+
+            ItemStack pen = Items.FEATHER.getDefaultInstance();
+            itemRenderer.renderStatic(
+                    pen,
+                    ItemDisplayContext.NONE,
+                    light,
+                    overlay,
+                    poseStack,
+                    bufferSource,
+                    Minecraft.getInstance().level,
+                    0
+            );
+
+
+
+            poseStack.popPose();
+
+
+            poseStack.mulPose(new Matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.9800666f, 0.19866934f, 0.0f, 0.0f, -0.19866934f, 0.9800666f, 0.0f, 0.20000002f, 0.09999999f, -1.4000002f, 1.0f));
+            playerrenderer.renderLeftHand(poseStack, bufferSource, light, player);
+            poseStack.popPose();
+        }
+        else if (Minecraft.getInstance().player.getMainHandItem().is(Items.INK_SAC)) {
+            if (equipTick == -1) {
+                equipTick = AnimationTickHolder.getTicks();
+            }
+            float equipProgress = Mth.clamp((AnimationTickHolder.getTicks() + partialTicks - equipTick)/5F - 0.5F,0, 1);
+            poseStack.pushPose();
+            poseStack.translate(0.2, 1 * EaseHelper.easeInPow(equipProgress, 2) - 0.5, 0);
+
+            poseStack.pushPose();
+            poseStack.mulPose(PEN_POSE_LEFT);
+
+
+            float showRate = 4;
+            float showProgress = Mth.clamp(progress * showRate, 0, 1);
+            poseStack.translate(
+                    1.5 - 0.896 * showProgress * showProgress,
+                    1.5 - 1.4*Math.pow(showProgress - 0.5, 2),
+                    0.3
+            );
+
+
+            float writeProgress = Mth.clamp(progress * showRate - 1, 0, 3)/3F;
+            poseStack.translate(
+                    writeProgress/3,
+                    0.1*Math.sin(writeProgress*20),
+                    -writeProgress/3
+            );
+
+            ItemStack pen = Items.FEATHER.getDefaultInstance();
+            itemRenderer.renderStatic(
+                    pen,
+                    ItemDisplayContext.NONE,
+                    light,
+                    overlay,
+                    poseStack,
+                    bufferSource,
+                    Minecraft.getInstance().level,
+                    0
+            );
+            poseStack.popPose();
+
+            poseStack.pushPose();
+            poseStack.mulPose(LEFT_PEN_ARM_POSE);
+
+            playerrenderer.renderLeftHand(poseStack, bufferSource, light, player);
+
+            poseStack.popPose();
+            poseStack.popPose();
+        } else {
+            equipTick = -1;
+        }
+
+
+        poseStack.pushPose();
+        poseStack.mulPose(BLACKBOARD_POSE_RIGHT);
+
+
+        BakedModel bakedModel = getBakedModel();
+        for (var model : bakedModel.getRenderPasses(stack, true)) {
+            for (var rendertype : model.getRenderTypes(stack, true)) {
+                VertexConsumer vertexconsumer;
+                vertexconsumer = ItemRenderer.getFoilBufferDirect(bufferSource, rendertype, true, stack.hasFoil());
+
+                itemRenderer.renderModelLists(model, stack, light, overlay, poseStack, vertexconsumer);
+            }
+        }
+
+        poseStack.popPose();
+        poseStack.pushPose();
+
+
+        poseStack.mulPose(ARM_POSE_BLACKBOARD_RIGHT);
+        playerrenderer.renderRightHand(poseStack, bufferSource, light, player);
+        poseStack.popPose();
         poseStack.popPose();
     }
 
@@ -65,13 +213,10 @@ public class BlackboardRenderer extends BlockEntityWithoutLevelRenderer {
 
         LocalPlayer player = Minecraft.getInstance().player;
         int useDuration = stack.getUseDuration(player);
-        int ticks = player.getUseItemRemainingTicks();
         float partialTicks = AnimationTickHolder.getPartialTicks();
-        float smoothTicks = Mth.lerp(partialTicks, ticks - 1, ticks);
         float f8 = (float) stack.getUseDuration(player) - ((float)player.getUseItemRemainingTicks() - partialTicks + 1.0F);
         boolean isUsingThis = player.isUsingItem() && player.getUseItem().equals(stack);
         float progress = player.isUsingItem()? f8 / (float) useDuration : 0;
-        float tickProgress = progress * useDuration;
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         PlayerRenderer playerrenderer = (PlayerRenderer)Minecraft.getInstance().getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(player);
 

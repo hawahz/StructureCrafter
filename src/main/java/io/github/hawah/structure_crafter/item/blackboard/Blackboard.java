@@ -41,12 +41,13 @@ public class Blackboard extends Item implements ITooltipItem {
             player.startUsingItem(interactionHand);
             return new InteractionResultHolder<>(InteractionResult.PASS, itemStack);
         }
-        if (player.isCreative()) {
-            finishUsingItem(itemStack, level, player);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
-        }
+
         ItemStack mainHandItem = player.getMainHandItem();
         if (mainHandItem.isEmpty()) {
+            if (player.isCreative()) {
+                finishUsingItem(itemStack, level, player);
+                return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
+            }
             return super.use(level, player, interactionHand);
         }
 
@@ -55,6 +56,7 @@ public class Blackboard extends Item implements ITooltipItem {
             player.startUsingItem(interactionHand);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStack);
         }
+
 
         return super.use(level, player, interactionHand);
     }
