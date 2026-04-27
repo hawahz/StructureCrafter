@@ -23,21 +23,10 @@ public class RulerItem extends Item implements IModifierItem{
         super(properties.stacksTo(1).component(DataComponentTypeRegistries.RULER_EDGE_MODE, false));
     }
 
-    static boolean first = true;
-    static BlockPos cachedPos = BlockPos.ZERO;
-
     @Override
     public InteractionResult useOn(UseOnContext context) {
         if (!context.getLevel().isClientSide())
             return InteractionResult.PASS;
-        BlockPos clickedPos = context.getClickedPos();
-        if (first) {
-            RulerMaker.getInstance().chase(this, clickedPos, cachedPos);
-        } else {
-            RulerMaker.getInstance().chase(this, cachedPos, clickedPos);
-        }
-        first = !first;
-        cachedPos = clickedPos;
         return super.useOn(context);
     }
 

@@ -58,6 +58,12 @@ public class RulerScreen extends BaseScreen{
                 textureWidth,
                 textureHeight
         );
+        drawHandwriteNumber(
+                guiGraphics,
+                guiLeft + 7,
+                guiTop + 130,
+                1234567890
+        );
         super.renderWindowPre(guiGraphics, mouseX, mouseY, partialTick);
     }
 }

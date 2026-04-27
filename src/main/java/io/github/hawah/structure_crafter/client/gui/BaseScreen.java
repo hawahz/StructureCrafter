@@ -3,6 +3,7 @@ package io.github.hawah.structure_crafter.client.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
+import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
@@ -63,6 +64,11 @@ public abstract class BaseScreen extends Screen {
         guiTop = (height - textureHeight) / 2;
         guiLeft += windowXOffset;
         guiTop += windowYOffset;
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     /**
@@ -213,6 +219,31 @@ public abstract class BaseScreen extends Screen {
                 err += dx;
                 y += sy;
             }
+        }
+    }
+
+    private static final int[] DIGIT_X = new int[]{0, 11, 22, 32, 42, 53, 63, 73, 84, 94};
+    private static final int[] DIGIT_WIDTH = new int[]{11, 11, 10, 10, 11, 10, 10, 11, 10, 9};
+    public static void drawHandwriteNumber(GuiGraphics guiGraphics,
+                                           int x,
+                                           int y,
+                                           int number) {
+        int digitOffset = 0, readLen = 0;
+        String numberString = String.valueOf(number);
+        while (readLen < numberString.length()) {
+            int num = (numberString.charAt(readLen++) - '0') - 1;
+            num = num<0? 9: num;
+            blit(
+                    guiGraphics,
+                    Textures.NUMBER_SPRITE.getResource(),
+                    x + digitOffset,
+                    y,
+                    DIGIT_X[num],
+                    Textures.NUMBER_SPRITE.getStartY(),
+                    DIGIT_WIDTH[num],
+                    Textures.NUMBER_SPRITE.getHeight()
+            );
+            digitOffset += DIGIT_WIDTH[num];
         }
     }
 }
