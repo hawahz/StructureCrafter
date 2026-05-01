@@ -11,8 +11,8 @@ public class ButtonGroup {
 
     private boolean disable = false;
 
-    List<TextureToggleButton> buttons = new ArrayList<>();
-    public void addButton(TextureToggleButton button) {
+    List<TextureButton> buttons = new ArrayList<>();
+    public void addButton(TextureButton button) {
         buttons.add(button);
         var prevPress = button.onPress;
         button.onPress = () -> {
@@ -24,15 +24,15 @@ public class ButtonGroup {
         };
     }
 
-    public void announceChange(TextureToggleButton source) {
+    public void announceChange(TextureButton source) {
         if (disable) {
             return;
         }
-        for (TextureToggleButton button : buttons) {
+        for (TextureButton button : buttons) {
             if (button.equals(source)) {
                 continue;
             }
-            button.setToggled(false);
+            button.setPressed(false);
         }
     }
 }

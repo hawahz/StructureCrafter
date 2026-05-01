@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.client.render.toolkit;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -14,7 +15,7 @@ import java.awt.datatransfer.StringSelection;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber
+@EventBusSubscriber(value = Dist.CLIENT)
 public class TransformWarper {
     private static final Map<Object, TransformWarper> INSTANCES = new HashMap<>();
 

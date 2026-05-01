@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.util.Textures;
@@ -13,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,13 +150,20 @@ public abstract class BaseScreen extends Screen {
     protected void renderWindowPost(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}
 
     public static void blit(GuiGraphics guiGraphics,
-                            ResourceLocation resource,
+                            @Nullable ResourceLocation resource,
                             int x,
                             int y,
                             int u,
                             int v,
                             int textureWidth,
                             int textureHeight) {
+        if ((textureWidth | textureHeight) == 0) {
+            return;
+        }
+        if (resource == null) {
+            LogUtils.getLogger().warn("ResourceLocation is null at blit()");
+            return;
+        }
         guiGraphics.blit(
                 resource,
                 x,

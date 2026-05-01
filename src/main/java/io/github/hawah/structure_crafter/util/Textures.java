@@ -4,6 +4,8 @@ import io.github.hawah.structure_crafter.StructureCrafter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
+import java.util.HashMap;
+
 public enum Textures {
     NAMETAG_BACKGROUND("textures/gui/nametag.png", 73, 32, 109, 32, 0),
     DELETE_NAMETAG("textures/gui/nametag.png", 96, 96, 15, 16, 2, 96, 112, 96, 128),
@@ -17,8 +19,9 @@ public enum Textures {
     RULER_DECO_MAP("textures/gui/ruler.png", 0, 153, 66, 66, 0),
     RULER_DECO_SIGN("textures/gui/ruler.png", 67, 153, 9, 9, 0),
     NUMBER_SPRITE("textures/gui/general.png", 0, 0, 11, 12, 0),
+    RULER_DECO_CHAIN("textures/gui/ruler.png", 68, 165, 11, 9, 0),
     ;
-    private final ResourceLocation resource;
+    private final String resource;
     private final int startX;
     private final int startY;
     private final int width;
@@ -26,9 +29,10 @@ public enum Textures {
     private final int variantCounts;
     private final int[] variant;
     private final Builder builder;
+    private static final HashMap<String, ResourceLocation> resourceCache = new HashMap<>();
 
     Textures(String path, int startX, int startY, int width, int height, int variantCounts, int... variant) {
-        this.resource = ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, path);
+        this.resource = path;
         this.startX = startX;
         this.startY = startY;
         this.width = width;
@@ -40,7 +44,7 @@ public enum Textures {
     }
 
     public ResourceLocation getResource() {
-        return resource;
+        return resourceCache.computeIfAbsent(resource, p -> ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, resource));
     }
 
     public int getStartX() {

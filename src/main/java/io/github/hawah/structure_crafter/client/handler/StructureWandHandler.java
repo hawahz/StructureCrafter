@@ -2,8 +2,8 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.client.wand_modifier.WandModifierHolder;
 import io.github.hawah.structure_crafter.util.StructureData;
-import io.github.hawah.structure_crafter.client.StructureWandModifier;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
@@ -11,7 +11,6 @@ import io.github.hawah.structure_crafter.client.render.structure.StructureRender
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
-import io.github.hawah.structure_crafter.item.IModifierItem;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
@@ -65,7 +64,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
     private boolean rotateLock = false;
     private boolean renderBoundingBox = false;
 
-    private StructureWandModifier modifier = StructureWandModifier.create(StructureWandModifier.Type.NONE);
+    private final WandModifierHolder modifier = new WandModifierHolder();
 
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
@@ -112,7 +111,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                 () -> isActive() && lock,
                 () -> {
                     LocalPlayer player;
-                    if ((player = Minecraft.getInstance().player) == null || !modifier.getType().equals(StructureWandModifier.Type.NONE))
+                    if ((player = Minecraft.getInstance().player) == null)
                         return;
                     player.getDirection();
                     int intDelta = KeyBinding.KeyBuffer.getIntDelta();
@@ -133,27 +132,19 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             Outliner.getInstance().thickBox(slot)
                     .fade()
                     .finish();
-            modifier.clear();
-            modifier = StructureWandModifier.create(StructureWandModifier.Type.NONE);
+            modifier.reset();
         }
         if (!isActive()) {
             activeSchematicItem = null;
-            modifier.clear();
+            modifier.reset();
             return;
         }
 
         LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;
         ItemStack wandStack = player.getMainHandItem();
-        if (!(player.getOffhandItem().getItem() instanceof IModifierItem modifierItem)) {
-            if (!modifier.getType().equals(StructureWandModifier.Type.NONE)) {
-                modifier.clear();
-                modifier = StructureWandModifier.create(StructureWandModifier.Type.NONE);
-            }
-        } else if (!modifierItem.getType().equals(modifier.getType())) {
-            modifier.clear();
-            modifier = StructureWandModifier.create(modifierItem.getType());
-        }
+        ItemStack offhandItem = player.getOffhandItem();
+        modifier.update(offhandItem);
 
         hud.tick();
 
@@ -175,6 +166,9 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
         handlePosition(trace, player);
         // 旋转处理
         handleRotation(player);
+
+        selectedPos = modifier.applyPosModifier(selectedPos, playerDirection);
+        playerDirection = modifier.applyDirectionModifier(selectedPos, playerDirection);
 
         // 强制解锁条件
         if (lock && player.blockPosition().distManhattan(selectedPos) > Config.CommonConfig.PREVIEW_UNLOCK_DISTANCE.getAsInt()) {
@@ -203,7 +197,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
         if (hitResult.getType() != HitResult.Type.BLOCK) {
             selectedPos = null;
-            modifier.clear();
+            modifier.reset();
             return;
         }
 
@@ -214,10 +208,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             hit = hit.relative(hitResult.getDirection());
         }
         oSelectedPos = selectedPos==null? hit : selectedPos;
-
-        if (modifier != null) {
-            selectedPos = modifier.applyModify(hit);
-        }
+        selectedPos = hit;
         //setupRenderer();
     }
 
@@ -242,7 +233,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                 playerDirection = playerDirection.getCounterClockWise();
             }
         }
-        playerDirection = modifier.applyModify(playerDirection);
     }
 
     private void submitRenderer() {
@@ -272,7 +262,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                     .fade()
                     .finish();
         }
-        modifier.submit(selectedPos, playerDirection, structureData);
+        //modifier.submit(selectedPos, playerDirection, structureData);
     }
 
     /**

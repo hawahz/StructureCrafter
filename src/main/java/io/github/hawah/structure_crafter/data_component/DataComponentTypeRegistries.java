@@ -53,6 +53,11 @@ public class DataComponentTypeRegistries {
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
+    public static final DataComponentType<Integer> RULER_SETTINGS = register(
+            "ruler_settings",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     public static final DataComponentType<MaterialListComponent> MATERIAL_LIST = register(
             "material_list",
             builder -> builder

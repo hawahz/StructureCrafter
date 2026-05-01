@@ -6,8 +6,8 @@ import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.LabelButton;
+import io.github.hawah.structure_crafter.client.gui.utils.ImplTextureButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
-import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.client.utils.SearchHelper;
@@ -49,16 +49,16 @@ public class StructureWandScreen extends BaseScreen {
     private final List<Button> labelButtons = new ArrayList<>();
     private static final List<String> discardedStructures = new ArrayList<>();
     private EditBox nameField;
-    private TextureButton loadFile;
-    private TextureButton refresh;
-    private TextureButton discard;
-    private TextureButton forward;
-    private TextureButton backward;
-    private TextureToggleButton updateToggle;
-    private TextureToggleButton boundingBoxToggle;
-    private TextureToggleButton replaceAirToggle;
-    private TextureToggleButton lockToggle;
-    private TextureToggleButton rotateLockToggle;
+    private ImplTextureButton loadFile;
+    private ImplTextureButton refresh;
+    private ImplTextureButton discard;
+    private ImplTextureButton forward;
+    private ImplTextureButton backward;
+    private TextureButton updateToggle;
+    private TextureButton boundingBoxToggle;
+    private TextureButton replaceAirToggle;
+    private TextureButton lockToggle;
+    private TextureButton rotateLockToggle;
     private String filteredName = "";
     private String selectedStructure = "";
     private int currentPage = 0, pages = 0;
@@ -133,7 +133,7 @@ public class StructureWandScreen extends BaseScreen {
 
         }
 
-        this.loadFile = new TextureButton(
+        this.loadFile = new ImplTextureButton(
                 x + 19,
                 y + 142,
                 16,
@@ -150,7 +150,7 @@ public class StructureWandScreen extends BaseScreen {
         );
         addRenderableWidget(loadFile);
 
-        refresh = new TextureButton(
+        refresh = new ImplTextureButton(
                 x + 46,
                 y + 142,
                 16,
@@ -168,7 +168,7 @@ public class StructureWandScreen extends BaseScreen {
 
         addRenderableWidget(refresh);
 
-        discard = new TextureButton(
+        discard = new ImplTextureButton(
                 x + 73,
                 y + 142,
                 16,
@@ -198,33 +198,34 @@ public class StructureWandScreen extends BaseScreen {
         int toggleX = x + 205;
         int toggleStartY = y + 22;
 
-        updateToggle = new TextureToggleButton(
+        updateToggle = TextureButton.builder(
                 toggleX + 1,
                 toggleStartY,
                 16,
                 16,
                 LangData.TOOLTIP_BUTTON_UPDATE.get(),
-                LangData.TOOLTIP_BUTTON_NO_UPDATE.get(),
-                texture,
-                160,
-                0,
-                160,
-                32,
-                208,
-                0,
-                160,
-                16,
                 () -> {
-                    AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isToggled()? 0: Block.UPDATE_ALL);
+                    AbstractStructureWand.setUpdateFlags(Minecraft.getInstance().player.getMainHandItem(), updateToggle.isPressed()? 0: Block.UPDATE_ALL);
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty();
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
-        );
+        ).messageToggled(LangData.TOOLTIP_BUTTON_NO_UPDATE.get())
+                .texture(texture)
+                .normalUV(160, 0)
+                .hoverUV(160, 32)
+                .hoverSize(16, 16)
+                .pressedHoverUV(208, 0)
+                .pressedHoverSize(16, 16)
+                .pressedUV(160, 16)
+                .pressedSize(16, 16)
+                .toggled(true)
+                .enableToggleUp(true)
+                .build();
 
         addRenderableWidget(updateToggle);
-        updateToggle.setToggled(AbstractStructureWand.getUpdateFlags(Minecraft.getInstance().player.getMainHandItem()) != Block.UPDATE_ALL);
+        updateToggle.setPressed(AbstractStructureWand.getUpdateFlags(Minecraft.getInstance().player.getMainHandItem()) != Block.UPDATE_ALL);
 
-        replaceAirToggle = new TextureToggleButton(
+        replaceAirToggle = new TextureButton(
                 toggleX,
                 toggleStartY + 21,
                 16,
@@ -241,16 +242,16 @@ public class StructureWandScreen extends BaseScreen {
                 128,
                 16,
                 () -> {
-                    AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), replaceAirToggle.isToggled());
+                    AbstractStructureWand.setReplaceAir(Minecraft.getInstance().player.getMainHandItem(), replaceAirToggle.isPressed());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty();
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
         );
 
         addRenderableWidget(replaceAirToggle);
-        replaceAirToggle.setToggled(AbstractStructureWand.isReplaceAir(Minecraft.getInstance().player.getMainHandItem()));
+        replaceAirToggle.setPressed(AbstractStructureWand.isReplaceAir(Minecraft.getInstance().player.getMainHandItem()));
 
-        boundingBoxToggle = new TextureToggleButton(
+        boundingBoxToggle = new TextureButton(
                 toggleX,
                 toggleStartY + 44,
                 16,
@@ -267,16 +268,16 @@ public class StructureWandScreen extends BaseScreen {
                 144,
                 16,
                 () -> {
-                    AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), !boundingBoxToggle.isToggled());
+                    AbstractStructureWand.setBoundsVisible(Minecraft.getInstance().player.getMainHandItem(), !boundingBoxToggle.isPressed());
                     StructureCrafterClient.STRUCTURE_WAND_HANDLER.setDirty();
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
                 }
         );
 
         addRenderableWidget(boundingBoxToggle);
-        boundingBoxToggle.setToggled(!AbstractStructureWand.isBoundsVisible(Minecraft.getInstance().player.getMainHandItem()));
+        boundingBoxToggle.setPressed(!AbstractStructureWand.isBoundsVisible(Minecraft.getInstance().player.getMainHandItem()));
 
-        lockToggle = new TextureToggleButton(
+        lockToggle = new TextureButton(
                 toggleX,
                 toggleStartY + 65,
                 16,
@@ -293,12 +294,12 @@ public class StructureWandScreen extends BaseScreen {
                 240,
                 32,
 
-                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setLock(!lockToggle.isToggled())
+                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setLock(!lockToggle.isPressed())
          );
         addRenderableWidget(lockToggle);
-        lockToggle.setToggled(!StructureCrafterClient.STRUCTURE_WAND_HANDLER.isLock());
+        lockToggle.setPressed(!StructureCrafterClient.STRUCTURE_WAND_HANDLER.isLock());
 
-        rotateLockToggle = new TextureToggleButton(
+        rotateLockToggle = new TextureButton(
                 toggleX,
                 toggleStartY + 90,
                 16,
@@ -314,12 +315,12 @@ public class StructureWandScreen extends BaseScreen {
                 16,
                 224,
                 32,
-                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setRotateLock(rotateLockToggle.isToggled())
+                () -> StructureCrafterClient.STRUCTURE_WAND_HANDLER.setRotateLock(rotateLockToggle.isPressed())
         );
         addRenderableWidget(rotateLockToggle);
-        rotateLockToggle.setToggled(StructureCrafterClient.STRUCTURE_WAND_HANDLER.isRotateLock());
+        rotateLockToggle.setPressed(StructureCrafterClient.STRUCTURE_WAND_HANDLER.isRotateLock());
 
-        forward = new TextureButton(
+        forward = new ImplTextureButton(
                 x + 73,
                 y + 117,
                 16,
@@ -337,7 +338,7 @@ public class StructureWandScreen extends BaseScreen {
         addRenderableWidget(forward);
         forward.active = pages > 1;
 
-        backward = new TextureButton(
+        backward = new ImplTextureButton(
                 x + 18,
                 y + 119,
                 16,

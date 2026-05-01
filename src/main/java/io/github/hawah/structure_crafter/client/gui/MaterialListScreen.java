@@ -5,8 +5,8 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.client.gui.utils.ButtonGroup;
+import io.github.hawah.structure_crafter.client.gui.utils.ImplTextureButton;
 import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
-import io.github.hawah.structure_crafter.client.gui.utils.TextureToggleButton;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -44,12 +44,12 @@ public class MaterialListScreen extends BaseScreen{
     private static final int MAX_SLOTS = 9;
     private final ResourceLocation texture =
             ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "material_list" + ".png");
-    private TextureToggleButton materialToggleButton;
-    private TextureToggleButton previewToggleButton;
+    private TextureButton materialToggleButton;
+    private TextureButton previewToggleButton;
     private ButtonGroup buttonGroup;
-    private TextureButton clips;
-    private TextureButton forward;
-    private TextureButton backward;
+    private ImplTextureButton clips;
+    private ImplTextureButton forward;
+    private ImplTextureButton backward;
     public List<String> materialTextPages = new ArrayList<>();
     public List<List<ItemEntry>> materialPage = new ArrayList<>();
     public List<String> statisticsTextPages = new ArrayList<>();
@@ -177,7 +177,7 @@ public class MaterialListScreen extends BaseScreen{
         int y = guiTop;
         buttonGroup = new ButtonGroup();
 
-        materialToggleButton = new TextureToggleButton(
+        materialToggleButton = new TextureButton(
                 x + 11,
                 y - 4,
                 9,
@@ -198,10 +198,10 @@ public class MaterialListScreen extends BaseScreen{
         );
 
         addRenderableWidget(materialToggleButton);
-        materialToggleButton.setToggled(true);
+        materialToggleButton.setPressed(true);
         buttonGroup.addButton(materialToggleButton);
 
-        previewToggleButton = new TextureToggleButton(
+        previewToggleButton = new TextureButton(
                 x + 27,
                 y - 4,
                 9,
@@ -224,7 +224,7 @@ public class MaterialListScreen extends BaseScreen{
         addRenderableWidget(previewToggleButton);
         buttonGroup.addButton(previewToggleButton);
 
-        clips = new TextureButton(
+        clips = new ImplTextureButton(
                 x + 42,
                 y,
                 13,
@@ -250,7 +250,7 @@ public class MaterialListScreen extends BaseScreen{
 
         addRenderableWidget(clips);
 
-        forward = new TextureButton(
+        forward = new ImplTextureButton(
                 x + 73 - 6,
                 y + 117 - 3,
                 16,
@@ -268,7 +268,7 @@ public class MaterialListScreen extends BaseScreen{
         addRenderableWidget(forward);
         forward.active = pages > 1;
 
-        backward = new TextureButton(
+        backward = new ImplTextureButton(
                 x + 18 - 6,
                 y + 117 - 3,
                 16,
@@ -353,8 +353,8 @@ public class MaterialListScreen extends BaseScreen{
             guiGraphics.blit(
                     texture,
                     guiLeft + 11,
-                    (int) (guiTop - 4 + (materialToggleButton.isToggled()? frontY : backY)),
-                    materialToggleButton.isToggled()? 0: 18,
+                    (int) (guiTop - 4 + (materialToggleButton.isPressed()? frontY : backY)),
+                    materialToggleButton.isPressed()? 0: 18,
                     0,
                     9,
                     19
@@ -364,8 +364,8 @@ public class MaterialListScreen extends BaseScreen{
             guiGraphics.blit(
                     texture,
                     guiLeft + 27,
-                    (int) (guiTop - 4 + (previewToggleButton.isToggled()? frontY : backY)),
-                    previewToggleButton.isToggled()? 9: 27,
+                    (int) (guiTop - 4 + (previewToggleButton.isPressed()? frontY : backY)),
+                    previewToggleButton.isPressed()? 9: 27,
                     0,
                     9,
                     20
@@ -400,8 +400,8 @@ public class MaterialListScreen extends BaseScreen{
         String firstPage;
         List<ItemEntry> itemPageFirst;
         try {
-            firstPage = materialToggleButton.isToggled()? materialTextPages.get(currentPage) : statisticsTextPages.isEmpty()? "" : statisticsTextPages.get(currentPage);
-            itemPageFirst = materialToggleButton.isToggled()? materialPage.get(currentPage): List.of();
+            firstPage = materialToggleButton.isPressed()? materialTextPages.get(currentPage) : statisticsTextPages.isEmpty()? "" : statisticsTextPages.get(currentPage);
+            itemPageFirst = materialToggleButton.isPressed()? materialPage.get(currentPage): List.of();
         } catch (Exception e) {
             LogUtils.getLogger().error("Error occurred when turning pages. Page {}, Total {}", pages, currentPage, e);
             pose.popPose();
@@ -473,7 +473,7 @@ public class MaterialListScreen extends BaseScreen{
     }
 
     private void updatePage() {
-        pages = (int) (double) (materialToggleButton.isToggled() ? materialPage.size() : statisticsTextPages.size());
+        pages = (int) (double) (materialToggleButton.isPressed() ? materialPage.size() : statisticsTextPages.size());
         currentPage = 0;
         if (forward != null && backward != null) {
             forward.active = currentPage < pages - 1;

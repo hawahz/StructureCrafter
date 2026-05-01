@@ -56,7 +56,8 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
             CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
             st.load(Minecraft.getInstance().level.holderLookup(Registries.BLOCK), nbt);
             if (!StructureHandler.isSizeValid(st.getSize())) {
-                throw new RuntimeException(LangData.WARN_STRUCTURE_PLACED_OVERSIZE.get().getString());
+                LogUtils.getLogger().warn(LangData.WARN_STRUCTURE_PLACED_OVERSIZE.get().getString());
+                return;
             }
             if (nbt.sizeInBytes() > 2097152) {
                 CompletableFuture

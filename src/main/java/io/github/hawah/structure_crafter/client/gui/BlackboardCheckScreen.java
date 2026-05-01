@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.client.gui;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.utils.ColoredLabel;
-import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
+import io.github.hawah.structure_crafter.client.gui.utils.ImplTextureButton;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -28,9 +28,9 @@ public class BlackboardCheckScreen extends BaseScreen {
 
 
     private EditBox nameField;
-    private TextureButton confirm;
-    private TextureButton delete;
-    private TextureButton discard;
+    private ImplTextureButton confirm;
+    private ImplTextureButton delete;
+    private ImplTextureButton discard;
 
     @Override
     protected void init() {
@@ -53,7 +53,7 @@ public class BlackboardCheckScreen extends BaseScreen {
 
         Textures.Builder confirmBuilder = Textures.CONFIRM_NAMETAG.builder();
 
-        confirm = new TextureButton(
+        confirm = new ImplTextureButton(
                 guiLeft + 113,
                 guiTop - 2,
                 confirmBuilder.getWidth(),
@@ -78,7 +78,7 @@ public class BlackboardCheckScreen extends BaseScreen {
 
         Textures.Builder deleteBuilder = Textures.DELETE_NAMETAG.builder();
 
-        delete = new TextureButton(
+        delete = new ImplTextureButton(
                 guiLeft + 113,
                 guiTop + 29,
                 deleteBuilder.getWidth(),
@@ -97,7 +97,7 @@ public class BlackboardCheckScreen extends BaseScreen {
 
         Textures.Builder discardBuilder = Textures.DISCARD_NAMETAG.builder();
 
-        discard = new TextureButton(
+        discard = new ImplTextureButton(
                 guiLeft + 113,
                 guiTop + 11,
                 discardBuilder.getWidth(),

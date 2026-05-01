@@ -18,6 +18,14 @@ public class RulerMapWidget extends DraggableFloatWidget{
         super(x, y, width, height, texture, startX, startY, parentRect, limitArea);
     }
 
+    public RulerMapWidget(int x, int y, Textures textureData, Rect2i parentRect) {
+        super(x, y, textureData, parentRect);
+    }
+
+    public RulerMapWidget(int x, int y, Textures textureData, Rect2i parentRect, Rect2i limitArea) {
+        super(x, y, textureData, parentRect, limitArea);
+    }
+
     @Override
     protected void renderAbove(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.renderAbove(guiGraphics, mouseX, mouseY, partialTick);

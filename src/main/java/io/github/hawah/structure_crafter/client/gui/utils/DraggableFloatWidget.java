@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BaseScreen;
+import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -46,6 +47,21 @@ public class DraggableFloatWidget extends AbstractWidget {
                                 int startY,
                                 Rect2i parentRect) {
         this(x, y, width, height, texture, startX, startY, parentRect, new Rect2i(-1, -1, 0, 0));
+    }
+
+    public DraggableFloatWidget(int x,
+                                int y,
+                                Textures textureData,
+                                Rect2i parentRect) {
+        this(x, y, textureData.getWidth(), textureData.getHeight(), textureData.getResource(), textureData.getStartX(), textureData.getStartY(), parentRect);
+    }
+
+    public DraggableFloatWidget(int x,
+                                int y,
+                                Textures textureData,
+                                Rect2i parentRect,
+                                Rect2i limitArea) {
+        this(x, y, textureData.getWidth(), textureData.getHeight(), textureData.getResource(), textureData.getStartX(), textureData.getStartY(), parentRect, limitArea);
     }
 
     public DraggableFloatWidget(int x,
