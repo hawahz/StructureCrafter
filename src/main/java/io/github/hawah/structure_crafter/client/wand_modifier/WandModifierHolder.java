@@ -2,10 +2,13 @@ package io.github.hawah.structure_crafter.client.wand_modifier;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
+import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.item.RulerItem;
+import io.github.hawah.structure_crafter.util.MutablePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.Optional;
 public class WandModifierHolder {
 
     @RulerItem.RulerSetting protected int setting = -1;
+    protected final Vector2i size = new Vector2i(), offset = new Vector2i();
 
     static class ModifierHolder {
         List<Either<Modifiers.Pos, Modifiers.Dir>> modifiers = new ArrayList<>();
@@ -23,7 +27,7 @@ public class WandModifierHolder {
 
         public void set(int index, Modifiers.Pos modifier) {
             while (modifiers.size() < index) {
-                push(new Modifiers.Pos.Dummy());
+                push(Modifiers.Pos.DUMMY);
             }
             if (modifiers.size() == index) {
                 push(modifier);
@@ -38,7 +42,7 @@ public class WandModifierHolder {
 
         public void set(int index, Modifiers.Dir modifier) {
             while (modifiers.size() < index) {
-                push(new Modifiers.Dir.Dummy());
+                push(Modifiers.Dir.DUMMY);
             }
             if (modifiers.size() == index) {
                 push(modifier);
@@ -49,7 +53,7 @@ public class WandModifierHolder {
 
         public Optional<Either<Modifiers.Pos, Modifiers.Dir>> get(int index) {
             if (modifiers.size() <= index)
-                return Optional.of(Either.left(new Modifiers.Pos.Dummy()));
+                return Optional.of(Either.left(Modifiers.Pos.DUMMY));
             return Optional.of(modifiers.get(index));
         }
 
@@ -76,7 +80,10 @@ public class WandModifierHolder {
         }
 
         public boolean isEmpty() {
-            return modifiers.isEmpty();
+            return modifiers.isEmpty() ||
+                    modifiers.stream().allMatch((modifier) ->
+                            modifier.left().orElse(Modifiers.Pos.DUMMY).equals(Modifiers.Pos.DUMMY) &&
+                                    modifier.right().orElse(Modifiers.Dir.DUMMY).equals(Modifiers.Dir.DUMMY));
         }
 
         public void reset() {
@@ -86,53 +93,25 @@ public class WandModifierHolder {
         public void setAnchor(BlockPos anchor) {
             modifiers.forEach(modifier -> modifier.ifLeft(m->m.setAnchor(anchor)).ifRight(m->m.setAnchor(anchor)));
         }
-    }
 
-    static class MutablePair<L, R> {
-        public L left;
-        public R right;
-        public MutablePair(L left, R right) {
-            this.left = left;
-            this.right = right;
-        }
-        public MutablePair<R, L> swap() {
-            return new MutablePair<>(right, left);
-        }
-        public L left() {
-            return left;
-        }
-        public R right() {
-            return right;
-        }
-        public void setLeft(L left) {
-            this.left = left;
-        }
-        public void setRight(R right) {
-            this.right = right;
+        public void setSize(Vector2i size) {
+            modifiers.forEach(modifier -> modifier.ifLeft(m->m.setSize(size)).ifRight(m->m.setSize(size)));
         }
 
-        @SuppressWarnings("unchecked")
-        public <T> void set(T value) {
-            if (left.getClass().equals(value.getClass())) {
-                setLeft((L) value);
-            } else if (right.getClass().equals(value.getClass())) {
-                setRight((R) value);
-            }
+        public void setOffset(Vector2i offset) {
+            modifiers.forEach(modifier -> modifier.ifLeft(m->m.setOffset(offset)).ifRight(m->m.setOffset(offset)));
         }
 
-        public static <U, V> MutablePair<U, V> of(U left, V right) {
-            return new MutablePair<>(left, right);
+        public void modifySubmit(MutablePair<BlockPos, BlockPos> data) {
+            modifiers.forEach(modifier -> modifier.ifLeft(m->m.modifySubmit(data)).ifRight(m->m.modifySubmit(data)));
         }
     }
 
     private final ModifierHolder anchorModifiers = new ModifierHolder();
     private final ModifierHolder previewModifiers = new ModifierHolder();
-    protected BlockPos anchor;
+    protected BlockPos anchor, currentPos;
 
     public WandModifierHolder() {
-        anchorModifiers.push(new Modifiers.Pos.Dummy());
-        previewModifiers.push(new Modifiers.Pos.Dummy());
-        previewModifiers.push(new Modifiers.Pos.Dummy());
     }
 
     public Direction applyDirectionModifier(BlockPos pos, Direction direction) {
@@ -146,7 +125,7 @@ public class WandModifierHolder {
         if (previewModifiers.isEmpty() || pos == null || direction == null) {
             return pos;
         }
-        return previewModifiers.modify(MutablePair.of(pos, direction)).left();
+        return currentPos = previewModifiers.modify(MutablePair.of(pos, direction)).left();
     }
 
     public void onPlace(BlockPos placeAt, Direction direction) {
@@ -168,13 +147,13 @@ public class WandModifierHolder {
             reset();
             return;
         }
-        if (RulerItem.settingRemained(itemStack, setting) && setting >= 0) {
+        if (RulerItem.settingRemained(itemStack, setting) && setting >= 0 && !anchorModifiers.isEmpty() && !previewModifiers.isEmpty()) {
             return;
         }
         int setting = RulerItem.settingOf(itemStack);
 
-        int distance;
-        if (((setting ^ this.setting) & RulerItem.CHANGE_CENTER) != 0) {
+        int distance = RulerItem.DISTANCE_MASK & setting;
+        if (((setting ^ this.setting) & RulerItem.CHANGE_CENTER) != 0 || anchorModifiers.isEmpty()) {
             anchorModifiers.clear();
             if ((setting & RulerItem.CHANGE_CENTER) != 0) {
                 anchorModifiers.push(new ChainedAnchorModifier());
@@ -191,27 +170,46 @@ public class WandModifierHolder {
             this.setting = setting;
             return;
         }
+        if (isDistanceChanged) {
+            if (distance != 0) {
+                previewModifiers.set(1, new FixedDistanceModifier(distance));
+            } else {
+                previewModifiers.set(1, Modifiers.Pos.DUMMY);
+            }
+        }
         if (isShapeChanged) {
             if ((setting & RulerItem.IS_CIRCLE) != 0) {
-                previewModifiers.set(0, new Modifiers.Pos.Dummy());
+                previewModifiers.set(0, Modifiers.Pos.DUMMY);
             } else {
                 previewModifiers.set(0, new StraitModifier());
             }
         }
-        if (isDistanceChanged) {
-            if ((distance = RulerItem.DISTANCE_MASK & setting) != 0) {
-                previewModifiers.set(1, new FixedDistanceModifier(distance));
-            } else {
-                previewModifiers.set(1, new Modifiers.Pos.Dummy());
-            }
-        }
+
 
         //noinspection MagicConstant
         this.setting = setting;
     }
 
-    public void submit() {
+    public void updateStructure(Vector2i size, Vector2i offset) {
+        previewModifiers.setSize(size);
+        previewModifiers.setOffset(offset);
+        this.size.set(size);
+        this.offset.set(offset);
+    }
 
+    public boolean isEmpty() {
+        return anchorModifiers.isEmpty() && previewModifiers.isEmpty() || anchor == null;
+    }
+
+    public void submit() {
+        if (currentPos == null || anchor == null) {
+            RulerMaker.getInstance().chase(this).discard().finish();
+            return;
+        }
+        MutablePair<BlockPos, BlockPos> warpedData = MutablePair.of(anchor, currentPos);
+        previewModifiers.modifySubmit(warpedData);
+        RulerMaker.getInstance().chase(this, warpedData.left(), warpedData.right())
+                .finish();
     }
 
     public void reset() {

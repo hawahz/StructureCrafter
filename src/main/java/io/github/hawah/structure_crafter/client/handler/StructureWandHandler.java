@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.client.wand_modifier.WandModifierHolder;
 import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
@@ -39,6 +40,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2i;
+import org.joml.Vector3i;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -68,6 +71,9 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
     private int rotated;
     private final StructureWandHUD hud = new StructureWandHUD();
+
+    private final Vector2i size = new Vector2i();
+    private final Vector2i offset = new Vector2i();
 
     public StructureWandHandler() {
         bindKeys();
@@ -132,6 +138,9 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             Outliner.getInstance().thickBox(slot)
                     .fade()
                     .finish();
+            RulerMaker.getInstance().chase(modifier)
+                    .fade()
+                    .finish();
         }
         if (!isActive()) {
             activeSchematicItem = null;
@@ -155,8 +164,9 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                 player,
                 player.isCreative()? 75 : player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * Config.ServerConfig.STRUCTURE_PLACE_DISTANCE.getAsInt()
         );
-        if (!rotateLock && !lock) {
+        if (!rotateLock && !lock && (modifier.isEmpty() || rawDirection == null)) {
             // 当没有旋转锁定和锁定时，将玩家朝向缓存到rawDirection当中
+            // 或者是当已经有rawDirection的情况下，修改器是空修改器
             // 若未来发生锁定，则直接通过此渠道获取原始方向，并作用rotated
             rawDirection = player.getDirection();
         }
@@ -244,8 +254,17 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             StructurePlaceSettings settings = new StructurePlaceSettings();
             Rotation rotation = StructureHandler.transferDirectionToRotation(this.playerDirection);
             settings.setRotation(rotation);
+            BlockPos rotatedCenter = structureData.center().rotate(rotation);
             BoundingBox boundingBox = structureData.structureTemplate()
-                    .getBoundingBox(settings, selectedPos.subtract(structureData.center().rotate(rotation)));
+                    .getBoundingBox(settings, selectedPos.subtract(rotatedCenter));
+            size.set(
+                    boundingBox.getXSpan(),
+                    boundingBox.getZSpan()
+            );
+            offset.set(
+                    selectedPos.getX() - boundingBox.minX(),
+                    selectedPos.getZ() - boundingBox.minZ()
+            );
             Outliner.getInstance()
                     .chaseThickBox(slot,
                             new BlockPos(boundingBox.minX(), boundingBox.minY(), boundingBox.minZ()),
@@ -259,6 +278,24 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                     .thickBox(slot)
                     .fade()
                     .finish();
+        }
+        if (selectedPos != null && this.structureData != null && this.structureData.center() != null && structureData.structureTemplate() != null) {
+            StructurePlaceSettings settings = new StructurePlaceSettings();
+            Rotation rotation = StructureHandler.transferDirectionToRotation(this.playerDirection);
+            settings.setRotation(rotation);
+            BlockPos rotatedCenter = structureData.center().rotate(rotation);
+            BoundingBox boundingBox = structureData.structureTemplate()
+                    .getBoundingBox(settings, selectedPos.subtract(rotatedCenter));
+            size.set(
+                    boundingBox.getXSpan(),
+                    boundingBox.getZSpan()
+            );
+            offset.set(
+                    selectedPos.getX() - boundingBox.minX(),
+                    selectedPos.getZ() - boundingBox.minZ()
+            );
+            modifier.updateStructure(size, offset);
+            modifier.submit();
         }
         //modifier.submit(selectedPos, playerDirection, structureData);
     }
@@ -326,6 +363,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             int intDelta = (int) (delta > 0 ? Math.ceil(delta) : Math.floor(delta));
             rotated = rotated + intDelta;
             rotated %= 4;
+            modifier.reset();
             return true;
         }
         return false;
