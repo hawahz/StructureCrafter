@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
 import com.mojang.logging.LogUtils;
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
@@ -43,6 +44,10 @@ public record ClientboundUploadStructureToServerPacket(String playerName, String
     public void handle(LocalPlayer player) {
         if (playerName == null || !structureName.endsWith(".nbt"))
             return;
+
+        if (!Config.ServerConfig.SERVER_UPLOAD_VALIDATION.get().hasPermission(player)) {
+            return;
+        }
 
         Path dir = Paths.STRUCTURE_DIR;
         Path file = Path.of(structureName);

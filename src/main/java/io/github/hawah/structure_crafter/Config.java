@@ -4,6 +4,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.util.BlackboardRenderType;
 import io.github.hawah.structure_crafter.util.StarPattern;
 import io.github.hawah.structure_crafter.util.StructurePlaceMode;
+import io.github.hawah.structure_crafter.util.UploadValidation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -85,6 +86,7 @@ public class Config {
         public static final ModConfigSpec.IntValue MAX_SIZE_Z;
         public static final ModConfigSpec.IntValue MAX_VOLUME;
         public static final ModConfigSpec.IntValue STRUCTURE_PLACE_DISTANCE;
+        public static final ModConfigSpec.EnumValue<UploadValidation> SERVER_UPLOAD_VALIDATION;
         public static final ModConfigSpec.IntValue UPLOAD_WAIT_TIME;
         public static final ModConfigSpec.EnumValue<StructurePlaceMode> STRUCTURE_PLACE_MODE;
         public static final ModConfigSpec.ConfigValue<List<? extends String>> STRUCTURE_BLACKLIST;
@@ -112,6 +114,11 @@ public class Config {
 
             builder.pop();
 
+            SERVER_UPLOAD_VALIDATION = builder
+                    .comment(LangData.CONFIGURATION_UPLOAD_VALIDATION.def)
+                    .translation(LangData.CONFIGURATION_UPLOAD_VALIDATION.key)
+                    .defineEnum("server_upload_validation", UploadValidation.ADMINS);
+
             UPLOAD_WAIT_TIME = builder
                     .comment(LangData.CONFIGURATION_UPLOAD_WAIT_TIME.def)
                     .translation(LangData.CONFIGURATION_UPLOAD_WAIT_TIME.key)
@@ -132,7 +139,7 @@ public class Config {
                     .translation(LangData.CONFIGURATION_STRUCTURE_BLACKLIST.key)
                     .defineListAllowEmpty(
                             "structure_blacklist",
-                            List.of(),
+                            List.of("#minecraft:signs"),
                             () -> "",
                             Config::validateItemName
                     );

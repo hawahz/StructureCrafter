@@ -23,6 +23,7 @@ public enum LangData {
     INFO_CONTAINER_BUILD_CAPABILITY("client_message.info_container_build_capability","Items in the container can build up to %s structures.",1),
     INFO_CONTAINER_BUILD_CAPABILITY_WITH_INVENTORY("client_message.info_container_build_capability_with_inventory","Items in the container plus your inventory can build up to %s structures.",1),
     INFO_TELEPHONE_BLOCK_CAPABILITY("client_message.info_telephone_block_capability","Capacity: %s",1),
+    INFO_NO_UPLOAD_PERMISSION("client_message.info_no_upload_permission","You do not have permission to upload files.",0),
 
     SHIFT("tooltip_shift", "-[Shift]-", 0, ChatFormatting.DARK_GRAY , ChatFormatting.ITALIC),
 
@@ -145,6 +146,8 @@ public enum LangData {
     CONFIGURATION_RENDER_TELEPHONE_BOOST_POSITION("configuration.render_telephone_boost_position","Render Telephone Boost Position",0),
     CONFIGURATION_UPLOAD_WAIT_TIME("configuration.upload_wait_time","Upload Wait Time",0),
     CONFIGURATION_UPLOAD_WAIT_TIME_TOOLTIP("configuration.upload_wait_time.tooltip","Server wait ticks for client structure upload.",0),
+    CONFIGURATION_UPLOAD_VALIDATION("configuration.upload_validation","Structure Upload Validation",0),
+    CONFIGURATION_UPLOAD_VALIDATION_TOOLTIP("configuration.upload_validation.tooltip","Defines who has the permission to upload local structure to server.",0),
 
     CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
 

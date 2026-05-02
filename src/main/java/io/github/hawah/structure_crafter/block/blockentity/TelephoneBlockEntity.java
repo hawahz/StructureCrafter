@@ -10,12 +10,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -23,29 +21,18 @@ import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-//TODO 强绑定玩家，以及解绑后的判断逻辑，密钥
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@EventBusSubscriber
 public class TelephoneBlockEntity extends BlockEntity {
 
     public final Direction facing;
-
-
-    // Server only
-    public static final HashSet<BlockPos> containersTakeOver = new HashSet<>();
 
     public void setHasTelephone(boolean hasTelephone) {
         this.hasTelephone = hasTelephone;
@@ -247,21 +234,6 @@ public class TelephoneBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
         tag.putBoolean("hasTelephone", hasTelephone);
         tag.putBoolean("hasBeacon", hasBeacon);
-    }
-    @SubscribeEvent
-    public static void onOpenBlock(PlayerInteractEvent.RightClickBlock event) {
-        BlockHitResult hitVec = event.getHitVec();
-        BlockPos blockPos = hitVec.getBlockPos();
-        if (!TelephoneBlockEntity.containersTakeOver.contains(blockPos)) {
-            return;
-        }
-        event.setUseBlock(TriState.FALSE);
-        Player player = event.getEntity();
-        //TODO Translatable
-        player.displayClientMessage(
-                Component.literal("This is taken over."),
-                true
-        );
     }
 
     public boolean hasBeacon() {

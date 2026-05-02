@@ -1,15 +1,21 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
+import io.github.hawah.structure_crafter.Config;
+import io.github.hawah.structure_crafter.ServerEvents;
+import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.util.CompressedTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerTickRateManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class ServerCompressedTagReceiver {
     public static Map<Long, List<CompressedTag>> compressedTags = new HashMap<>();
+    public static Map<Long, Long> taskCreateTimes = new HashMap<>();
 
     public static Optional<CompoundTag> receive(CompressedTag tag) {
         compressedTags.merge(tag.id, new ArrayList<>(List.of(tag)), (a, b) -> {
@@ -17,6 +23,7 @@ public class ServerCompressedTagReceiver {
             a.sort(Comparator.comparing(CompressedTag::index));
             return a;
         });
+        taskCreateTimes.computeIfAbsent(tag.id, t -> ServerEvents.runningTick());
         List<CompressedTag> currentFocus = compressedTags.get(tag.id);
         if (currentFocus.size() < tag.length) {
             return Optional.empty();
@@ -44,5 +51,13 @@ public class ServerCompressedTagReceiver {
         }
         result.put("blocks", mergedBlocks);
         return result;
+    }
+
+    public static void cleanSparePackets() {
+        long currentTick = ServerEvents.runningTick();
+        taskCreateTimes.keySet()
+                .stream()
+                .filter(tagId -> currentTick - taskCreateTimes.get(tagId) > Config.ServerConfig.UPLOAD_WAIT_TIME.getAsInt())
+                .forEach(tagId -> compressedTags.remove(tagId));
     }
 }

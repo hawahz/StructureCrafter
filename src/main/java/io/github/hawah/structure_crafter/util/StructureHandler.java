@@ -434,6 +434,10 @@ public class StructureHandler {
             return true;
         }
 
+        if (!Config.ServerConfig.SERVER_UPLOAD_VALIDATION.get().hasPermission(player)) {
+            return false;
+        }
+
         Networking.sendToPlayer(new ClientboundUploadStructureToServerPacket(player.getName().getString(), schematic), player);
         return false;
     }

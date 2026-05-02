@@ -57,7 +57,12 @@ public record PlaceStructurePacket(ItemStack stack, BlockPos pos, Direction dire
         boolean replaceAir = AbstractStructureWand.isReplaceAir(stack);
 
         Level level = player.level();
-        if (!StructureHandler.checkFileExists(player, stack)) {
+        boolean fileExists = StructureHandler.checkFileExists(player, stack);
+        if (!fileExists && !Config.ServerConfig.SERVER_UPLOAD_VALIDATION.get().hasPermission(player)) {
+            player.displayClientMessage(LangData.INFO_NO_UPLOAD_PERMISSION.get(), true);
+            return;
+        }
+        if (!fileExists) {
             LogUtils.getLogger().debug("Fall back to load structure from Client");
             ServerTaskManager.createTask(
                     ()->StructureHandler.checkFileExistsOnly(player, stack()),
