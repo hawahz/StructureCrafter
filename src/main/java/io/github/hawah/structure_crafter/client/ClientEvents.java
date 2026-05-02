@@ -14,11 +14,9 @@ import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
+import io.github.hawah.structure_crafter.item.RulerItem;
 import io.github.hawah.structure_crafter.item.TelephoneHandset;
-import io.github.hawah.structure_crafter.util.BlackboardRenderType;
-import io.github.hawah.structure_crafter.util.KeyBinding;
-import io.github.hawah.structure_crafter.util.Models;
-import io.github.hawah.structure_crafter.util.Textures;
+import io.github.hawah.structure_crafter.util.*;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -27,11 +25,19 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -42,6 +48,8 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.List;
@@ -74,14 +82,39 @@ public class ClientEvents {
         if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
             return;
         }
+        ClientSharedFlags.tick();
         StructureCrafterClient.BLACKBOARD_HANDLER.tick();
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.tick();
         Outliner.tick();
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.tick();
         StructureCrafterClient.RULER_HANDLER.tick();
+        StructureCrafterClient.RULER_OFF_HANDLER.tick();
         TelephoneHandset.clientTick();
         ClientDataHolder.tick();
         RulerMaker.tick();
+    }
+
+    @SubscribeEvent
+    public static void onPlayerPlaceBlock(UseItemOnBlockEvent event) {
+        Player player = event.getPlayer();
+        if (player == null) {
+            return;
+        }
+        ItemStack usedItem = event.getItemStack();
+        if (!(player.getOffhandItem().getItem() instanceof RulerItem) ||
+                !(event.getHand().equals(InteractionHand.MAIN_HAND)) ||
+                !(usedItem.getItem() instanceof BlockItem)
+        ) {
+            return;
+        }
+        if (Screen.hasControlDown()) {
+            BlockPos.MutableBlockPos mutableBlockPos = RulerItem.modifyFixed(event.getPos(), player.getOffhandItem());
+            if (mutableBlockPos.immutable().equals(event.getPos())) {
+                return;
+            }
+            event.cancelWithResult(ItemInteractionResult.CONSUME);
+            player.swing(InteractionHand.MAIN_HAND);
+        }
     }
 
     @SubscribeEvent

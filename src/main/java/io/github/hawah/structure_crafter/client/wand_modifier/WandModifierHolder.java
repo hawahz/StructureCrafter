@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class WandModifierHolder {
 
-    @RulerItem.RulerSetting protected int setting = 0;
+    @RulerItem.RulerSetting protected int setting = -1;
 
     static class ModifierHolder {
         List<Either<Modifiers.Pos, Modifiers.Dir>> modifiers = new ArrayList<>();
@@ -136,14 +136,14 @@ public class WandModifierHolder {
     }
 
     public Direction applyDirectionModifier(BlockPos pos, Direction direction) {
-        if (previewModifiers.isEmpty()) {
+        if (previewModifiers.isEmpty() || pos == null || direction == null) {
             return direction;
         }
         return previewModifiers.modify(MutablePair.of(pos, direction)).right();
     }
 
     public BlockPos applyPosModifier(BlockPos pos, Direction direction) {
-        if (previewModifiers.isEmpty()) {
+        if (previewModifiers.isEmpty() || pos == null || direction == null) {
             return pos;
         }
         return previewModifiers.modify(MutablePair.of(pos, direction)).left();
@@ -168,7 +168,7 @@ public class WandModifierHolder {
             reset();
             return;
         }
-        if (RulerItem.settingRemained(itemStack, setting)) {
+        if (RulerItem.settingRemained(itemStack, setting) && setting >= 0) {
             return;
         }
         int setting = RulerItem.settingOf(itemStack);

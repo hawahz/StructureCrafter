@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.data_component;
 
 import com.mojang.serialization.Codec;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -51,6 +52,11 @@ public class DataComponentTypeRegistries {
     public static final DataComponentType<Boolean> RULER_EDGE_MODE = register(
             "ruler_edge_mode",
             builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<BlockPos> RULER_ANCHOR = register(
+            "ruler_anchor",
+            builder -> builder.persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC)
     );
 
     public static final DataComponentType<Integer> RULER_SETTINGS = register(

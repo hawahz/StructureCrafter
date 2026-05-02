@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;
+import io.github.hawah.structure_crafter.util.InstantSignal;
 import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -25,6 +26,15 @@ public abstract class BaseScreen extends Screen {
     protected int textureWidth, textureHeight;
     protected int windowXOffset, windowYOffset;
     protected int guiLeft, guiTop;
+
+    public final InstantSignal closed = new InstantSignal(0);
+
+    @Override
+    public void onClose() {
+        closed.emit();
+        super.onClose();
+    }
+
     private final List<AbstractWidget> lazyRegisterComponents = new ArrayList<>();
 
     protected final float getScale() {

@@ -132,7 +132,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             Outliner.getInstance().thickBox(slot)
                     .fade()
                     .finish();
-            modifier.reset();
         }
         if (!isActive()) {
             activeSchematicItem = null;
@@ -197,7 +196,6 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
 
         if (hitResult.getType() != HitResult.Type.BLOCK) {
             selectedPos = null;
-            modifier.reset();
             return;
         }
 
@@ -295,6 +293,7 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
             AbstractStructureWand.setOwnerName(activeSchematicItem, player.getName().getString());
             Networking.sendToServer(new HandholdItemChangePacket(activeSchematicItem));
         }
+        modifier.reset();
         dirty = false;
     }
 

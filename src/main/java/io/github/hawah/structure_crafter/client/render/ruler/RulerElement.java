@@ -83,7 +83,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         axes.sort((a, b) -> {
             double da = (a == 0 ? Math.abs(dx) : a == 1 ? Math.abs(dy) * 3 : Math.abs(dz));
             double db = (b == 0 ? Math.abs(dx) : b == 1 ? Math.abs(dy) * 3 : Math.abs(dz));
-            return Double.compare(da, db); // 大的在前
+            return Double.compare(da, db) + (Math.abs(da - db) < 0.1? 0 : -1); // 大的在前
         });
 
         // === 3️⃣ 构造路径点（逐轴逼近 end） ===
@@ -142,22 +142,25 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
 
         Minecraft mc = Minecraft.getInstance();
 
+        final double keepPace = 1;
+        final int keepPaceLog = (int) Math.log10(keepPace);
+
         if (lenX > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(lenX * 100) / 100.0), mc, cameraPos, midX, 0,
+            drawString(poseStack, String.format("%."+ keepPaceLog + "f", Math.round(lenX * keepPace) / keepPace), mc, cameraPos, midX, 0,
                     (int) (cr*255),
                     (int) (cg*255),
                     (int) (cb*255),
                     (int) (ca*255));
         }
         if (lenY > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(lenY * 100) / 100.0), mc, cameraPos, midY, 1,
+            drawString(poseStack, String.format("%."+ keepPaceLog + "f", Math.round(lenY * keepPace) / keepPace), mc, cameraPos, midY, 1,
                     (int) (cr*255),
                     (int) (cg*255),
                     (int) (cb*255),
                     (int) (ca*255));
         }
         if (lenZ > 0.1) {
-            drawString(poseStack, String.valueOf(Math.round(lenZ * 100) / 100.0), mc, cameraPos, midZ, 2,
+            drawString(poseStack, String.format("%."+ keepPaceLog + "f", Math.round(lenZ * keepPace) / keepPace), mc, cameraPos, midZ, 2,
                     (int) (cr*255),
                     (int) (cg*255),
                     (int) (cb*255),
@@ -181,7 +184,8 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
             return;
         Vec3 upVector = Minecraft.getInstance().player.getUpVector(AnimationTickHolder.getPartialTicks());
         Vec3 lookVector = Minecraft.getInstance().player.getLookAngle();
-        float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.5F * (a/255F);
+        int width = Minecraft.getInstance().getWindow().getWidth();
+        float scale = 0.05F * (float) Math.sqrt(cameraPos.distanceTo(position)) * 0.65F * (a/255F) * 3200f/width;
         Font font = mc.font;
         double d0 = cameraPos.x;
         double d1 = cameraPos.y;
@@ -276,7 +280,6 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         poseStack.translate(0, font.lineHeight * scale, 0);
         poseStack.scale(scale, -scale, scale);
 
-        boolean transparent = true;
         float f = (float) -font.width(text) / 2.0F;
         f -= 0 / scale;
         font.drawInBatch(
@@ -299,7 +302,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
                 false,
                 poseStack.last().pose(),
                 mc.renderBuffers().bufferSource(),
-                transparent ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL,
+                Font.DisplayMode.SEE_THROUGH,
                 0,
                 15728880
         );

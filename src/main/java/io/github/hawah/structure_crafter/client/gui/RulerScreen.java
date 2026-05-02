@@ -1,9 +1,6 @@
 package io.github.hawah.structure_crafter.client.gui;
 
-import io.github.hawah.structure_crafter.client.gui.utils.ButtonGroup;
-import io.github.hawah.structure_crafter.client.gui.utils.DraggableFloatWidget;
-import io.github.hawah.structure_crafter.client.gui.utils.RulerMapWidget;
-import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
+import io.github.hawah.structure_crafter.client.gui.utils.*;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.item.RulerItem;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
@@ -15,6 +12,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 
 public class RulerScreen extends BaseScreen{
+
     public RulerScreen() {
         super(Component.empty());
     }
@@ -53,6 +51,7 @@ public class RulerScreen extends BaseScreen{
                     int setting = RulerItem.settingOf(Minecraft.getInstance().player.getMainHandItem());
                     Minecraft.getInstance().player.getMainHandItem().set(DataComponentTypeRegistries.RULER_SETTINGS, setting | RulerItem.CHANGE_CENTER);
                     Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                    map.state = RulerMapWidget.State.CHAIN;
                 }
         ).normalUV(Textures.RULER_DECO_CHAIN.getStartX(), Textures.RULER_DECO_CHAIN.getStartY())
                 .texture(Textures.RULER_DECO_CHAIN.getResource())
@@ -76,6 +75,7 @@ public class RulerScreen extends BaseScreen{
                             int setting = RulerItem.settingOf(Minecraft.getInstance().player.getMainHandItem());
                             Minecraft.getInstance().player.getMainHandItem().set(DataComponentTypeRegistries.RULER_SETTINGS, setting & ~RulerItem.CHANGE_CENTER);
                             Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+                            map.state = RulerMapWidget.State.NON_CHAIN;
                         }
         ).normalUV(68, 179)
                 .texture(Textures.RULER_DECO_CHAIN.getResource())
@@ -133,6 +133,29 @@ public class RulerScreen extends BaseScreen{
                 .covered(true)
                 .build();
 
+        ScrollPanel scrollPanel = new ScrollPanel(
+                x + 36 + 30+ OFFSET_X + 30,
+                y + 120 + OFFSET_Y - 10,
+                100,
+                20,
+                128,
+                0
+        );
+
+        scrollPanel.setValue(RulerItem.getDistance(Minecraft.getInstance().player.getMainHandItem()));
+
+        closed.bind((args) -> scrollPanel.updateInstantly());
+
+        scrollPanel.VALUE_CHANGED.bind(args -> {
+            if (args.length < 1) {
+                return;
+            }
+            int distance = (int) args[0];
+            int setting = RulerItem.settingOf(Minecraft.getInstance().player.getMainHandItem()) & ~RulerItem.DISTANCE_MASK;
+            Minecraft.getInstance().player.getMainHandItem().set(DataComponentTypeRegistries.RULER_SETTINGS, setting | (distance & RulerItem.DISTANCE_MASK));
+            Networking.sendToServer(new HandholdItemChangePacket(Minecraft.getInstance().player.getMainHandItem()));
+        });
+
         nonstrait.setPressed((RulerItem.settingOf(Minecraft.getInstance().player.getMainHandItem()) & RulerItem.IS_CIRCLE) != 0);
 
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -144,6 +167,9 @@ public class RulerScreen extends BaseScreen{
         buttonGroup.addButton(nonstrait);
 
         map.enableRotation(true);
+        map.state = (RulerItem.settingOf(Minecraft.getInstance().player.getMainHandItem()) & RulerItem.CHANGE_CENTER) != 0 ?
+                RulerMapWidget.State.CHAIN :
+                RulerMapWidget.State.NON_CHAIN;
         widget.enableRotation(true);
         this.addSortedRenderWidget(map);
         this.addSortedRenderWidget(widget);
@@ -152,6 +178,7 @@ public class RulerScreen extends BaseScreen{
         addRenderableWidget(nonchain);
         addRenderableWidget(strait);
         addRenderableWidget(nonstrait);
+        addRenderableWidget(scrollPanel);
         this.finishRegister();
     }
 

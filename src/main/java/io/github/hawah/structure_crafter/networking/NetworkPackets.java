@@ -17,6 +17,7 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     //C2S
     PLACE_STRUCTURE(PlaceStructurePacket.class, PlaceStructurePacket.STREAM_CODEC),
     HANDHOLD_ITEM_CHANGED(HandholdItemChangePacket.class, HandholdItemChangePacket.STREAM_CODEC),
+    OFFHAND_ITEM_CHANGED(OffhandItemChangePacket.class, OffhandItemChangePacket.STREAM_CODEC),
     CLIENTBOUND_CONTAINER_SLOT_CHANGED(ClientboundContainerSlotChangedPacket.class, ClientboundContainerSlotChangedPacket.STREAM_CODEC),
     DROP_ITEM(DropItemPacket.class, DropItemPacket.STREAM_CODEC),
     MATERIAL_LIST_SCATTERED(MaterialListScatteredPacket.class, MaterialListScatteredPacket.STREAM_CODEC),
@@ -31,6 +32,8 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     SERVER_RECEIVE_SPLIT_STRUCTURE_DATA(ServerboundReceiveSplitStructureDataPacket.class, ServerboundReceiveSplitStructureDataPacket.STREAM_CODEC),
     CLIENT_TELEPHONE_CHANGED(ClientboundTelephoneBlockEntityTelephoneChangedPacket.class, ClientboundTelephoneBlockEntityTelephoneChangedPacket.STREAM_CODEC),
     MATERIAL_COUNT_PACKET(ServerboundMaterialCountPacket.class, ServerboundMaterialCountPacket.STREAM_CODEC),
+    RULERED_PLACED(ClientboundRuleredPlacedPacket.class, ClientboundRuleredPlacedPacket.STREAM_CODEC),
+    SHARED_FLAG_UPDATE_PACKET(ServerboundSharedFlagUpdatePacket.class, ServerboundSharedFlagUpdatePacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

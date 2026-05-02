@@ -48,7 +48,7 @@ public enum KeyBinding {
                 continue;
             }
             for (Action action : binding.actions) {
-                if (action.validateDetect.get()) {
+                if (action.validateDetect.get() && action.blocking()) {
                     return true;
                 }
             }
@@ -115,6 +115,7 @@ public enum KeyBinding {
         private final Runnable action;
         private final Supplier<Component> description;
         private boolean activated = false;
+        private boolean blocking = true;
         private final Runnable onRelease;
         public static final Runnable EMPTY = () -> {};
 
@@ -151,6 +152,15 @@ public enum KeyBinding {
 
         public static Action of(Supplier<Boolean> validateDetect, Runnable action, Supplier<Component> description, Runnable onRelease) {
             return new Action(validateDetect, action, description, onRelease);
+        }
+
+        public Action blocking(boolean flag) {
+            blocking = flag;
+            return this;
+        }
+
+        public boolean blocking() {
+            return blocking;
         }
 
         public boolean tryActivate() {

@@ -19,7 +19,7 @@ public class FixedDistanceModifier implements Modifiers.Pos{
             return pos;
         }
 
-        Vec3 direction = Vec3.atCenterOf(pos).subtract(Vec3.atCenterOf(anchor));
+        Vec3 direction = Vec3.atCenterOf(pos).subtract(Vec3.atCenterOf(anchor)).multiply(1, 0, 1);
         double currentDist = direction.length();
 
         if (currentDist < 0.001) {
@@ -29,7 +29,7 @@ public class FixedDistanceModifier implements Modifiers.Pos{
         Vec3 normalized = direction.normalize();
         int multiplier = Math.max(1, (int) Math.round(currentDist / distance));
         Vec3 result = Vec3.atCenterOf(anchor).add(normalized.scale(distance * multiplier));
-        return BlockPos.containing(result);
+        return BlockPos.containing(result.multiply(1, 0, 1).add(0, pos.getY(), 0));
     }
 
     @Override

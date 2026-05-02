@@ -4,6 +4,7 @@
   "package": "io.github.hawah.structure_crafter.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockItemAccessor",
     "StructureTemplateAccessor"
   ],
   "client": [
