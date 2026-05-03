@@ -80,19 +80,7 @@ public class RulerItem extends Item implements IModifierItem{
         if (!(player.getOffhandItem().getItem() instanceof RulerItem)) {
             return;
         }
-        if (SharedFlags.hasShiftDown(player)) {
-
-            BlockPos.MutableBlockPos mutableBlockPos = modifyFixed(event.getPos(), player.getOffhandItem());
-            if (mutableBlockPos.immutable().equals(event.getPos())) {
-                return;
-            }
-            event.setCanceled(true);
-            player.level().setBlock(mutableBlockPos, event.getState(), Block.UPDATE_ALL);
-            return;
-        }
-        if (!event.getLevel().isClientSide()) {
-            Networking.sendToPlayer(new ClientboundRuleredPlacedPacket(event.getPos()), (ServerPlayer) player);
-        }
+        event.setCanceled(true);
     }
 
     public static BlockPos.@NotNull MutableBlockPos modifyFixed(BlockPos pos, ItemStack itemStack) {

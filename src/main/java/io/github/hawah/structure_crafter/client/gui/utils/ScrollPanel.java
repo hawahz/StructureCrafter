@@ -45,6 +45,7 @@ public class ScrollPanel extends AbstractWidget {
     }
 
     public void setValue(int value) {
+        value = Mth.clamp(value, min, max);
         this.value = value;
         if (pendingTask != null && !pendingTask.isDone()) {
             pendingTask.cancel(false);

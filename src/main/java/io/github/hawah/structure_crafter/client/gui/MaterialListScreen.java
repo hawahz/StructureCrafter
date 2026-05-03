@@ -315,7 +315,8 @@ public class MaterialListScreen extends BaseScreen{
 
         if (scattered) {
             // Clip Bottom
-            guiGraphics.blit(
+            blit(
+                guiGraphics,
                     texture,
                     guiLeft + 42,
                     guiTop,
@@ -327,7 +328,8 @@ public class MaterialListScreen extends BaseScreen{
         }
 
         // Bottom Paper
-        guiGraphics.blit(
+        blit(
+                guiGraphics,
                 texture,
                 guiLeft,
                 scattered? (int) (guiTop + 9 + backY) : guiTop,
@@ -339,7 +341,8 @@ public class MaterialListScreen extends BaseScreen{
         if (scattered) {
 
             // Front Paper
-            guiGraphics.blit(
+            blit(
+                    guiGraphics,
                     texture,
                     guiLeft,
                     (int) (guiTop + 10 + frontY),
@@ -350,7 +353,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Red Tip
-            guiGraphics.blit(
+            blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 11,
                     (int) (guiTop - 4 + (materialToggleButton.isPressed()? frontY : backY)),
@@ -361,7 +365,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Blue Tip
-            guiGraphics.blit(
+            blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 27,
                     (int) (guiTop - 4 + (previewToggleButton.isPressed()? frontY : backY)),
@@ -372,7 +377,8 @@ public class MaterialListScreen extends BaseScreen{
             );
 
             // Clip Top
-            guiGraphics.blit(
+            blit(
+                    guiGraphics,
                     texture,
                     guiLeft + 42,
                     guiTop,

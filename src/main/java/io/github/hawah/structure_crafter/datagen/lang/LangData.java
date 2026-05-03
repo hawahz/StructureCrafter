@@ -100,6 +100,12 @@ public enum LangData {
     HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK("hud.structure_wand_lock_unlock","Lock/Unlock", 0),
     HUD_TIP_STRUCTURE_WAND_LOCK("hud.structure_wand_lock","Lock", 0),
     HUD_TIP_STRUCTURE_WAND_UNLOCK("hud.structure_wand_unlock","Unlock", 0),
+    HUD_TIP_RULER_SELECT_POINT("hud.ruler_select_point","Select Point", 0),
+    HUD_TIP_RULER_SWAP("hud.ruler_swap", "Swap", 0),
+    HUD_TIP_RULER_OPEN_SCREEN("hud.ruler_open_screen","Open Screen", 0),
+    HUD_TIP_RULER_CLEAR("hud.ruler_clear","Clear", 0),
+    HUD_TIP_RULER_PLACE("hud.ruler_place","Place", 0),
+    HUD_TIP_RULER_FIXED_PLACE("hud.ruler_fixed_place","Fixed Place", 0),
 
     GUI_PAGE_TOTAL_BUILD("gui.page_total_build","You can build up to %s of this structure.",1),
     GUI_PAGE_BOTTLENECK_MATERIAL("gui.page_bottleneck_material","The current bottleneck material is:",0),
@@ -126,8 +132,6 @@ public enum LangData {
 
     CONFIGURATION_BLACKBOARD_ANIMATION_TYPE("configuration.blackboard_animation_type","Blackboard Animation Type",0),
     CONFIGURATION_BLACKBOARD_ANIMATION_TYPE_TOOLTIP("configuration.blackboard_animation_type.tooltip","Selects the animation type used when interacting with the Blackboard.",0),
-    CONFIGURATION_RENDER_LOW_COST("configuration.render_low_cost","Low-Cost Rendering",0),
-    CONFIGURATION_RENDER_LOW_COST_TOOLTIP("configuration.render_low_cost.tooltip","Reduces rendering cost for structures. May affect visual quality.",0),
     CONFIGURATION_STRUCTURE_SIZE_LIMIT_X("configuration.structure_size_limit_x","Structure Size Limit (X)",0),
     CONFIGURATION_STRUCTURE_RECORD_SIZE_LIMIT_Y("configuration.structure_size_limit_y","Structure Size Limit (Y)",0),
     CONFIGURATION_STRUCTURE_SIZE_LIMIT_Z("configuration.structure_size_limit_z","Structure Size Limit (Z)",0),
@@ -148,6 +152,8 @@ public enum LangData {
     CONFIGURATION_UPLOAD_WAIT_TIME_TOOLTIP("configuration.upload_wait_time.tooltip","Server wait ticks for client structure upload.",0),
     CONFIGURATION_UPLOAD_VALIDATION("configuration.upload_validation","Structure Upload Validation",0),
     CONFIGURATION_UPLOAD_VALIDATION_TOOLTIP("configuration.upload_validation.tooltip","Defines who has the permission to upload local structure to server.",0),
+    CONFIGURATION_RULER_SHADOW_TOOL("configuration.ruler_shadow_tool","Ruler Shadow Tool",0),
+    CONFIGURATION_RULER_SHADOW_TOOL_TOOLTIP("configuration.ruler_shadow_tool.tooltip","Defines the shadow tool used by the Ruler.",0),
 
     CONFIGURATION_MATERIAL_LIST_SCATTERED_ENABLED("configuration.material_list_scattered_enabled","Scatterable Material List",0),
 

@@ -172,7 +172,7 @@ public enum KeyBinding {
             }
             activated = true;
             action.run();
-            return !action.equals(EMPTY);
+            return !action.equals(EMPTY) && blocking();
         }
     }
 

@@ -45,7 +45,8 @@ public class KeyTipHUD extends Screen implements LayeredDraw.Layer {
                 }
                 Textures.Builder builder = Textures.KEYMAP.builder();
                 builder.variant(key.ordinal());
-                guiGraphics.blit(
+                BaseScreen.blit(
+                        guiGraphics,
                         builder.getResource(),
                         startX,
                         startY,

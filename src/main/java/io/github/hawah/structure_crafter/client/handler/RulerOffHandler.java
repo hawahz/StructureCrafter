@@ -1,21 +1,24 @@
 package io.github.hawah.structure_crafter.client.handler;
 
+import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.client.ClientSharedFlags;
-import io.github.hawah.structure_crafter.client.gui.utils.ScrollPanel;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.item.RulerItem;
+import io.github.hawah.structure_crafter.networking.ClientboundTryPlaceBlockFixedPacket;
+import io.github.hawah.structure_crafter.networking.ClientboundTryPlaceBlockPacket;
 import io.github.hawah.structure_crafter.networking.OffhandItemChangePacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
-import io.github.hawah.structure_crafter.util.SharedFlags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +26,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class RulerOffHandler implements IHandler {
 
@@ -38,8 +42,14 @@ public class RulerOffHandler implements IHandler {
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 this::isActive,
                 this::swap,
-                Component.empty()
+                LangData.HUD_TIP_RULER_SWAP.get()
         ));
+
+        KeyBinding.CTRL_R.bind(KeyBinding.Action.of(
+                this::isActive,
+                () -> {},
+                LangData.HUD_TIP_RULER_FIXED_PLACE.get()
+        ).blocking(false));
 
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
                 this::isActive,
@@ -47,34 +57,44 @@ public class RulerOffHandler implements IHandler {
                     LocalPlayer player = Minecraft.getInstance().player;
                     assert player != null;
                     double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
-                    BlockHitResult survival = RaycastHelper.rayTraceRange(
+                    BlockHitResult hitResult = RaycastHelper.rayTraceRange(
                             player.level(),
                             player,
-                            range
+                            player.isCreative()? 100: range
                     );
-                    BlockHitResult hitResult;
-                    if ((survival.getType() == BlockHitResult.Type.BLOCK || !player.isCreative())) {
-                        return;
-                    }
-                    hitResult = RaycastHelper.rayTraceRange(
-                            player.level(),
-                            player,
-                            100
-                    );
-                    if (hitResult.getType() == BlockHitResult.Type.BLOCK && player.getMainHandItem().getItem() instanceof BlockItem item) {
+                    if (hitResult.getType() == BlockHitResult.Type.BLOCK && player.getMainHandItem().getItem() instanceof BlockItem) {
                         BlockPlaceContext context = new BlockPlaceContext(
                                 player,
                                 InteractionHand.MAIN_HAND,
                                 player.getMainHandItem(),
                                 hitResult
                         );
-                        item.place(context);
                         player.swing(InteractionHand.MAIN_HAND);
-                        BlockPos.MutableBlockPos pos = RulerItem.modifyFixed(context, firstPos);
+                        BlockPos pos = Screen.hasControlDown()?
+                                RulerItem.modifyFixed(context, firstPos):
+                                context.getClickedPos();
                         update(pos);
                     }
+                    if (Screen.hasControlDown()) {
+                        Networking.sendToServer(new ClientboundTryPlaceBlockFixedPacket(
+                                player.getEyePosition(),
+                                RaycastHelper.getTraceTarget(player, 100, Vec3.ZERO),
+                                100,
+                                InteractionHand.MAIN_HAND,
+                                player.getMainHandItem(),
+                                firstPos
+                        ));
+                    } else {
+                        Networking.sendToServer(new ClientboundTryPlaceBlockPacket(
+                                player.getEyePosition(),
+                                RaycastHelper.getTraceTarget(player, 100, Vec3.ZERO),
+                                100,
+                                InteractionHand.MAIN_HAND,
+                                player.getMainHandItem()
+                        ));
+                    }
                 },
-                Component.empty()
+                LangData.HUD_TIP_RULER_PLACE.get()
         ).blocking(false));
     }
 
@@ -105,9 +125,7 @@ public class RulerOffHandler implements IHandler {
     @Override
     public void tick() {
         if (!isVisible()) {
-            Outliner.getInstance().thickBox(this)
-                    .discard()
-                    .finish();
+            Config.ClientConfig.RULER_SHADOW_TOOL.get().discard(this);
         }
         if (fistSlotHolder == null) {
             fistSlotHolder = new Object();
@@ -119,6 +137,7 @@ public class RulerOffHandler implements IHandler {
                     fistSlotHolder,
                             swapped? selectedPos: firstPos,
                             swapped? firstPos: selectedPos)
+                    .smooth(1F)
                     .finish();
             Outliner.getInstance().chaseThickBox(fistSlotHolder, firstPos, firstPos)
                     .smooth(1F)
@@ -128,16 +147,6 @@ public class RulerOffHandler implements IHandler {
         if (!isActive()) {
             reset();
             return;
-        }
-        if (firstPos != null && selectedPos != null) {
-            Outliner.getInstance().chaseThickBox(this, selectedPos, selectedPos)
-                    .setRGBA(0, 1, 0,1)
-                    .smooth(1F)
-                    .finish();
-        } else {
-            Outliner.getInstance().thickBox(this)
-                    .fade()
-                    .finish();
         }
         LocalPlayer player = Minecraft.getInstance().player;
         assert player != null;
@@ -159,6 +168,23 @@ public class RulerOffHandler implements IHandler {
                     .finish();
             selectedPos = null;
         }
+        BlockPos validPos;
+        if (firstPos != null && selectedPos != null && (validPos = getValidPos(player, selectedPos, hitResult.getDirection())) != null) {
+            Config.ClientConfig.RULER_SHADOW_TOOL.get().chase(this, validPos, hitResult);
+        } else {
+            Config.ClientConfig.RULER_SHADOW_TOOL.get().fade(this);
+        }
+    }
+
+    public BlockPos getValidPos(LocalPlayer player, BlockPos pos, Direction direction) {
+        BlockPos.MutableBlockPos mutable = pos.mutable();
+        for (int i = 0; i < 3; i++) {
+            if (player.level().getBlockState(mutable).canBeReplaced()) {
+                return mutable.immutable();
+            }
+            mutable.set(mutable.relative(direction));
+        }
+        return null;
     }
 
     @Override

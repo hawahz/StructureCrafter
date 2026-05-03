@@ -34,6 +34,8 @@ public enum NetworkPackets implements BasePacketPayload.PacketTypeProvider {
     MATERIAL_COUNT_PACKET(ServerboundMaterialCountPacket.class, ServerboundMaterialCountPacket.STREAM_CODEC),
     RULERED_PLACED(ClientboundRuleredPlacedPacket.class, ClientboundRuleredPlacedPacket.STREAM_CODEC),
     SHARED_FLAG_UPDATE_PACKET(ServerboundSharedFlagUpdatePacket.class, ServerboundSharedFlagUpdatePacket.STREAM_CODEC),
+    TRY_PLACE_BLOCK(ClientboundTryPlaceBlockPacket.class, ClientboundTryPlaceBlockPacket.STREAM_CODEC),
+    TRY_PLACE_BLOCK_FIXED(ClientboundTryPlaceBlockFixedPacket.class, ClientboundTryPlaceBlockFixedPacket.STREAM_CODEC),
     ;
     private final PacketRegistry.PacketHolder<?> type;
 

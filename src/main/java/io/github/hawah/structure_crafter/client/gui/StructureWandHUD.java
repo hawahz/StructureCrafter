@@ -323,7 +323,8 @@ public class StructureWandHUD extends Screen {
         poseStack.scale(scale, scale, scale);
 //        poseStack.mulPose(Axis.ZN.rotationDegrees(offset));
         poseStack.translate(-x - 54.5, -y - 8.5 + offset, 0);
-        guiGraphics.blit(
+        BaseScreen.blit(
+                guiGraphics,
                 texture,
                 x,
                 y,

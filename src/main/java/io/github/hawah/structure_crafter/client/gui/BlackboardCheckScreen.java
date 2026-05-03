@@ -152,7 +152,8 @@ public class BlackboardCheckScreen extends BaseScreen {
 
     @Override
     protected void renderWindowPre(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        graphics.blit(
+        blit(
+                graphics,
                 BACKGROUND.getResource(),
                 guiLeft,
                 guiTop,

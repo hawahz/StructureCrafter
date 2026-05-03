@@ -25,17 +25,17 @@ public class RulerScreen extends BaseScreen{
         int x = guiLeft;
         int y = guiTop;
         DraggableFloatWidget widget = new DraggableFloatWidget(
-                x + 7,
+                x + 17,
                 y + 56,
                 Textures.RULER_DECO,
                 new Rect2i(x, y, textureWidth, textureHeight)
         );
         RulerMapWidget map = new RulerMapWidget(
-                x + 28,
+                x + 38,
                 y + 16,
                 Textures.RULER_DECO_MAP,
                 new Rect2i(x, y, textureWidth, textureHeight),
-                new Rect2i(x, y, 32, 32)
+                new Rect2i(x, y, 64, 32)
         );
         Runnable EMPTY = () -> {
         };

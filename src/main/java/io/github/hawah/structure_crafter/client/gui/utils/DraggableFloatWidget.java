@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BaseScreen;
 import io.github.hawah.structure_crafter.util.Textures;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -127,8 +128,16 @@ public class DraggableFloatWidget extends AbstractWidget {
             offsetY = (int) (this.getY() - mouseY);
             setRotation(rotation + new Random().nextDouble() * 10 - 5);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        if (!this.active || !this.visible) {
+            return false;
+        }
+        if (!this.isValidClickButton(button)) {
+            return false;
+        }
+        return this.clicked(mouseX, mouseY);
     }
+
+
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {

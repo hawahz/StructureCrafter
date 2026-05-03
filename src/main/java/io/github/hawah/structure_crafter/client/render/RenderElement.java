@@ -53,4 +53,8 @@ public abstract class RenderElement<Self extends RenderElement<Self>> {
     protected int priority = 0;
 
     public abstract boolean finish();
+
+    public boolean isValid() {
+        return true;
+    }
 }

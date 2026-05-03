@@ -4,6 +4,7 @@ import io.github.hawah.structure_crafter.client.gui.RulerScreen;
 import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
+import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
@@ -54,25 +55,42 @@ public class RulerHandler implements IHandler {
                     if (secondSlotHolder == null) {
                         secondSlotHolder = new Object();
                     }
+                    assert Minecraft.getInstance().player != null;
                     Minecraft.getInstance().player.swing(InteractionHand.MAIN_HAND);
                 },
-                Component.empty()
+                LangData.HUD_TIP_RULER_SELECT_POINT.get()
         ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 this::isActive,
                 this::swap,
-                Component.empty()
+                LangData.HUD_TIP_RULER_SWAP.get()
         ));
         KeyBinding.ALT_R.bind(KeyBinding.Action.of(
                 this::isActive,
                 () -> {
                     ScreenOpener.open(new RulerScreen());
                 },
-                Component.empty()
+                LangData.HUD_TIP_RULER_OPEN_SCREEN.get()
         ));
         KeyBinding.SHIFT_R.bind(KeyBinding.Action.of(
                 this::isActive,
                 () -> {
+                    Outliner.getInstance().thickBox(this)
+                            .discard()
+                            .finish();
+                    RulerMaker.getInstance().chase(fistSlotHolder)
+                            .discard()
+                            .finish();
+                    Outliner.getInstance().thickBox(fistSlotHolder)
+                            .discard()
+                            .finish();
+                    Outliner.getInstance().thickBox(secondSlotHolder)
+                            .discard()
+                            .finish();
+                    firstPos = null;
+                    secondPos = null;
+                    fistSlotHolder = null;
+                    secondSlotHolder = null;
                     slots.forEach(
                             entry -> {
                                 RulerMaker.getInstance().chase(entry.getRulerSlot())
@@ -88,7 +106,7 @@ public class RulerHandler implements IHandler {
                     );
                     slots.clear();
                 },
-                Component.empty()
+                LangData.HUD_TIP_RULER_CLEAR.get()
         ));
     }
 
@@ -114,8 +132,16 @@ public class RulerHandler implements IHandler {
             Outliner.getInstance().thickBox(this)
                     .discard()
                     .finish();
-        }
-        if (fistSlotHolder != null && firstPos != null && selectedPos != null) {
+            RulerMaker.getInstance().chase(fistSlotHolder)
+                    .discard()
+                    .finish();
+            Outliner.getInstance().thickBox(fistSlotHolder)
+                    .discard()
+                    .finish();
+            Outliner.getInstance().thickBox(secondSlotHolder)
+                    .discard()
+                    .finish();
+        } else if (fistSlotHolder != null && firstPos != null && selectedPos != null) {
             if (secondSlotHolder == null)
                 secondSlotHolder = new Object();
             RulerMaker.getInstance().chase(
@@ -166,6 +192,11 @@ public class RulerHandler implements IHandler {
     @Override
     public boolean isActive() {
         return isPresent() && Minecraft.getInstance().player.getMainHandItem().is(ItemRegistries.RULER_ITEM);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return IHandler.super.isVisible() && selectedPos != null;
     }
 
     private void swap() {

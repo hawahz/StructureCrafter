@@ -460,7 +460,8 @@ public class StructureWandScreen extends BaseScreen {
     protected void renderWindowPost(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         prevPage = Mth.lerp(StructureCrafterClient.ANI_DELTAF/3, prevPage, currentPage);
         float tagY = Mth.lerp(Mth.clamp(prevPage / Math.max(1, pages - 1f), 0, 1), 15, 120);
-        guiGraphics.blit(
+        blit(
+                guiGraphics,
                 texture,
                 guiLeft + 102,
                 (int) (guiTop + tagY),

@@ -27,6 +27,7 @@ public class WarpedBufferRenderer {
     private final Matrix3f normalMat = new Matrix3f();
     private final Vector4f pos = new Vector4f();
     private final Vector3f normal = new Vector3f();
+    private final Vector4f modulateColor = new Vector4f(1);
 
     // 便于快速复制和使用，没有实际意义
     private final PoseStack transforms = new PoseStack();
@@ -34,6 +35,12 @@ public class WarpedBufferRenderer {
     public WarpedBufferRenderer(TemplateMesh templateMesh) {
         this.templateMesh = templateMesh;
         reset();
+    }
+    public void setModulate(double r, double g, double b, double a) {
+        this.modulateColor.set(r, g, b, a);
+    }
+    public void setModulate(Vector4f modulateColor) {
+        this.modulateColor.set(modulateColor);
     }
 
     /**
@@ -78,10 +85,10 @@ public class WarpedBufferRenderer {
             normal.mul(normalMat);
 
             int color = templateMesh.color(i);
-            float r = (color & 0xFF) / 255.0f;
-            float g = ((color >>> 8) & 0xFF) / 255.0f;
-            float b = ((color >>> 16) & 0xFF) / 255.0f;
-            float a = ((color >>> 24) & 0xFF) / 255.0f;
+            float r = (color & 0xFF) / 255.0f           * modulateColor.x();
+            float g = ((color >>> 8) & 0xFF) / 255.0f   * modulateColor.y();
+            float b = ((color >>> 16) & 0xFF) / 255.0f  * modulateColor.z();
+            float a = ((color >>> 24) & 0xFF) / 255.0f  * modulateColor.w();
 
             float u = templateMesh.u(i);
             float v = templateMesh.v(i);

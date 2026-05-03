@@ -6,6 +6,7 @@ import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.BlockEntityRegistry;
+import io.github.hawah.structure_crafter.client.render.block.SimpleBlockRenderer;
 import io.github.hawah.structure_crafter.client.render.blockentity.ConnectorBlockEntityRenderer;
 import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
@@ -25,30 +26,28 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -69,6 +68,7 @@ public class ClientEvents {
         MultiBufferSource.BufferSource bufferSource = renderBuffers.bufferSource();
 
         Outliner.renderInto(poseStack, bufferSource, cameraPos, partialTick);
+        SimpleBlockRenderer.getInstance().render(poseStack, bufferSource, cameraPos, partialTick);
         StructureCrafterClient.STRUCTURE_WAND_HANDLER.render(poseStack, bufferSource, cameraPos);
         StructureCrafterClient.TELEPHONE_WIRE_RENDERER.render(poseStack, bufferSource.getBuffer(RenderType.entityCutout(Textures.TELEPHONE_WIRE.getResource())), cameraPos, 0.2F, partialTick.getGameTimeDeltaPartialTick(true));
         RulerMaker.getInstance().render(poseStack, bufferSource, cameraPos, partialTick);
@@ -92,6 +92,7 @@ public class ClientEvents {
         TelephoneHandset.clientTick();
         ClientDataHolder.tick();
         RulerMaker.tick();
+        SimpleBlockRenderer.tick();
     }
 
     @SubscribeEvent
@@ -107,14 +108,7 @@ public class ClientEvents {
         ) {
             return;
         }
-        if (Screen.hasControlDown()) {
-            BlockPos.MutableBlockPos mutableBlockPos = RulerItem.modifyFixed(event.getPos(), player.getOffhandItem());
-            if (mutableBlockPos.immutable().equals(event.getPos())) {
-                return;
-            }
-            event.cancelWithResult(ItemInteractionResult.CONSUME);
-            player.swing(InteractionHand.MAIN_HAND);
-        }
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
@@ -213,32 +207,27 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void renderHand(RenderHandEvent event) {
-        LocalPlayer player;
-        if (event.getItemStack().is(Items.INK_SAC) && Minecraft.getInstance().player.getOffhandItem().is(ItemRegistries.BLACKBOARD) && Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE)) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        assert player != null;
+        if (event.getItemStack().is(Items.INK_SAC) && player.getOffhandItem().is(ItemRegistries.BLACKBOARD) && Config.ClientConfig.BLACKBOARD_ANIMATION_TYPE.get().equals(BlackboardRenderType.WRITE)) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public static void loadCompleted(FMLLoadCompleteEvent event) {
-//        ModContainer modContainer = ModList.get()
-//                .getModContainerById(StructureCrafter.MODID)
-//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
-//
-//        Supplier<IConfigScreenFactory> configScreen = () ->
-//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
-//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+        boolean configuredLoaded = ModList.get().getMods().stream().anyMatch(mod -> mod.getModId().equals("configured"));
+        if (configuredLoaded) {
+            return;
+        }
+        ModContainer modContainer = ModList.get()
+                .getModContainerById(StructureCrafter.MODID)
+                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     @SubscribeEvent
     public static void exitWorld(LevelEvent.Unload event) {
         Outliner.getInstance().clear();
-//        ModContainer modContainer = ModList.get()
-//                .getModContainerById(StructureCrafter.MODID)
-//                .orElseThrow(() -> new IllegalStateException("Structure Crafter Container missing after loadCompleted"));
-//
-//        Supplier<IConfigScreenFactory> configScreen = () ->
-//                (mc, previousScreen) -> new BaseConfigScreen(previousScreen, StructureCrafter.MODID);
-//        modContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
     }
 }
