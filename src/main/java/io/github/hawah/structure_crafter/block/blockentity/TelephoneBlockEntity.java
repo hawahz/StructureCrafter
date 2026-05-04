@@ -2,6 +2,9 @@ package io.github.hawah.structure_crafter.block.blockentity;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.TelephoneBlock;
+import io.github.hawah.structure_crafter.client.render.blockentity.IRenderStateProvider;
+import io.github.hawah.structure_crafter.client.render.blockentity.state.BlockEntityRenderState;
+import io.github.hawah.structure_crafter.client.render.blockentity.state.TelephoneBlockEntityRenderState;
 import io.github.hawah.structure_crafter.networking.telephone.ClientboundTelephoneBlockEntityTelephoneChangedPacket;
 import io.github.hawah.structure_crafter.networking.telephone.TelephoneBlockEntityBeaconChangedPacket;
 import io.github.hawah.structure_crafter.networking.utils.Networking;
@@ -30,7 +33,7 @@ import java.util.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class TelephoneBlockEntity extends BlockEntity {
+public class TelephoneBlockEntity extends IRenderStateProvider {
 
     public final Direction facing;
 
@@ -300,5 +303,10 @@ public class TelephoneBlockEntity extends BlockEntity {
             }
         }
 
+    }
+
+    @Override
+    public BlockEntityRenderState getRenderState() {
+        return new TelephoneBlockEntityRenderState(this);
     }
 }

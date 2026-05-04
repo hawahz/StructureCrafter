@@ -38,14 +38,29 @@ public enum RulerShadowTool {
 
     public void fade(Object slot) {
         fadeTool.accept(slot);
+        if (this.equals(OUTLINE)) {
+            BlockTool.discard(slot);
+        } else if (this.equals(BLOCK)) {
+            OutlineTool.discard(slot);
+        }
     }
 
     public void discard(Object slot) {
         discardTool.accept(slot);
+        if (this.equals(OUTLINE)) {
+            BlockTool.discard(slot);
+        } else if (this.equals(BLOCK)) {
+            OutlineTool.discard(slot);
+        }
     }
 
     public void chase(Object slot, BlockPos validPos, BlockHitResult hitResult) {
         chaseTool.accept(slot, validPos, hitResult);
+        if (this.equals(OUTLINE)) {
+            BlockTool.discard(slot);
+        } else if (this.equals(BLOCK)) {
+            OutlineTool.discard(slot);
+        }
     }
 
     static class OutlineTool {

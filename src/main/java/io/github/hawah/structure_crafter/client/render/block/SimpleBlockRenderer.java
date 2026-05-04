@@ -59,4 +59,8 @@ public class SimpleBlockRenderer {
         blocks.computeIfPresent(slot, (object, blockElement) -> blockElement.discard());
         blocks.remove(slot);
     }
+
+    public void clear() {
+        blocks.clear();
+    }
 }

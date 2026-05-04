@@ -135,7 +135,7 @@ public class RulerScreen extends BaseScreen{
 
         ScrollPanel scrollPanel = new ScrollPanel(
                 x + 36 + 30+ OFFSET_X + 30,
-                y + 120 + OFFSET_Y - 10,
+                y + 120 + OFFSET_Y - 5,
                 100,
                 20,
                 128,

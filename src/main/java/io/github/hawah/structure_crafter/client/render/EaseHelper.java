@@ -26,4 +26,8 @@ public class EaseHelper {
         }
         return ret;
     }
+
+    public static float easeOutPow(float x, float power) {
+        return 1 - easeInPow(1 - x, power);
+    }
 }

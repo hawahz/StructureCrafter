@@ -50,6 +50,10 @@ public class AnimationTickHolder {
         return getTicks() + getPartialTicks();
     }
 
+    public static float getRenderTime(boolean ignorePaused) {
+        return getTicks(ignorePaused) + getPartialTicks(ignorePaused);
+    }
+
     public static float getRenderTime(LevelAccessor level) {
         return getTicks(level) + getPartialTicks(level);
     }

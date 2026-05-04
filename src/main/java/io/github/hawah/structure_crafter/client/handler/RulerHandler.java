@@ -8,6 +8,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.util.KeyBinding;
 import io.github.hawah.structure_crafter.util.RaycastHelper;
+import it.unimi.dsi.fastutil.Swapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,7 @@ public class RulerHandler implements IHandler {
     private BlockPos firstPos;
     private BlockPos secondPos;
     private final Queue<RulerHolder> slots = new ArrayDeque<>();
-    private Object fistSlotHolder, secondSlotHolder;
+    private Object fistSlotHolder, secondSlotHolder, rulerSlotHolder;
     private boolean swapped = false;
 
     public RulerHandler() {
@@ -36,8 +37,9 @@ public class RulerHandler implements IHandler {
                     } else if (secondPos == null) {
                         secondPos = selectedPos;
                         push(
-                                fistSlotHolder,
-                                secondSlotHolder,
+                                swapped? secondSlotHolder: fistSlotHolder,
+                                swapped? fistSlotHolder: secondSlotHolder,
+                                rulerSlotHolder,
                                 swapped? secondPos: firstPos,
                                 swapped? firstPos: secondPos
                         );
@@ -45,6 +47,7 @@ public class RulerHandler implements IHandler {
                         secondPos = null;
                         fistSlotHolder = null;
                         secondSlotHolder = null;
+                        rulerSlotHolder = null;
                     } else {
                         firstPos = selectedPos;
                         secondPos = null;
@@ -54,6 +57,9 @@ public class RulerHandler implements IHandler {
                     }
                     if (secondSlotHolder == null) {
                         secondSlotHolder = new Object();
+                    }
+                    if (rulerSlotHolder == null) {
+                        rulerSlotHolder = new Object();
                     }
                     assert Minecraft.getInstance().player != null;
                     Minecraft.getInstance().player.swing(InteractionHand.MAIN_HAND);
@@ -78,7 +84,7 @@ public class RulerHandler implements IHandler {
                     Outliner.getInstance().thickBox(this)
                             .discard()
                             .finish();
-                    RulerMaker.getInstance().chase(fistSlotHolder)
+                    RulerMaker.getInstance().chase(rulerSlotHolder)
                             .discard()
                             .finish();
                     Outliner.getInstance().thickBox(fistSlotHolder)
@@ -110,8 +116,8 @@ public class RulerHandler implements IHandler {
         ));
     }
 
-    private void push(Object slot0, Object slot1, BlockPos first, BlockPos second) {
-        slots.add(new RulerHolder(first, second, slot0, slot1));
+    private void push(Object slot0, Object slot1, Object rulerSlot, BlockPos first, BlockPos second) {
+        slots.add(new RulerHolder(first, second, slot0, slot1, rulerSlot));
         if (slots.size() > 10) {
             RulerHolder toRemove = slots.remove();
             RulerMaker.getInstance().chase(toRemove.getRulerSlot())
@@ -132,7 +138,7 @@ public class RulerHandler implements IHandler {
             Outliner.getInstance().thickBox(this)
                     .discard()
                     .finish();
-            RulerMaker.getInstance().chase(fistSlotHolder)
+            RulerMaker.getInstance().chase(rulerSlotHolder)
                     .discard()
                     .finish();
             Outliner.getInstance().thickBox(fistSlotHolder)
@@ -144,8 +150,7 @@ public class RulerHandler implements IHandler {
         } else if (fistSlotHolder != null && firstPos != null && selectedPos != null) {
             if (secondSlotHolder == null)
                 secondSlotHolder = new Object();
-            RulerMaker.getInstance().chase(
-                    fistSlotHolder,
+            RulerMaker.getInstance().chase(rulerSlotHolder,
                             swapped? selectedPos: firstPos,
                             swapped? firstPos: selectedPos)
                     .finish();
@@ -200,22 +205,23 @@ public class RulerHandler implements IHandler {
     }
 
     private void swap() {
-        this.swapped = !swapped;
+        swapped = !swapped;
     }
 
     static final class RulerHolder {
         private final BlockPos pos0, pos1;
-        private final Object slot0, slot1;
+        private final Object slot0, slot1, rulerSlot;
 
-        RulerHolder(BlockPos pos0, BlockPos pos1, Object slot0, Object slot1) {
+        RulerHolder(BlockPos pos0, BlockPos pos1, Object slot0, Object slot1, Object ruler) {
             this.pos0 = pos0;
             this.pos1 = pos1;
             this.slot0 = slot0;
             this.slot1 = slot1;
+            this.rulerSlot = ruler;
         }
 
         public Object getRulerSlot() {
-            return slot0;
+            return rulerSlot;
         }
 
         public Object getFirstSlot() {

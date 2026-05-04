@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.ClientDataHolder;
+import io.github.hawah.structure_crafter.client.render.blockentity.state.BlockEntityRenderState;
+import io.github.hawah.structure_crafter.client.render.blockentity.state.TelephoneBlockEntityRenderState;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -49,6 +52,18 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
             return;
         }
 
+        Optional<BlockEntityRenderState<TelephoneBlockEntity>> blockEntityRenderState = BlockEntityRenderState.get(blockEntity);
+
+        if (blockEntityRenderState.isEmpty()) {
+            return;
+        }
+
+        TelephoneBlockEntityRenderState state = (TelephoneBlockEntityRenderState) blockEntityRenderState.get();
+
+        float jumpHeight = state.jumpHeight;
+        float scale = state.scale;
+        float xRot = state.xRot;
+
         BakedModel bakedModel = Models.PHONE.getBakedModel();
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
@@ -59,7 +74,15 @@ public class ConnectorBlockEntityRenderer implements BlockEntityRenderer<Telepho
                     case WEST -> -90;
                     default -> 0;
         }));
+
+        final float ofX = 0.125F, ofZ = -0.2F;
+        poseStack.translate(0, 0, -jumpHeight);
+        poseStack.translate(-ofX, 0, -ofZ);
+        poseStack.scale(scale, scale, scale);
+        poseStack.mulPose(Axis.XN.rotationDegrees(xRot));
+        poseStack.translate(ofX, 0, ofZ);
         poseStack.translate(-0.5, -0.5, -0.5);
+
         float alpha = Mth.lerp(pingPong((AnimationTickHolder.getTicks() + partialTick) / 20F), 0.6F, 0.8F);
         float aChannel = blockEntity.hasTelephone()? 1 : alpha;
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());

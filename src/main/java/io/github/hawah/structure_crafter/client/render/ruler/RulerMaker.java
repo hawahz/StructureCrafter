@@ -82,4 +82,8 @@ public class RulerMaker {
         rulers.remove(slot);
     }
 
+    public void clear() {
+        rulers.clear();
+    }
+
 }

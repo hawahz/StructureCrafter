@@ -12,6 +12,7 @@ import io.github.hawah.structure_crafter.client.render.item.BlackboardRenderer;
 import io.github.hawah.structure_crafter.client.render.item.ClientItemRendererExtensions;
 import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
+import io.github.hawah.structure_crafter.client.render.toolkit.AnimationPlayer;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
@@ -228,6 +229,12 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void exitWorld(LevelEvent.Unload event) {
+        clean();
+    }
+
+    public static void clean() {
         Outliner.getInstance().clear();
+        RulerMaker.getInstance().clear();
+        SimpleBlockRenderer.getInstance().clear();
     }
 }

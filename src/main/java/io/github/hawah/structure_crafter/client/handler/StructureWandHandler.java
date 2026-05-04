@@ -94,6 +94,11 @@ public class StructureWandHandler implements LayeredDraw.Layer, IHandler {
                 () -> ScreenOpener.open(new StructureWandScreen()),
                 LangData.HUD_TIP_STRUCTURE_WAND_OPENC_ONFIG.get()
         ));
+        KeyBinding.CTRL_ALT_R.bind(KeyBinding.Action.of(
+                () -> this.isActive() && !modifier.isEmpty(),
+                modifier::reset,
+                LangData.HUD_TIP_STRUCTURE_WAND_RESET_MODIFIER.get()
+        ));
         KeyBinding.LEFT.bind(KeyBinding.Action.of(
                 this::isActive,
                 () -> lock = !lock && selectedPos != null,

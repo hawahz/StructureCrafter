@@ -2,6 +2,7 @@ package io.github.hawah.structure_crafter.client.gui.utils;
 
 import io.github.hawah.structure_crafter.client.gui.BaseScreen;
 import io.github.hawah.structure_crafter.util.InstantSignal;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -78,12 +79,16 @@ public class ScrollPanel extends AbstractWidget {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         SCROLLED.emit(scrollY);
+        int oValue = this.value;
         if (Screen.hasShiftDown()) {
             setValue(value + (int) (scrollY * 10));
         } else {
             setValue(value + (int) scrollY);
         }
         value = Mth.clamp(value, min, max);
+        if (oValue != value) {
+            this.playDownSound(Minecraft.getInstance().getSoundManager());
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 }

@@ -79,6 +79,7 @@
   "structure_crafter.hud.structure_wand_move_lock": "Move Structure",
   "structure_crafter.hud.structure_wand_open_config": "Open Settings",
   "structure_crafter.hud.structure_wand_place": "Place Structure",
+  "structure_crafter.hud.structure_wand_reset_modifier": "Reset Modifier",
   "structure_crafter.hud.structure_wand_rotate": "Rotate Structure",
   "structure_crafter.hud.structure_wand_switch": "Switch Structure",
   "structure_crafter.hud.structure_wand_unlock": "Unlock",

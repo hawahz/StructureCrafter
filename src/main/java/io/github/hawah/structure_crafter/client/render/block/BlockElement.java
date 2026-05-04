@@ -86,14 +86,18 @@ public class BlockElement extends PositionedElement<BlockElement> {
         Vec3 position = oPos.lerp(visualPos, delta);
         BlockPos blockPos = BlockPos.containing(position);
 
-        RenderCompat.applyTransform(poseStack, cameraPos, blockPos, delta, position);
+        Vec3 offset = RenderCompat.applyTransform(poseStack, cameraPos, blockPos, delta, position);
 
         poseStack.translate(
                 - cameraPos.x(),
                 - cameraPos.y(),
                 - cameraPos.z()
         );
-        poseStack.translate(position.x(), position.y(), position.z());
+        poseStack.translate(
+                offset.x(),
+                offset.y(),
+                offset.z()
+        );
         cache.forEach(
                 (renderType, renderer) -> {
                     float cr = Mth.lerp(delta, or, r);

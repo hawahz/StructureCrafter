@@ -90,8 +90,8 @@ public enum LangData {
     HUD_TIP_BLACKBOARD_PICK_AIR_POINT("hud.blackboard_pick_air_point","Pick Air Point", 0),
     HUD_TIP_BLACKBOARD_CHANGE_DISTANCE("hud.blackboard_change_distance","Change Reach Distance", 0),
     HUD_TIP_BLACKBOARD_SELECT_OPPOSITE_FACE("hud.blackboard_select_opposite_face","Select Opposite Face", 0),
-
     HUD_TIP_BLACKBOARD_PUSH_OR_PULL_FACE("hud.blackboard_push_or_pull_face","Push/Pull Face", 0),
+
     HUD_TIP_STRUCTURE_WAND_SWITCH("hud.structure_wand_switch","Switch Structure", 0),
     HUD_TIP_STRUCTURE_WAND_ROTATE("hud.structure_wand_rotate","Rotate Structure", 0),
     HUD_TIP_STRUCTURE_WAND_MOVE_LOCK("hud.structure_wand_move_lock","Move Structure", 0),
@@ -100,6 +100,8 @@ public enum LangData {
     HUD_TIP_STRUCTURE_WAND_LOCK_UNLOCK("hud.structure_wand_lock_unlock","Lock/Unlock", 0),
     HUD_TIP_STRUCTURE_WAND_LOCK("hud.structure_wand_lock","Lock", 0),
     HUD_TIP_STRUCTURE_WAND_UNLOCK("hud.structure_wand_unlock","Unlock", 0),
+    HUD_TIP_STRUCTURE_WAND_RESET_MODIFIER("hud.structure_wand_reset_modifier","Reset Modifier", 0),
+
     HUD_TIP_RULER_SELECT_POINT("hud.ruler_select_point","Select Point", 0),
     HUD_TIP_RULER_SWAP("hud.ruler_swap", "Swap", 0),
     HUD_TIP_RULER_OPEN_SCREEN("hud.ruler_open_screen","Open Screen", 0),

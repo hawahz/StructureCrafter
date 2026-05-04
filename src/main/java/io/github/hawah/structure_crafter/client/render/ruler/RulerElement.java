@@ -5,12 +5,15 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.hawah.structure_crafter.client.render.DoublePointElement;
 import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.compat.sable.RenderCompat;
 import io.github.hawah.structure_crafter.util.ArgmaxUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -46,6 +49,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
 
     @Override
     public void render(PoseStack poseStack, VertexConsumer buffer, Vec3 cameraPos, DeltaTracker partialTick) {
+        poseStack.pushPose();
         float delta = partialTick.getGameTimeDeltaPartialTick(true);
 
         float cr = Mth.lerp(delta, or, r),
@@ -64,6 +68,12 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
         }
         Vec3 start = oPos0.lerp(visualPos0, delta);
         Vec3 end = oPos1.lerp(visualPos1, delta);
+
+        start = RenderCompat.applyTransform(poseStack, cameraPos, BlockPos.containing(start), delta, start);
+        poseStack.pushPose();
+        end = RenderCompat.applyTransform(poseStack, cameraPos, BlockPos.containing(end), delta, end);
+
+        poseStack.popPose();
 
         double lenX = Math.abs(end.x - start.x);
         double lenY = Math.abs(end.y - start.y);
@@ -166,6 +176,7 @@ public abstract class RulerElement<Self extends RulerElement<Self>> extends Doub
                     (int) (cb*255),
                     (int) (ca*255));
         }
+        poseStack.popPose();
         poseStack.popPose();
     }
 
