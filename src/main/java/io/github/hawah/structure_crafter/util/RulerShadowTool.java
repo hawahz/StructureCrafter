@@ -1,12 +1,11 @@
 package io.github.hawah.structure_crafter.util;
 
-import io.github.hawah.structure_crafter.client.render.block.SimpleBlockRenderer;
-import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.lib.client.render.block.SimpleBlockRenderer;
+import io.github.hawah.structure_crafter.lib.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.mixin.BlockItemAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +15,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public enum RulerShadowTool {

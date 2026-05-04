@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.networking.structure_sync;
 
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

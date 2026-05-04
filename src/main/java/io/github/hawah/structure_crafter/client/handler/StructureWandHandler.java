@@ -2,22 +2,23 @@ package io.github.hawah.structure_crafter.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.Config;
-import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
+import io.github.hawah.structure_crafter.lib.client.handler.IHandler;
+import io.github.hawah.structure_crafter.lib.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.client.wand_modifier.WandModifierHolder;
 import io.github.hawah.structure_crafter.util.StructureData;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
+import io.github.hawah.structure_crafter.lib.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.client.gui.StructureWandHUD;
 import io.github.hawah.structure_crafter.client.gui.StructureWandScreen;
-import io.github.hawah.structure_crafter.client.render.structure.StructureRenderer;
-import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.lib.client.render.structure.StructureRenderer;
+import io.github.hawah.structure_crafter.lib.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
 import io.github.hawah.structure_crafter.networking.PlaceStructurePacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
-import io.github.hawah.structure_crafter.util.KeyBinding;
-import io.github.hawah.structure_crafter.util.RaycastHelper;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
+import io.github.hawah.structure_crafter.lib.client.KeyBinding;
+import io.github.hawah.structure_crafter.lib.RaycastHelper;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -41,7 +42,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2i;
-import org.joml.Vector3i;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

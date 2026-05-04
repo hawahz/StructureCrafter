@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
-import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.lib.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;

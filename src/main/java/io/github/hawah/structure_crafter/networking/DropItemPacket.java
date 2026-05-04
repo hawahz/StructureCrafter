@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

@@ -1,15 +1,14 @@
 package io.github.hawah.structure_crafter.client.gui.utils;
 
-import io.github.hawah.structure_crafter.client.gui.BaseScreen;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.lib.client.gui.BaseScreen;
+import io.github.hawah.structure_crafter.lib.client.gui.element.DraggableFloatWidget;
+import io.github.hawah.structure_crafter.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
-public class RulerMapWidget extends DraggableFloatWidget{
+public class RulerMapWidget extends DraggableFloatWidget {
 
     public enum State {
         CHAIN,

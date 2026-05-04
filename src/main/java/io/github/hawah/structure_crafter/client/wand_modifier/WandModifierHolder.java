@@ -2,9 +2,9 @@ package io.github.hawah.structure_crafter.client.wand_modifier;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
+import io.github.hawah.structure_crafter.lib.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.item.RulerItem;
-import io.github.hawah.structure_crafter.util.MutablePair;
+import io.github.hawah.structure_crafter.lib.util.MutablePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;

@@ -1,12 +1,8 @@
 package io.github.hawah.structure_crafter.item;
 
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
-import io.github.hawah.structure_crafter.networking.ClientboundRuleredPlacedPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
-import io.github.hawah.structure_crafter.util.SharedFlags;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.BlockEvent;

@@ -1,6 +1,7 @@
 package io.github.hawah.structure_crafter;
 
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
+import io.github.hawah.structure_crafter.lib.StarPattern;
 import io.github.hawah.structure_crafter.util.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;

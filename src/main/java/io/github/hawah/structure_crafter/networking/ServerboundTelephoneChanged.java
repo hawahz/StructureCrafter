@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

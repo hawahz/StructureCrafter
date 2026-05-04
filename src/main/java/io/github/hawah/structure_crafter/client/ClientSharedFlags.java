@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.client;
 
 import io.github.hawah.structure_crafter.networking.ServerboundSharedFlagUpdatePacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.api.distmarker.Dist;

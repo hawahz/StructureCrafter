@@ -1,16 +1,13 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import io.github.hawah.structure_crafter.util.SharedFlags;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public record ServerboundSharedFlagUpdatePacket(UUID playerUUID, int flag) implements ClientToServerPacket {

@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

@@ -1,11 +1,10 @@
 package io.github.hawah.structure_crafter.client.render.blockentity.state;
 
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
-import io.github.hawah.structure_crafter.client.render.EaseHelper;
-import io.github.hawah.structure_crafter.client.render.toolkit.Animation;
-import io.github.hawah.structure_crafter.client.render.toolkit.AnimationPlayer;
+import io.github.hawah.structure_crafter.lib.client.render.EaseHelper;
+import io.github.hawah.structure_crafter.lib.client.render.toolkit.Animation;
+import io.github.hawah.structure_crafter.lib.client.render.toolkit.AnimationPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class TelephoneBlockEntityRenderState implements BlockEntityRenderState<TelephoneBlockEntity> {
 

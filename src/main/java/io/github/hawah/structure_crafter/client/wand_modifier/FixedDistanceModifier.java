@@ -1,6 +1,6 @@
 package io.github.hawah.structure_crafter.client.wand_modifier;
 
-import io.github.hawah.structure_crafter.util.MutablePair;
+import io.github.hawah.structure_crafter.lib.util.MutablePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;

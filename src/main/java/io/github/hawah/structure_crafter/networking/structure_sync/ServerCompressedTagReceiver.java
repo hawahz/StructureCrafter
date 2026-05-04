@@ -2,13 +2,10 @@ package io.github.hawah.structure_crafter.networking.structure_sync;
 
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.ServerEvents;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.util.CompressedTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerTickRateManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

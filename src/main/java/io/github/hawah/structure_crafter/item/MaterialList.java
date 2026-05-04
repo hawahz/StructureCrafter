@@ -2,13 +2,9 @@ package io.github.hawah.structure_crafter.item;
 
 import com.mojang.datafixers.util.Either;
 import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
+import io.github.hawah.structure_crafter.lib.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.networking.ServerboundMaterialCountPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
-import com.mojang.logging.LogUtils;
-import io.github.hawah.structure_crafter.client.gui.MaterialListScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
-import io.github.hawah.structure_crafter.util.StructureHandler;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
@@ -27,8 +23,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;

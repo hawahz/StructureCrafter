@@ -7,7 +7,7 @@ import io.github.hawah.structure_crafter.client.render.blockentity.state.BlockEn
 import io.github.hawah.structure_crafter.client.render.blockentity.state.TelephoneBlockEntityRenderState;
 import io.github.hawah.structure_crafter.networking.telephone.ClientboundTelephoneBlockEntityTelephoneChangedPacket;
 import io.github.hawah.structure_crafter.networking.telephone.TelephoneBlockEntityBeaconChangedPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

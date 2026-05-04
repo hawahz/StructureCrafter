@@ -1,5 +1,6 @@
 package io.github.hawah.structure_crafter;
 
+import io.github.hawah.structure_crafter.lib.ServerTaskManager;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerCompressedTagReceiver;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

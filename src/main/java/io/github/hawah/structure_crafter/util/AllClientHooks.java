@@ -2,7 +2,7 @@ package io.github.hawah.structure_crafter.util;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
 import io.github.hawah.structure_crafter.client.gui.BlackboardCheckScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
+import io.github.hawah.structure_crafter.lib.client.gui.ScreenOpener;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

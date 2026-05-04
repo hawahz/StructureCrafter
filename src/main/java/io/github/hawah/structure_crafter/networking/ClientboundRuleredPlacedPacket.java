@@ -1,7 +1,7 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
-import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
+import io.github.hawah.structure_crafter.lib.networking.ServerToClientPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

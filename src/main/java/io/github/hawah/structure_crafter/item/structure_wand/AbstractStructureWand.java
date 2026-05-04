@@ -8,7 +8,7 @@ import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ITooltipItem;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.networking.MaterialListUploadPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

@@ -7,7 +7,7 @@ import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.client.ClientDataHolder;
 import io.github.hawah.structure_crafter.client.render.blockentity.state.BlockEntityRenderState;
 import io.github.hawah.structure_crafter.client.render.blockentity.state.TelephoneBlockEntityRenderState;
-import io.github.hawah.structure_crafter.client.utils.AnimationTickHolder;
+import io.github.hawah.structure_crafter.lib.client.utils.AnimationTickHolder;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponent;
 import io.github.hawah.structure_crafter.item.ItemRegistries;

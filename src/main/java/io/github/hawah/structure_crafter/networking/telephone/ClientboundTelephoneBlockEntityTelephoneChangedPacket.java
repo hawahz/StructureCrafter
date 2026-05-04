@@ -2,8 +2,7 @@ package io.github.hawah.structure_crafter.networking.telephone;
 
 import io.github.hawah.structure_crafter.block.blockentity.TelephoneBlockEntity;
 import io.github.hawah.structure_crafter.networking.NetworkPackets;
-import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
-import io.netty.buffer.ByteBuf;
+import io.github.hawah.structure_crafter.lib.networking.ServerToClientPacket;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

@@ -4,17 +4,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.StructureCrafter;
-import io.github.hawah.structure_crafter.client.gui.utils.ButtonGroup;
+import io.github.hawah.structure_crafter.lib.client.gui.BaseScreen;
+import io.github.hawah.structure_crafter.lib.client.gui.element.ButtonGroup;
 import io.github.hawah.structure_crafter.client.gui.utils.ImplTextureButton;
-import io.github.hawah.structure_crafter.client.gui.utils.TextureButton;
+import io.github.hawah.structure_crafter.lib.client.gui.element.TextureButton;
 import io.github.hawah.structure_crafter.util.StructureHandler;
-import io.github.hawah.structure_crafter.client.render.EaseHelper;
+import io.github.hawah.structure_crafter.lib.client.render.EaseHelper;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.data_component.MaterialListComponent;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.networking.DropItemPacket;
 import io.github.hawah.structure_crafter.networking.MaterialListScatteredPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import io.github.hawah.structure_crafter.util.ItemEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("FieldCanBeLocal")
 @ParametersAreNonnullByDefault
-public class MaterialListScreen extends BaseScreen{
+public class MaterialListScreen extends BaseScreen {
     private static final int MAX_SLOTS = 9;
     private final ResourceLocation texture =
             ResourceLocation.fromNamespaceAndPath(StructureCrafter.MODID, "textures/gui/" + "material_list" + ".png");

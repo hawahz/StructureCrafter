@@ -9,7 +9,7 @@ import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistr
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
 import io.github.hawah.structure_crafter.networking.structure_sync.ClientboundUploadStructureToServerPacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import io.github.hawah.structure_crafter.util.exception.IllegalStructureNameException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,7 +32,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;

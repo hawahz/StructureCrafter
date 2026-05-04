@@ -1,18 +1,17 @@
 package io.github.hawah.structure_crafter.client.handler;
 
 import io.github.hawah.structure_crafter.client.gui.RulerScreen;
-import io.github.hawah.structure_crafter.client.gui.ScreenOpener;
-import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
-import io.github.hawah.structure_crafter.client.render.ruler.RulerMaker;
+import io.github.hawah.structure_crafter.lib.client.gui.ScreenOpener;
+import io.github.hawah.structure_crafter.lib.client.handler.IHandler;
+import io.github.hawah.structure_crafter.lib.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.lib.client.render.ruler.RulerMaker;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
-import io.github.hawah.structure_crafter.util.KeyBinding;
-import io.github.hawah.structure_crafter.util.RaycastHelper;
-import it.unimi.dsi.fastutil.Swapper;
+import io.github.hawah.structure_crafter.lib.client.KeyBinding;
+import io.github.hawah.structure_crafter.lib.RaycastHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;

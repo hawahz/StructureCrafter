@@ -2,9 +2,7 @@ package io.github.hawah.structure_crafter.networking;
 
 import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
-import io.github.hawah.structure_crafter.ServerTaskHandler;
-import io.github.hawah.structure_crafter.ServerTaskManager;
-import io.github.hawah.structure_crafter.networking.utils.ServerToClientPacket;
+import io.github.hawah.structure_crafter.lib.ServerTaskManager;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.util.StructureData;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
@@ -12,7 +10,7 @@ import io.github.hawah.structure_crafter.data_component.TelephoneHandsetComponen
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
 import io.github.hawah.structure_crafter.mixin.StructureTemplateAccessor;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;

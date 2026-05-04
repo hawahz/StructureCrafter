@@ -1,7 +1,8 @@
 package io.github.hawah.structure_crafter.client.gui;
 
 import io.github.hawah.structure_crafter.StructureCrafterClient;
-import io.github.hawah.structure_crafter.client.gui.utils.ColoredLabel;
+import io.github.hawah.structure_crafter.lib.client.gui.BaseScreen;
+import io.github.hawah.structure_crafter.lib.client.gui.element.ColoredLabel;
 import io.github.hawah.structure_crafter.client.gui.utils.ImplTextureButton;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.mixin.ScreenAccessor;

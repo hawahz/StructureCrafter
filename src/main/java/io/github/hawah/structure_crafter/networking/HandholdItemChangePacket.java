@@ -1,8 +1,6 @@
 package io.github.hawah.structure_crafter.networking;
 
-import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
-import io.github.hawah.structure_crafter.item.structure_wand.AbstractStructureWand;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

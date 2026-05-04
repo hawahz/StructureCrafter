@@ -1,12 +1,12 @@
 package io.github.hawah.structure_crafter;
 
-import io.github.hawah.structure_crafter.client.gui.KeyTipHUD;
+import io.github.hawah.structure_crafter.lib.client.gui.KeyTipHUD;
 import io.github.hawah.structure_crafter.client.handler.BlackboardHandler;
 import io.github.hawah.structure_crafter.client.handler.RulerHandler;
 import io.github.hawah.structure_crafter.client.handler.RulerOffHandler;
 import io.github.hawah.structure_crafter.client.handler.StructureWandHandler;
 import io.github.hawah.structure_crafter.client.render.TelephoneWireRenderer;
-import io.github.hawah.structure_crafter.client.utils.TimerWarper;
+import io.github.hawah.structure_crafter.lib.client.utils.TimerWarper;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 

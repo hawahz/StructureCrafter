@@ -4,13 +4,14 @@ import com.mojang.logging.LogUtils;
 import io.github.hawah.structure_crafter.Config;
 import io.github.hawah.structure_crafter.Paths;
 import io.github.hawah.structure_crafter.compat.sable.SableLogicTransformCompat;
+import io.github.hawah.structure_crafter.lib.client.handler.IHandler;
 import io.github.hawah.structure_crafter.networking.structure_sync.ServerboundSaveWorldStructurePacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
-import io.github.hawah.structure_crafter.util.KeyBinding;
-import io.github.hawah.structure_crafter.util.RaycastHelper;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
+import io.github.hawah.structure_crafter.lib.client.KeyBinding;
+import io.github.hawah.structure_crafter.lib.RaycastHelper;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import io.github.hawah.structure_crafter.util.files.FileHelper;
-import io.github.hawah.structure_crafter.client.render.outliner.Outliner;
+import io.github.hawah.structure_crafter.lib.client.render.outliner.Outliner;
 import io.github.hawah.structure_crafter.item.ItemRegistries;
 import io.github.hawah.structure_crafter.datagen.lang.LangData;
 import net.minecraft.client.Minecraft;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings({"ConstantValue", "DataFlowIssue", "SameParameterValue"})
-public class BlackboardHandler implements IHandler{
+public class BlackboardHandler implements IHandler {
 
     private Object outlineSlot = new Object();
     private Object centerSlot = new Object();

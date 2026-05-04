@@ -1,9 +1,9 @@
 package io.github.hawah.structure_crafter.networking;
 
 import io.github.hawah.structure_crafter.item.RulerItem;
-import io.github.hawah.structure_crafter.networking.utils.ClientToServerPacket;
-import io.github.hawah.structure_crafter.util.RaycastHelper;
-import io.github.hawah.structure_crafter.util.StreamCodecUtil;
+import io.github.hawah.structure_crafter.lib.networking.ClientToServerPacket;
+import io.github.hawah.structure_crafter.lib.RaycastHelper;
+import io.github.hawah.structure_crafter.lib.StreamCodecUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

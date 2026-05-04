@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.hawah.structure_crafter.StructureCrafter;
+import io.github.hawah.structure_crafter.lib.client.gui.BaseScreen;
 import io.github.hawah.structure_crafter.util.StructureHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

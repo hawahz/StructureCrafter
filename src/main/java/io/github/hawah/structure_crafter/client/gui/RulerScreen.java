@@ -3,15 +3,20 @@ package io.github.hawah.structure_crafter.client.gui;
 import io.github.hawah.structure_crafter.client.gui.utils.*;
 import io.github.hawah.structure_crafter.data_component.DataComponentTypeRegistries;
 import io.github.hawah.structure_crafter.item.RulerItem;
+import io.github.hawah.structure_crafter.lib.client.gui.*;
+import io.github.hawah.structure_crafter.lib.client.gui.element.ButtonGroup;
+import io.github.hawah.structure_crafter.lib.client.gui.element.DraggableFloatWidget;
+import io.github.hawah.structure_crafter.lib.client.gui.element.ScrollPanel;
+import io.github.hawah.structure_crafter.lib.client.gui.element.TextureButton;
 import io.github.hawah.structure_crafter.networking.HandholdItemChangePacket;
-import io.github.hawah.structure_crafter.networking.utils.Networking;
+import io.github.hawah.structure_crafter.lib.networking.Networking;
 import io.github.hawah.structure_crafter.util.Textures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 
-public class RulerScreen extends BaseScreen{
+public class RulerScreen extends BaseScreen {
 
     public RulerScreen() {
         super(Component.empty());
