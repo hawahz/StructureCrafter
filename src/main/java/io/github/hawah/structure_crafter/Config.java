@@ -19,7 +19,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import java.util.List;
 
 @EventBusSubscriber(modid = StructureCrafter.MODID)
-public class Config {
+public class    Config {
     public static class ClientConfig {
         public static final ModConfigSpec SPEC;
 

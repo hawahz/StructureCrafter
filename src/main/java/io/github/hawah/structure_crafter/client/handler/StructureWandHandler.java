@@ -44,6 +44,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
@@ -56,6 +57,7 @@ public class StructureWandHandler implements LayeredDraw.Layer {
     private BlockPos selectedPos;
     private BlockPos oSelectedPos;
     private final StructureRenderer structureRenderer = new StructureRenderer();
+    @Nullable
     private StructureData structureData = null;
     private Direction playerDirection;
     private Direction oPlayerDirection;
@@ -83,6 +85,9 @@ public class StructureWandHandler implements LayeredDraw.Layer {
         KeyBinding.RIGHT.bind(KeyBinding.Action.of(
                 () -> active && selectedPos != null,
                 () ->{
+                    if (structureData == null) {
+                        return;
+                    }
                     lock = false;
                     Vec3i size = structureData.structureTemplate().getSize();
                     if (StructureHandler.isSizeValid(size)) {
